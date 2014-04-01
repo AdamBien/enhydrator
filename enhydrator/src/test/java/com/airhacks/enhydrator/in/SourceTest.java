@@ -1,5 +1,6 @@
 package com.airhacks.enhydrator.in;
 
+import java.sql.ResultSet;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -17,11 +18,16 @@ public class SourceTest {
      */
     @Test
     public void constructWithValidParameters() {
+        Source cut = getSource();
+        assertNotNull(cut);
+    }
+
+    Source getSource() {
         Source cut = new Source.Configuration().
                 driver("org.apache.derby.jdbc.EmbeddedDriver").
                 url("jdbc:derby:./coffees;create=true").
                 newSource();
-        assertNotNull(cut);
+        return cut;
     }
 
     @Test(expected = IllegalStateException.class)
@@ -31,7 +37,12 @@ public class SourceTest {
                 url("outer-space").
                 newSource();
         assertNotNull(cut);
+    }
 
+    @Test
+    public void queryExecution() {
+        ResultSet result = getSource().query("select * from Coffee");
+        assertNotNull(result);
     }
 
 }

@@ -2,7 +2,9 @@ package com.airhacks.enhydrator.in;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,6 +47,20 @@ public class Source {
             } catch (SQLException ex) {
                 throw new IllegalStateException("Cannot fetch connection", ex);
             }
+        }
+    }
+
+    public ResultSet query(String sql) {
+        Statement stmt;
+        try {
+            stmt = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Cannot prepare SQL statement", ex);
+        }
+        try {
+            return stmt.executeQuery(sql);
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Cannot execute query: " + sql, ex);
         }
     }
 
