@@ -41,7 +41,7 @@ public class SourceTest {
 
     @Test
     public void queryExecution() {
-        ResultSet result = getSource().query("select * from Coffee");
+        ResultSet result = getSource().query("select * from Coffee").get();
         assertNotNull(result);
     }
 

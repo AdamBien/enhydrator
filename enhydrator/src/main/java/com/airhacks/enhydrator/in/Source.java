@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,18 +51,20 @@ public class Source {
         }
     }
 
-    public ResultSet query(String sql) {
+    public Supplier<ResultSet> query(String sql) {
         Statement stmt;
         try {
             stmt = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot prepare SQL statement", ex);
         }
-        try {
-            return stmt.executeQuery(sql);
-        } catch (SQLException ex) {
-            throw new IllegalStateException("Cannot execute query: " + sql, ex);
-        }
+        return () -> {
+            try {
+                return stmt.executeQuery(sql);
+            } catch (SQLException ex) {
+                throw new IllegalStateException("Cannot execute query: " + sql, ex);
+            }
+        };
     }
 
     public static class Configuration {
