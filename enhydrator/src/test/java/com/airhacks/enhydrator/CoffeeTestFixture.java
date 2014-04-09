@@ -23,4 +23,14 @@ public class CoffeeTestFixture {
                 new Coffee(name, strength, countryOfOrigin, intensity, description, beans));
         et.commit();
     }
+
+    public static void deleteTable() {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("coffees");
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction et = em.getTransaction();
+        et.begin();
+        em.createQuery("DELETE FROM Coffee").executeUpdate();
+        et.commit();
+
+    }
 }

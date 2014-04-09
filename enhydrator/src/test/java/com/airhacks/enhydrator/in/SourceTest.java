@@ -1,6 +1,9 @@
 package com.airhacks.enhydrator.in;
 
+import com.airhacks.enhydrator.CoffeeTestFixture;
+import com.airhacks.enhydrator.Roast;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -40,9 +43,30 @@ public class SourceTest {
     }
 
     @Test
-    public void queryExecution() {
-        ResultSet result = getSource().query("select * from Coffee").get();
+    public void queryExecutionWithEmptyTable() {
+        CoffeeTestFixture.deleteTable();
+        Iterable<ResultSet> result = getSource().query("select * from Coffee");
+        boolean iterated = false;
+        for (ResultSet resultSet : result) {
+            fail("There should be no data");
+        }
         assertNotNull(result);
+        assertFalse(iterated);
+    }
+
+    @Test
+    public void queryExecution() throws SQLException {
+        CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
+        Iterable<ResultSet> result = getSource().query("select * from Coffee");
+        boolean iterated = false;
+        for (ResultSet resultSet : result) {
+            iterated = true;
+            Object object = resultSet.getObject(1);
+            assertNotNull(object);
+            System.out.println("First row: " + object);
+        }
+        assertNotNull(result);
+        assertTrue(iterated);
     }
 
 }

@@ -51,7 +51,7 @@ public class Source {
         }
     }
 
-    public Supplier<ResultSet> query(String sql) {
+    public Iterable<ResultSet> query(String sql) {
         Statement stmt;
         try {
             stmt = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -60,7 +60,7 @@ public class Source {
         }
         return () -> {
             try {
-                return stmt.executeQuery(sql);
+                return new ResultSetIterator(stmt.executeQuery(sql));
             } catch (SQLException ex) {
                 throw new IllegalStateException("Cannot execute query: " + sql, ex);
             }

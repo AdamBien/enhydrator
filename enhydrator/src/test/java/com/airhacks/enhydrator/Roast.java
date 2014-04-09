@@ -4,7 +4,7 @@ package com.airhacks.enhydrator;
  *
  * @author airhacks.com
  */
-enum Roast {
+public enum Roast {
 
     LIGHT, MEDIUM, DARK;
 }
