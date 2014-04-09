@@ -4,6 +4,10 @@ import com.airhacks.enhydrator.CoffeeTestFixture;
 import com.airhacks.enhydrator.Roast;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.StreamSupport;
+import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -44,7 +48,6 @@ public class SourceTest {
 
     @Test
     public void queryExecutionWithEmptyTable() {
-        CoffeeTestFixture.deleteTable();
         Iterable<ResultSet> result = getSource().query("select * from Coffee");
         boolean iterated = false;
         for (ResultSet resultSet : result) {
@@ -69,4 +72,21 @@ public class SourceTest {
         assertTrue(iterated);
     }
 
+    @Test
+    public void stream() {
+        CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
+        StreamSupport.stream(getSource().query("select * from Coffee").spliterator(), false).
+                forEach(t -> {
+                    try {
+                        System.out.println(t.getObject(1));
+                    } catch (SQLException ex) {
+                        Logger.getLogger(SourceTest.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                });
+    }
+
+    @After
+    public void dropCoffee() {
+        CoffeeTestFixture.deleteTable();
+    }
 }
