@@ -1,4 +1,4 @@
-package com.airhacks.enhydrator.out;
+package com.airhacks.enhydrator.transform;
 
 import com.airhacks.enhydrator.in.Entry;
 import java.sql.ResultSet;

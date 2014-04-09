@@ -2,7 +2,7 @@ package com.airhacks.enhydrator.in;
 
 import com.airhacks.enhydrator.CoffeeTestFixture;
 import com.airhacks.enhydrator.Roast;
-import com.airhacks.enhydrator.out.ResultSetStreamable;
+import com.airhacks.enhydrator.transform.ResultSetStreamable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
