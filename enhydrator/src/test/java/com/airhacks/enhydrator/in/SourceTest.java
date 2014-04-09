@@ -2,6 +2,7 @@ package com.airhacks.enhydrator.in;
 
 import com.airhacks.enhydrator.CoffeeTestFixture;
 import com.airhacks.enhydrator.Roast;
+import com.airhacks.enhydrator.out.ResultSetStreamable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -83,6 +84,17 @@ public class SourceTest {
                         Logger.getLogger(SourceTest.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
+    }
+
+    @Test
+    public void convertToEntry() {
+        CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
+        StreamSupport.
+                stream(getSource().query("select * from Coffee").
+                        spliterator(), false).
+                map(new ResultSetStreamable()).
+                forEach(t -> System.out.println(t));
+
     }
 
     @After
