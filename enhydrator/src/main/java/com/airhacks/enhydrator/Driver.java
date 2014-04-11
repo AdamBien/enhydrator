@@ -35,16 +35,16 @@ public class Driver {
         results.forEach(this::onNewRow);
     }
 
-    void onNewRow(ResultSet set) {
-        List<Entry> rows = this.rowTransformer.apply(set);
+    void onNewRow(ResultSet columns) {
+        List<Entry> entryColumns = this.rowTransformer.apply(columns);
 
-        List<Entry> transformedRows = rows.stream().
+        List<Entry> transformedColumns = entryColumns.stream().
                 filter(e -> entryFunctions.containsKey(e.getName())).
                 map(e -> entryFunctions.get(e.getName()).apply(e)).
                 flatMap(l -> l.stream()).
                 collect(Collectors.toList());
 
-        this.sink.accept(transformedRows);
+        this.sink.accept(transformedColumns);
 
     }
 
