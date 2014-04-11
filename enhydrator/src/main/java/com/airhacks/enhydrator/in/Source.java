@@ -2,6 +2,7 @@ package com.airhacks.enhydrator.in;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -51,16 +52,24 @@ public class Source {
         }
     }
 
-    public Iterable<ResultSet> query(String sql) {
-        Statement stmt;
+    public Iterable<ResultSet> query(String sql, Object... params) {
+        PreparedStatement stmt;
         try {
-            stmt = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            stmt = this.connection.prepareStatement(sql);
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot prepare SQL statement", ex);
         }
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+            try {
+                stmt.setObject(i + 1, param);
+            } catch (SQLException ex) {
+                throw new IllegalStateException("Cannot set parameter (" + i + "," + param + ")", ex);
+            }
+        }
         return () -> {
             try {
-                return new ResultSetIterator(stmt.executeQuery(sql));
+                return new ResultSetIterator(stmt.executeQuery());
             } catch (SQLException ex) {
                 throw new IllegalStateException("Cannot execute query: " + sql, ex);
             }

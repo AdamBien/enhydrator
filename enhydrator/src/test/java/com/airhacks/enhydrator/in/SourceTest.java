@@ -8,9 +8,10 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.StreamSupport;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  *
@@ -71,6 +72,24 @@ public class SourceTest {
         }
         assertNotNull(result);
         assertTrue(iterated);
+    }
+
+    @Test
+    public void queryExecutionWithParameters() throws SQLException {
+        CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
+        CoffeeTestFixture.insertCoffee("espresso", 42, "tengah", Roast.DARK, "good", "whole");
+        Iterable<ResultSet> result = getSource().query("select * from Coffee where name like ?", "java");
+        boolean iterated = false;
+        int counter = 0;
+        for (ResultSet resultSet : result) {
+            iterated = true;
+            Object object = resultSet.getObject(1);
+            assertNotNull(object);
+            counter++;
+        }
+        assertNotNull(result);
+        assertTrue(iterated);
+        assertThat(counter, is(1));
     }
 
     @Test
