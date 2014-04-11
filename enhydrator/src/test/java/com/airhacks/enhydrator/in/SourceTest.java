@@ -2,7 +2,7 @@ package com.airhacks.enhydrator.in;
 
 import com.airhacks.enhydrator.CoffeeTestFixture;
 import com.airhacks.enhydrator.Roast;
-import com.airhacks.enhydrator.transform.ResultSetStreamable;
+import com.airhacks.enhydrator.transform.ResultSetToEntries;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -92,7 +92,7 @@ public class SourceTest {
         StreamSupport.
                 stream(getSource().query("select * from Coffee").
                         spliterator(), false).
-                map(new ResultSetStreamable()).
+                map(new ResultSetToEntries()).
                 forEach(t -> System.out.println(t));
 
     }

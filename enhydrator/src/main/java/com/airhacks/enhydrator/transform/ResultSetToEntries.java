@@ -12,7 +12,7 @@ import java.util.function.Function;
  *
  * @author airhacks.com
  */
-public class ResultSetStreamable implements Function<ResultSet, List<Entry>> {
+public class ResultSetToEntries implements Function<ResultSet, List<Entry>> {
 
     @Override
     public List<Entry> apply(ResultSet resultSet) {
@@ -25,7 +25,7 @@ public class ResultSetStreamable implements Function<ResultSet, List<Entry>> {
                 int columnType = metaData.getColumnType(i);
                 String columnName = metaData.getColumnName(i);
                 Object value = resultSet.getObject(i);
-                Entry entry = new Entry(columnName, columnType, value);
+                Entry entry = new Entry(i - 1, columnName, columnType, value);
                 entries.add(entry);
             }
         } catch (SQLException ex) {

@@ -1,6 +1,7 @@
 package com.airhacks.enhydrator;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 /**
@@ -11,6 +12,7 @@ import javax.persistence.Id;
 public class Coffee {
 
     @Id
+    @GeneratedValue
     private long id;
     private String name;
     private int strength;
