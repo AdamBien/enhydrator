@@ -1,5 +1,8 @@
 package com.airhacks.enhydrator.in;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author airhacks.com
@@ -37,6 +40,12 @@ public class Entry {
 
     public Entry changeValue(Object object) {
         return new Entry(slot, name, sqlType, object);
+    }
+
+    public List<Entry> asList() {
+        List<Entry> result = new ArrayList<>();
+        result.add(this);
+        return result;
     }
 
     @Override

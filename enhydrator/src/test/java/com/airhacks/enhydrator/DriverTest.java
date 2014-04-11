@@ -38,11 +38,7 @@ public class DriverTest {
         Consumer<List<Entry>> consumer = mock(Consumer.class);
         new Driver.Drive().
                 from(source).
-                with("name", (t) -> {
-                    List<Entry> result = new ArrayList<>();
-                    result.add(t);
-                    return result;
-                }).
+                with("name", t -> t.asList()).
                 to(consumer).
                 go("select * from Coffee");
         verify(consumer, times(2)).accept(any(List.class));
