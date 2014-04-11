@@ -20,13 +20,18 @@ public class Driver {
 
     private final Source source;
     private final Function<ResultSet, List<Entry>> rowTransformer;
-    private final Map<String, Function<Entry, List<Entry>>> entryFunctions;
+    private final Map<String, Function<Entry, List<Entry>>> namedEntryFunctions;
+    private final Map<Integer, Function<Entry, List<Entry>>> indexedEntryFunctions;
     private final Consumer<List<Entry>> sink;
 
-    private Driver(Source source, Function<ResultSet, List<Entry>> rowTransformer, Map<String, Function<Entry, List<Entry>>> entryFunctions, Consumer<List<Entry>> sink) {
+    private Driver(Source source, Function<ResultSet, List<Entry>> rowTransformer,
+            Map<String, Function<Entry, List<Entry>>> namedFunctions,
+            Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
+            Consumer<List<Entry>> sink) {
         this.source = source;
         this.rowTransformer = rowTransformer;
-        this.entryFunctions = entryFunctions;
+        this.namedEntryFunctions = namedFunctions;
+        this.indexedEntryFunctions = indexedFunctions;
         this.sink = sink;
     }
 
@@ -38,14 +43,33 @@ public class Driver {
     void onNewRow(ResultSet columns) {
         List<Entry> entryColumns = this.rowTransformer.apply(columns);
 
-        List<Entry> transformedColumns = entryColumns.stream().
-                filter(e -> entryFunctions.containsKey(e.getName())).
-                map(e -> entryFunctions.get(e.getName()).apply(e)).
+        List<Entry> transformed = entryColumns.stream().
+                map(e -> applyOrReturnOnIndexed(e)).
+                flatMap(l -> l.stream()).
+                map(e -> applyOrReturnOnNamed(e)).
                 flatMap(l -> l.stream()).
                 collect(Collectors.toList());
 
-        this.sink.accept(transformedColumns);
+        this.sink.accept(transformed);
 
+    }
+
+    List<Entry> applyOrReturnOnIndexed(Entry e) {
+        final Function<Entry, List<Entry>> function = this.indexedEntryFunctions.get(e.getSlot());
+        if (function != null) {
+            return function.apply(e);
+        } else {
+            return e.asList();
+        }
+    }
+
+    List<Entry> applyOrReturnOnNamed(Entry e) {
+        final Function<Entry, List<Entry>> function = this.namedEntryFunctions.get(e.getSlot());
+        if (function != null) {
+            return function.apply(e);
+        } else {
+            return e.asList();
+        }
     }
 
     public static class Drive {
@@ -54,10 +78,12 @@ public class Driver {
         private Source source;
         private Function<ResultSet, List<Entry>> resultSetToEntries;
         private Map<String, Function<Entry, List<Entry>>> entryFunctions;
+        private Map<Integer, Function<Entry, List<Entry>>> indexedFunctions;
 
         public Drive() {
             this.resultSetToEntries = new ResultSetToEntries();
             this.entryFunctions = new HashMap<>();
+            this.indexedFunctions = new HashMap<>();
         }
 
         public Drive from(Source source) {
@@ -75,11 +101,15 @@ public class Driver {
             return this;
         }
 
-        public void go(String sql) {
-            Driver driver = new Driver(this.source, this.resultSetToEntries, this.entryFunctions, this.sink);
-            driver.process(sql);
+        public Drive with(int index, Function<Entry, List<Entry>> entryFunction) {
+            this.indexedFunctions.put(index, entryFunction);
+            return this;
         }
 
+        public void go(String sql) {
+            Driver driver = new Driver(this.source, this.resultSetToEntries,
+                    this.entryFunctions, this.indexedFunctions, this.sink);
+            driver.process(sql);
+        }
     }
-
 }

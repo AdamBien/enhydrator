@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Matchers.any;
@@ -32,7 +33,7 @@ public class DriverTest {
     }
 
     @Test
-    public void oneToOneTransformation() {
+    public void oneToOneTransformationWithName() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Consumer<List<Entry>> consumer = mock(Consumer.class);
@@ -42,6 +43,24 @@ public class DriverTest {
                 to(consumer).
                 go("select * from Coffee");
         verify(consumer, times(2)).accept(any(List.class));
+    }
+
+    @Test
+    public void oneToOneTransformationWithIndex() {
+        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
+        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
+        Consumer<List<Entry>> consumer = mock(Consumer.class);
+        new Driver.Drive().
+                from(source).
+                with(1, t -> t.changeValue("duke").asList()).
+                to(consumer).
+                go("select * from Coffee");
+        verify(consumer, times(2)).accept(any(List.class));
+    }
+
+    @After
+    public void clearTables() {
+        CoffeeTestFixture.deleteTable();
     }
 
 }
