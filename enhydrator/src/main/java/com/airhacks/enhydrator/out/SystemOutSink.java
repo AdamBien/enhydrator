@@ -2,17 +2,16 @@ package com.airhacks.enhydrator.out;
 
 import com.airhacks.enhydrator.in.Entry;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  *
  * @author airhacks.com
  */
-public class SystemOutSink implements Consumer<List<Entry>> {
+public class SystemOutSink implements Sink {
 
     @Override
-    public void accept(List<Entry> t) {
-        System.out.println(t);
+    public void processRow(List<Entry> entries) {
+        System.out.println(entries);
     }
 
 }

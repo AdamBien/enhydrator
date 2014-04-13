@@ -2,6 +2,7 @@ package com.airhacks.enhydrator;
 
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.Source;
+import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.out.SystemOutSink;
 import com.airhacks.enhydrator.transform.ResultSetToEntries;
 import java.sql.ResultSet;
@@ -25,14 +26,14 @@ public class Driver {
     private final Function<List<Entry>, List<Entry>> before;
     private final Function<List<Entry>, List<Entry>> after;
 
-    private final Consumer<List<Entry>> sink;
+    private final Sink sink;
 
     private Driver(Source source, Function<ResultSet, List<Entry>> rowTransformer,
             Function<List<Entry>, List<Entry>> before,
             Map<String, Function<Entry, List<Entry>>> namedFunctions,
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
             Function<List<Entry>, List<Entry>> after,
-            Consumer<List<Entry>> sink) {
+            Sink sink) {
         this.source = source;
         this.before = before;
         this.rowTransformer = rowTransformer;
@@ -44,7 +45,9 @@ public class Driver {
 
     void process(String sql) {
         Iterable<ResultSet> results = this.source.query(sql);
+        this.sink.init();
         results.forEach(this::onNewRow);
+        this.sink.close();
     }
 
     void onNewRow(ResultSet columns) {
@@ -57,7 +60,7 @@ public class Driver {
                 flatMap(l -> l.stream()).
                 collect(Collectors.toList());
         List<Entry> afterProcessed = this.after.apply(transformed);
-        this.sink.accept(afterProcessed);
+        this.sink.processRow(afterProcessed);
 
     }
 
@@ -81,7 +84,7 @@ public class Driver {
 
     public static class Drive {
 
-        private Consumer<List<Entry>> sink;
+        private Sink sink;
         private Source source;
         private Function<ResultSet, List<Entry>> resultSetToEntries;
         private Map<String, Function<Entry, List<Entry>>> entryFunctions;
@@ -102,7 +105,7 @@ public class Driver {
             return this;
         }
 
-        public Drive to(Consumer<List<Entry>> sink) {
+        public Drive to(Sink sink) {
             this.sink = sink;
             return this;
         }
