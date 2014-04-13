@@ -8,7 +8,7 @@ import java.util.List;
  * @author airhacks.com
  */
 @FunctionalInterface
-public interface Script {
+public interface EntryTransformer {
 
     List<Entry> execute(Entry entry, List result);
 
