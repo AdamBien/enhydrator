@@ -4,7 +4,10 @@ import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.out.SystemOutSink;
+import com.airhacks.enhydrator.transform.EntryTransformer;
+import com.airhacks.enhydrator.transform.FunctionScriptLoader;
 import com.airhacks.enhydrator.transform.ResultSetToEntries;
+import com.airhacks.enhydrator.transform.RowTransformer;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +94,7 @@ public class Driver {
         private Map<Integer, Function<Entry, List<Entry>>> indexedFunctions;
         private Function<List<Entry>, List<Entry>> before;
         private Function<List<Entry>, List<Entry>> after;
+        private FunctionScriptLoader loader;
 
         public Drive() {
             this.resultSetToEntries = new ResultSetToEntries();
@@ -98,6 +102,12 @@ public class Driver {
             this.before = f -> f;
             this.after = f -> f;
             this.indexedFunctions = new HashMap<>();
+            this.loader = new FunctionScriptLoader();
+        }
+
+        public Drive homeScriptFolder(String baseFolder) {
+            this.loader = new FunctionScriptLoader(baseFolder);
+            return this;
         }
 
         public Drive from(Source source) {
@@ -115,6 +125,11 @@ public class Driver {
             return this;
         }
 
+        public Drive startWith(String scriptName) {
+            RowTransformer rowTransformer = this.loader.getRowTransformer(scriptName);
+            return startWith(rowTransformer::execute);
+        }
+
         public Drive with(String entryName, Function<Entry, List<Entry>> entryFunction) {
             this.entryFunctions.put(entryName, entryFunction);
             return this;
@@ -125,9 +140,29 @@ public class Driver {
             return this;
         }
 
+        public Drive with(String entryName, String scriptName) {
+            Function<Entry, List<Entry>> function = load(scriptName);
+            return with(entryName, function);
+        }
+
+        public Drive with(int index, String scriptName) {
+            Function<Entry, List<Entry>> function = load(scriptName);
+            return with(index, function);
+        }
+
+        Function<Entry, List<Entry>> load(String scriptName) {
+            EntryTransformer entryTransformer = this.loader.getEntryTransformer(scriptName);
+            return entryTransformer::execute;
+        }
+
         public Drive endWith(Function<List<Entry>, List<Entry>> after) {
             this.after = after;
             return this;
+        }
+
+        public Drive endWith(String scriptName) {
+            RowTransformer rowTransformer = this.loader.getRowTransformer(scriptName);
+            return endWith(rowTransformer::execute);
         }
 
         public void go(String sql) {

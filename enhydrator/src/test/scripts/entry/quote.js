@@ -1,6 +1,7 @@
 function execute(entry) {
     var list = new java.util.ArrayList();
-    list.add(entry);
+    var value = entry.value;
+    list.add(entry.changeValue("{value}'"));
     return list;
 }
 

@@ -29,7 +29,7 @@ public class FunctionScriptLoaderTest {
         Entry entry = new Entry(0, "chief", 42, "duke");
         EntryTransformer function = this.cut.getEntryTransformer("noop");
         assertNotNull(function);
-        List<Entry> transformedEntries = function.execute(entry, new ArrayList());
+        List<Entry> transformedEntries = function.execute(entry);
         assertThat(transformedEntries, hasItem(entry));
     }
 

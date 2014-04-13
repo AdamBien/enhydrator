@@ -10,6 +10,6 @@ import java.util.List;
 @FunctionalInterface
 public interface EntryTransformer {
 
-    List<Entry> execute(Entry entry, List result);
+    List<Entry> execute(Entry entry);
 
 }
