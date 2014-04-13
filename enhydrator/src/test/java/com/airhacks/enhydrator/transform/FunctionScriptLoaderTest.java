@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,17 @@ public class FunctionScriptLoaderTest {
         assertNotNull(function);
         List<Entry> transformedEntries = function.execute(entry, new ArrayList());
         assertThat(transformedEntries, hasItem(entry));
+    }
+
+    @Test
+    public void rowTransfomerLoadingAndExecution() throws Exception {
+        Entry entry = new Entry(0, "chief", 42, "duke");
+        List<Entry> input = new ArrayList<>();
+        input.add(entry);
+        RowTransformer function = this.cut.getRowTransformer("noop");
+        assertNotNull(function);
+        List<Entry> transformedEntries = function.execute(input);
+        assertThat(transformedEntries, is(input));
     }
 
     @Test

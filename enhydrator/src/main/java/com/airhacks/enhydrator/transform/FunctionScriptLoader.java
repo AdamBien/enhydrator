@@ -37,12 +37,18 @@ public class FunctionScriptLoader {
         } catch (ScriptException ex) {
             throw new IllegalStateException("Cannot evaluate script", ex);
         }
-
         return invocable.getInterface(EntryTransformer.class);
     }
 
-    public RowTransformer getRowTransformer(String content) {
-        return null;
+    public RowTransformer getRowTransformer(String scriptName) {
+        String content = load("row", scriptName);
+        Invocable invocable = (Invocable) engine;
+        try {
+            engine.eval(content);
+        } catch (ScriptException ex) {
+            throw new IllegalStateException("Cannot evaluate script", ex);
+        }
+        return invocable.getInterface(RowTransformer.class);
     }
 
     public String load(String scriptFolder, String name) {
