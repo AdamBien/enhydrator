@@ -110,6 +110,21 @@ public class DriverTest {
 
     }
 
+    @Test
+    public void scriptRowTransformer() {
+        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
+        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
+        Sink consumer = mock(Sink.class);
+        new Driver.Drive().
+                homeScriptFolder("./src/test/scripts").
+                startWith("reverse").
+                from(source).
+                to(consumer).
+                go("select * from Coffee");
+        verify(consumer, times(2)).processRow(any(List.class));
+
+    }
+
     @After
     public void clearTables() {
         CoffeeTestFixture.deleteTable();
