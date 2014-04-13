@@ -1,6 +1,7 @@
 package com.airhacks.enhydrator.transform;
 
 import com.airhacks.enhydrator.in.Entry;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -15,20 +16,26 @@ import org.junit.Test;
 public class FunctionScriptLoaderTest {
 
     FunctionScriptLoader cut;
+    public static final String SCRIPTS_HOME_FOLDER = "./src/test/scripts";
 
     @Before
     public void init() {
-        this.cut = new FunctionScriptLoader();
+        this.cut = new FunctionScriptLoader(SCRIPTS_HOME_FOLDER);
     }
 
     @Test
-    public void scriptLoadingWorks() throws Exception {
+    public void entryTransfomerLoadingAndExecution() throws Exception {
         Entry entry = new Entry(0, "chief", 42, "duke");
-        EntryTransformer function = this.cut.getEntryTransformer();
+        EntryTransformer function = this.cut.getEntryTransformer("noop");
         assertNotNull(function);
         List<Entry> transformedEntries = function.execute(entry, new ArrayList());
         assertThat(transformedEntries, hasItem(entry));
+    }
 
+    @Test
+    public void load() {
+        String content = this.cut.load("entry", "noop");
+        assertNotNull(content);
     }
 
 }
