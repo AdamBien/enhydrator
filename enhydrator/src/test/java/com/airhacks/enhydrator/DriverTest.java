@@ -127,7 +127,7 @@ public class DriverTest {
 
     @After
     public void clearTables() {
-        CoffeeTestFixture.deleteTable();
+        CoffeeTestFixture.deleteTables();
     }
 
 }

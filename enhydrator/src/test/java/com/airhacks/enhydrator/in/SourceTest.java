@@ -118,6 +118,6 @@ public class SourceTest {
 
     @After
     public void dropCoffee() {
-        CoffeeTestFixture.deleteTable();
+        CoffeeTestFixture.deleteTables();
     }
 }

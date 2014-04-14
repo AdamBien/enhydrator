@@ -4,6 +4,7 @@ import com.airhacks.enhydrator.db.JDBCConnection;
 import com.airhacks.enhydrator.in.Entry;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,9 +15,10 @@ import java.util.logging.Logger;
  */
 public class JDBCSink extends JDBCConnection implements Sink {
 
-    private String targetTable;
+    private static final char ESC_CHAR = '\'';
+    private final String targetTable;
     private Statement statement;
-    private static Logger LOG = Logger.getLogger(JDBCSink.class.getName());
+    private static final Logger LOG = Logger.getLogger(JDBCSink.class.getName());
 
     JDBCSink(String driver, String url, String user, String pwd, String table) {
         super(driver, url, user, pwd);
@@ -57,9 +59,25 @@ public class JDBCSink extends JDBCConnection implements Sink {
 
     static String valueList(List<Entry> entries) {
         return (String) entries.stream().
-                map(e -> e.getValue()).
+                map(e -> asInsertSQL(e)).
                 reduce((t, u) -> t + "," + u).
                 get();
+    }
+
+    static String asInsertSQL(Entry t) {
+        int sqlType = t.getSqlType();
+        switch (sqlType) {
+            case Types.LONGVARCHAR:
+            case Types.CHAR:
+            case Types.VARCHAR:
+                return escape(t.getValue());
+            default:
+                return String.valueOf(t.getValue());
+        }
+    }
+
+    static String escape(Object t) {
+        return ESC_CHAR + String.valueOf(t) + ESC_CHAR;
     }
 
     @Override
@@ -67,15 +85,20 @@ public class JDBCSink extends JDBCConnection implements Sink {
         try {
             this.connection.close();
             LOG.info("#close() Connection successfully closed");
+
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCSink.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JDBCSink.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         try {
             this.statement.close();
+
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCSink.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JDBCSink.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     public static class Configuration {
