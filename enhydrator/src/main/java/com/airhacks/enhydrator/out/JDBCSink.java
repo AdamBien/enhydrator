@@ -16,6 +16,7 @@ public class JDBCSink extends JDBCConnection implements Sink {
 
     private String targetTable;
     private Statement statement;
+    private static Logger LOG = Logger.getLogger(JDBCSink.class.getName());
 
     JDBCSink(String driver, String url, String user, String pwd, String table) {
         super(driver, url, user, pwd);
@@ -26,15 +27,25 @@ public class JDBCSink extends JDBCConnection implements Sink {
     public void init() {
         try {
             this.statement = this.connection.createStatement();
+            LOG.info("#init() Statement created");
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot create statement " + ex.getMessage(), ex);
         }
+        try {
+            this.connection.commit();
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Cannot commit connection: " + ex.getMessage(), ex);
+        }
+
     }
 
     @Override
     public void processRow(List<Entry> entries) {
         try {
-            this.statement.execute(generateInsertStatement(entries));
+            final String insertSQL = generateInsertStatement(entries);
+            LOG.info("#processRow(): " + insertSQL);
+            this.statement.execute(insertSQL);
+            LOG.info("#processRow() executed!");
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot insert entry: " + ex.getMessage(), ex);
         }
@@ -55,6 +66,7 @@ public class JDBCSink extends JDBCConnection implements Sink {
     public void close() {
         try {
             this.connection.close();
+            LOG.info("#close() Connection successfully closed");
         } catch (SQLException ex) {
             Logger.getLogger(JDBCSink.class.getName()).log(Level.SEVERE, null, ex);
         }
