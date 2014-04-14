@@ -9,16 +9,16 @@ import java.sql.SQLException;
  *
  * @author airhacks.com
  */
-public class Source extends JDBCConnection {
+public class JDBCSource extends JDBCConnection {
 
-    private Source(String driver, String url, String user, String pwd) {
+    private JDBCSource(String driver, String url, String user, String pwd) {
         super(driver, url, user, pwd);
     }
 
-    public Iterable<ResultSet> query(String sql, Object... params) {
+    public Iterable<ResultSet> query(String query, Object... params) {
         PreparedStatement stmt;
         try {
-            stmt = this.connection.prepareStatement(sql);
+            stmt = this.connection.prepareStatement(query);
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot prepare SQL statement", ex);
         }
@@ -34,7 +34,7 @@ public class Source extends JDBCConnection {
             try {
                 return new ResultSetIterator(stmt.executeQuery());
             } catch (SQLException ex) {
-                throw new IllegalStateException("Cannot execute query: " + sql, ex);
+                throw new IllegalStateException("Cannot execute query: " + query, ex);
             }
         };
     }
@@ -66,8 +66,8 @@ public class Source extends JDBCConnection {
             return this;
         }
 
-        public Source newSource() {
-            Source source = new Source(this.driver, this.url, this.user, this.password);
+        public JDBCSource newSource() {
+            JDBCSource source = new JDBCSource(this.driver, this.url, this.user, this.password);
             source.connect();
             return source;
         }

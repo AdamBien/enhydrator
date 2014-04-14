@@ -1,6 +1,6 @@
 package com.airhacks.enhydrator;
 
-import com.airhacks.enhydrator.in.Source;
+import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.List;
@@ -21,14 +21,14 @@ import static org.mockito.Mockito.verify;
  */
 public class CopyTableTest {
 
-    Source source;
+    JDBCSource source;
     Sink sink;
 
     @Before
     public void initialize() {
         Persistence.generateSchema("to", null);
         Persistence.generateSchema("from", null);
-        this.source = new Source.Configuration().
+        this.source = new JDBCSource.Configuration().
                 driver("org.apache.derby.jdbc.EmbeddedDriver").
                 url("jdbc:derby:./coffees;create=true").
                 newSource();

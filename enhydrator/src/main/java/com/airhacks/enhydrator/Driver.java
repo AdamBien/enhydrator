@@ -1,7 +1,7 @@
 package com.airhacks.enhydrator;
 
 import com.airhacks.enhydrator.in.Entry;
-import com.airhacks.enhydrator.in.Source;
+import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.out.SystemOutSink;
 import com.airhacks.enhydrator.transform.EntryTransformer;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class Driver {
 
-    private final Source source;
+    private final JDBCSource source;
     private final Function<ResultSet, List<Entry>> rowTransformer;
     private final Map<String, Function<Entry, List<Entry>>> namedEntryFunctions;
     private final Map<Integer, Function<Entry, List<Entry>>> indexedEntryFunctions;
@@ -31,7 +31,7 @@ public class Driver {
 
     private final Sink sink;
 
-    private Driver(Source source, Function<ResultSet, List<Entry>> rowTransformer,
+    private Driver(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
             Function<List<Entry>, List<Entry>> before,
             Map<String, Function<Entry, List<Entry>>> namedFunctions,
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
@@ -88,7 +88,7 @@ public class Driver {
     public static class Drive {
 
         private Sink sink;
-        private Source source;
+        private JDBCSource source;
         private Function<ResultSet, List<Entry>> resultSetToEntries;
         private Map<String, Function<Entry, List<Entry>>> entryFunctions;
         private Map<Integer, Function<Entry, List<Entry>>> indexedFunctions;
@@ -110,7 +110,7 @@ public class Driver {
             return this;
         }
 
-        public Drive from(Source source) {
+        public Drive from(JDBCSource source) {
             this.source = source;
             return this;
         }

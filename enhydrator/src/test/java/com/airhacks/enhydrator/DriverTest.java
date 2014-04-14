@@ -1,7 +1,7 @@
 package com.airhacks.enhydrator;
 
 import com.airhacks.enhydrator.in.Entry;
-import com.airhacks.enhydrator.in.Source;
+import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +19,11 @@ import static org.mockito.Mockito.verify;
  */
 public class DriverTest {
 
-    Source source;
+    JDBCSource source;
 
     @Before
     public void initialize() {
-        this.source = new Source.Configuration().
+        this.source = new JDBCSource.Configuration().
                 driver("org.apache.derby.jdbc.EmbeddedDriver").
                 url("jdbc:derby:./coffees;create=true").
                 newSource();

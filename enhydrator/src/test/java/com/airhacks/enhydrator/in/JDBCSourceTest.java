@@ -17,7 +17,7 @@ import org.junit.Test;
  *
  * @author airhacks.com
  */
-public class SourceTest {
+public class JDBCSourceTest {
 
     /**
      * <property name="javax.persistence.jdbc.url"
@@ -27,21 +27,21 @@ public class SourceTest {
      */
     @Test
     public void constructWithValidParameters() {
-        Source cut = getSource();
+        JDBCSource cut = getSource();
         assertNotNull(cut);
     }
 
-    Source getSource() {
-        Source cut = new Source.Configuration().
+    JDBCSource getSource() {
+        JDBCSource source = new JDBCSource.Configuration().
                 driver("org.apache.derby.jdbc.EmbeddedDriver").
                 url("jdbc:derby:./coffees;create=true").
                 newSource();
-        return cut;
+        return source;
     }
 
     @Test(expected = IllegalStateException.class)
-    public void constructInvalidSource() {
-        Source cut = new Source.Configuration().
+    public void constructInvalidJDBCSource() {
+        JDBCSource cut = new JDBCSource.Configuration().
                 driver("org.airhacks.driver").
                 url("outer-space").
                 newSource();
@@ -100,7 +100,7 @@ public class SourceTest {
                     try {
                         System.out.println(t.getObject(1));
                     } catch (SQLException ex) {
-                        Logger.getLogger(SourceTest.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(JDBCSource.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
     }
