@@ -3,7 +3,6 @@ package com.airhacks.enhydrator;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
-import com.airhacks.enhydrator.out.SystemOutSink;
 import com.airhacks.enhydrator.transform.EntryTransformer;
 import com.airhacks.enhydrator.transform.FunctionScriptLoader;
 import com.airhacks.enhydrator.transform.ResultSetToEntries;
@@ -12,7 +11,6 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
