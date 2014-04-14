@@ -1,55 +1,18 @@
 package com.airhacks.enhydrator.in;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import com.airhacks.enhydrator.db.JDBCConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author airhacks.com
  */
-public class Source {
-
-    private String user;
-    private String pwd;
-    private String url;
-    private String driver;
-    private Connection connection;
+public class Source extends JDBCConnection {
 
     private Source(String driver, String url, String user, String pwd) {
-        this.driver = driver;
-        this.user = user;
-        this.pwd = pwd;
-        this.url = url;
-    }
-
-    private void connect() {
-        try {
-            Class.forName(this.driver);
-        } catch (ClassNotFoundException ex) {
-            throw new IllegalStateException("Cannot load driver", ex);
-        }
-        if (this.user != null && !this.user.isEmpty()) {
-            try {
-                this.connection = DriverManager.getConnection(this.url, this.user, this.pwd);
-            } catch (SQLException ex) {
-                throw new IllegalStateException("Cannot fetch connection", ex);
-
-            }
-
-        } else {
-            try {
-                this.connection = DriverManager.getConnection(this.url);
-            } catch (SQLException ex) {
-                throw new IllegalStateException("Cannot fetch connection", ex);
-            }
-        }
+        super(driver, url, user, pwd);
     }
 
     public Iterable<ResultSet> query(String sql, Object... params) {
@@ -78,10 +41,10 @@ public class Source {
 
     public static class Configuration {
 
-        private String url;
-        private String driver;
-        private String user;
-        private String password;
+        protected String url;
+        protected String driver;
+        protected String user;
+        protected String password;
 
         public Configuration driver(String driver) {
             this.driver = driver;
@@ -108,7 +71,5 @@ public class Source {
             source.connect();
             return source;
         }
-
     }
-
 }
