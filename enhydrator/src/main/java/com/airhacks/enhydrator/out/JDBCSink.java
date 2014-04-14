@@ -54,12 +54,20 @@ public class JDBCSink extends JDBCConnection implements Sink {
     }
 
     String generateInsertStatement(List<Entry> entries) {
-        return "INSERT INTO " + this.targetTable + " VALUES (" + valueList(entries) + ")";
+        return "INSERT INTO " + this.targetTable + " (" + columnList(entries)
+                + ") VALUES (" + valueList(entries) + ")";
     }
 
     static String valueList(List<Entry> entries) {
         return (String) entries.stream().
                 map(e -> asInsertSQL(e)).
+                reduce((t, u) -> t + "," + u).
+                get();
+    }
+
+    static String columnList(List<Entry> entries) {
+        return (String) entries.stream().
+                map(e -> e.getName()).
                 reduce((t, u) -> t + "," + u).
                 get();
     }

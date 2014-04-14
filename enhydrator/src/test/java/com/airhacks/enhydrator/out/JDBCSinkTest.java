@@ -24,10 +24,10 @@ public class JDBCSinkTest {
 
     @Test
     public void generateInsertStatement() {
-        String expected = "INSERT INTO TARGET_TABLE VALUES (java,tengah)";
+        String expected = "INSERT INTO TARGET_TABLE (a,b) VALUES (java,tengah)";
         List<Entry> row = new ArrayList<>();
-        row.add(new Entry(0, "aName", 42, "java"));
-        row.add(new Entry(1, "aName", 21, "tengah"));
+        row.add(new Entry(0, "a", 42, "java"));
+        row.add(new Entry(1, "b", 21, "tengah"));
         String actual = this.cut.generateInsertStatement(row);
         assertThat(actual, is(expected));
     }
