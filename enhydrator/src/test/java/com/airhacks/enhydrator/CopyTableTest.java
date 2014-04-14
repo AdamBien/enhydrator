@@ -5,7 +5,9 @@ import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.List;
 import javax.persistence.Persistence;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
+import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Matchers.any;
@@ -46,11 +48,13 @@ public class CopyTableTest {
                 from(this.source).
                 to(this.sink).
                 go("select * from Coffee");
+        List<DeveloperDrink> all = CoffeeTestFixture.all();
+        assertThat(all.size(), is(2));
     }
 
     @After
-    public void cleanupConnections() {
-
+    public void cleanupTables() {
+        CoffeeTestFixture.deleteTables();
     }
 
 }

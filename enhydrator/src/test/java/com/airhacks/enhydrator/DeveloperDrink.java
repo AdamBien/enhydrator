@@ -3,6 +3,7 @@ package com.airhacks.enhydrator;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 /**
@@ -11,6 +12,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "DEVELOPER_DRINK")
+@NamedQuery(name = "DeveloperDrink.all", query = "SELECT d FROM DeveloperDrink d")
 public class DeveloperDrink {
 
     @Id

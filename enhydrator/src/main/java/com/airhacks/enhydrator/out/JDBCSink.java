@@ -34,7 +34,7 @@ public class JDBCSink extends JDBCConnection implements Sink {
             throw new IllegalStateException("Cannot create statement " + ex.getMessage(), ex);
         }
         try {
-            this.connection.commit();
+            this.connection.setAutoCommit(true);
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot commit connection: " + ex.getMessage(), ex);
         }

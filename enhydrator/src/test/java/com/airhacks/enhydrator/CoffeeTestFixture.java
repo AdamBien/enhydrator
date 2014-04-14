@@ -3,6 +3,8 @@ package com.airhacks.enhydrator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -17,6 +19,8 @@ import org.junit.Test;
  */
 public class CoffeeTestFixture {
 
+    private static final Logger LOG = Logger.getLogger(CoffeeTestFixture.class.getName());
+
     public static void insertCoffee(String name, int strength, String countryOfOrigin, Roast intensity, String description, String beans) {
         Function<EntityManager, Void> execution = (em) -> {
             em.merge(
@@ -28,11 +32,13 @@ public class CoffeeTestFixture {
 
     public static void deleteTables() {
         Function<EntityManager, Object> from = (em) -> {
-            em.createQuery("DELETE FROM Coffee").executeUpdate();
+            int deleted = em.createQuery("DELETE FROM Coffee").executeUpdate();
+            LOG.info(deleted + " deleted from coffee");
             return null;
         };
         Function<EntityManager, Object> to = (em) -> {
-            em.createQuery("DELETE FROM Coffee").executeUpdate();
+            int deleted = em.createQuery("DELETE FROM DeveloperDrink").executeUpdate();
+            LOG.info(deleted + " deleted from DEVELOPER_DRINK");
             return null;
         };
         perform("from", from);
@@ -41,7 +47,7 @@ public class CoffeeTestFixture {
 
     public static List<DeveloperDrink> all() {
         Function<EntityManager, List<DeveloperDrink>> execution = (em) -> {
-            return em.createNamedQuery("SELECT d FROM DEVELOPER_DRINK d").getResultList();
+            return em.createNamedQuery("DeveloperDrink.all", DeveloperDrink.class).getResultList();
         };
         return (List<DeveloperDrink>) perform("to", execution);
     }
