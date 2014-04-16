@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -19,12 +20,21 @@ public class JDBCPipeline implements Pipeline {
 
     private String name;
     private JDBCSource source;
+
+    @XmlElement(name = "sql-query")
     private String sqlQuery;
+
+    @XmlElement(name = "query-param")
     private List<Object> queryParams;
     private Sink sink;
 
+    @XmlElement(name = "pre-row-transformer")
     private List<String> preRowTransformers;
+
+    @XmlElement(name = "entry-transformation")
     private List<EntryTransformation> entryTransformations;
+
+    @XmlElement(name = "post-row-transformer")
     private List<String> postRowTransfomers;
 
     JDBCPipeline() {
