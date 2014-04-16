@@ -17,7 +17,15 @@ public class JDBCPipelineTest {
     public void jaxbSerialization() {
         JDBCSource source = JDBCSourceTest.getSource();
         JDBCSink sink = JDBCSinkTest.getSink();
+        EntryTransformation e1 = new EntryTransformation("name", "convert", true);
+        EntryTransformation e2 = new EntryTransformation(42, "compress", true);
         JDBCPipeline origin = new JDBCPipeline("tst", source, sink);
+        origin.addEntryTransformation(e1);
+        origin.addEntryTransformation(e2);
+        origin.addPreRowTransforation("reverse");
+        origin.addPreRowTransforation("validate");
+        origin.addPostRowTransformation("compress");
+        origin.addPostRowTransformation("encrypt");
         Plumber plumber = new Plumber(".", "config");
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
