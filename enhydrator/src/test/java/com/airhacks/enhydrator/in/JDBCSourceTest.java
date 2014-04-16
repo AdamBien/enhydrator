@@ -44,7 +44,7 @@ public class JDBCSourceTest {
         assertNotNull(cut);
     }
 
-    JDBCSource getSource() {
+    public static JDBCSource getSource() {
         JDBCSource source = new JDBCSource.Configuration().
                 driver("org.apache.derby.jdbc.EmbeddedDriver").
                 url("jdbc:derby:./coffees;create=true").
@@ -144,7 +144,7 @@ public class JDBCSourceTest {
         JDBCSource deserialized = (JDBCSource) unmarshaller.unmarshal(bais);
         assertNotNull(deserialized);
 
-        assertThat(deserialized, not(same(origin)));
+        assertNotSame(deserialized, origin);
         assertThat(deserialized, is(origin));
 
     }
