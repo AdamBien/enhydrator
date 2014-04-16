@@ -15,6 +15,15 @@ public class JDBCPipelineTest {
 
     @Test
     public void jaxbSerialization() {
+        JDBCPipeline origin = getJDBCPipeline();
+        Plumber plumber = new Plumber(".", "config");
+        plumber.intoConfiguration(origin);
+        Pipeline deserialized = plumber.fromConfiguration(origin.getName());
+        assertNotSame(deserialized, origin);
+        assertEquals(deserialized, origin);
+    }
+
+    public static JDBCPipeline getJDBCPipeline() {
         JDBCSource source = JDBCSourceTest.getSource();
         JDBCSink sink = JDBCSinkTest.getSink();
         EntryTransformation e1 = new EntryTransformation("name", "convert", true);
@@ -28,11 +37,7 @@ public class JDBCPipelineTest {
         origin.addPreRowTransforation("validate");
         origin.addPostRowTransformation("compress");
         origin.addPostRowTransformation("encrypt");
-        Plumber plumber = new Plumber(".", "config");
-        plumber.intoConfiguration(origin);
-        Pipeline deserialized = plumber.fromConfiguration(origin.getName());
-        assertNotSame(deserialized, origin);
-        assertEquals(deserialized, origin);
+        return origin;
     }
 
 }

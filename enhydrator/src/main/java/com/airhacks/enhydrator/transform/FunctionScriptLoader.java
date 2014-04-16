@@ -17,7 +17,7 @@ public class FunctionScriptLoader {
 
     private final ScriptEngineManager manager;
     private final ScriptEngine engine;
-    private String baseFolder = ".";
+    private String baseFolder;
 
     public FunctionScriptLoader(String baseFolder) {
         this();
@@ -27,6 +27,7 @@ public class FunctionScriptLoader {
     public FunctionScriptLoader() {
         this.manager = new ScriptEngineManager();
         this.engine = manager.getEngineByName("nashorn");
+        this.baseFolder = ".";
     }
 
     public EntryTransformer getEntryTransformer(String scriptName) {

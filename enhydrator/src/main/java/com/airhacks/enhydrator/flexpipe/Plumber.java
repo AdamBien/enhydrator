@@ -5,17 +5,12 @@ import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.JDBCSink;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -27,12 +22,16 @@ import javax.xml.bind.Unmarshaller;
  */
 public class Plumber {
 
-    private final JAXBContext context;
+    private JAXBContext context;
     private Marshaller marshaller;
     private Unmarshaller unmarshaller;
 
-    private final String baseFolder;
-    private final String configurationFolder;
+    private String baseFolder;
+    private String configurationFolder;
+
+    public Plumber() {
+        this(".", "config");
+    }
 
     public Plumber(String baseFolder, String configurationFolder) {
         this.baseFolder = baseFolder;
