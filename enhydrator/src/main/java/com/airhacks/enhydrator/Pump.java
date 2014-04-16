@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @author airhacks.com
  */
-public class Driver {
+public class Pump {
 
     private final JDBCSource source;
     private final Function<ResultSet, List<Entry>> rowTransformer;
@@ -29,7 +29,7 @@ public class Driver {
 
     private final Sink sink;
 
-    private Driver(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
+    private Pump(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
             Function<List<Entry>, List<Entry>> before,
             Map<String, Function<Entry, List<Entry>>> namedFunctions,
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
@@ -83,7 +83,7 @@ public class Driver {
         }
     }
 
-    public static class Drive {
+    public static class Engine {
 
         private Sink sink;
         private JDBCSource source;
@@ -94,7 +94,7 @@ public class Driver {
         private Function<List<Entry>, List<Entry>> after;
         private FunctionScriptLoader loader;
 
-        public Drive() {
+        public Engine() {
             this.resultSetToEntries = new ResultSetToEntries();
             this.entryFunctions = new HashMap<>();
             this.before = f -> f;
@@ -103,47 +103,47 @@ public class Driver {
             this.loader = new FunctionScriptLoader();
         }
 
-        public Drive homeScriptFolder(String baseFolder) {
+        public Engine homeScriptFolder(String baseFolder) {
             this.loader = new FunctionScriptLoader(baseFolder);
             return this;
         }
 
-        public Drive from(JDBCSource source) {
+        public Engine from(JDBCSource source) {
             this.source = source;
             return this;
         }
 
-        public Drive to(Sink sink) {
+        public Engine to(Sink sink) {
             this.sink = sink;
             return this;
         }
 
-        public Drive startWith(Function<List<Entry>, List<Entry>> before) {
+        public Engine startWith(Function<List<Entry>, List<Entry>> before) {
             this.before = before;
             return this;
         }
 
-        public Drive startWith(String scriptName) {
+        public Engine startWith(String scriptName) {
             RowTransformer rowTransformer = this.loader.getRowTransformer(scriptName);
             return startWith(rowTransformer::execute);
         }
 
-        public Drive with(String entryName, Function<Entry, List<Entry>> entryFunction) {
+        public Engine with(String entryName, Function<Entry, List<Entry>> entryFunction) {
             this.entryFunctions.put(entryName, entryFunction);
             return this;
         }
 
-        public Drive with(int index, Function<Entry, List<Entry>> entryFunction) {
+        public Engine with(int index, Function<Entry, List<Entry>> entryFunction) {
             this.indexedFunctions.put(index, entryFunction);
             return this;
         }
 
-        public Drive with(String entryName, String scriptName) {
+        public Engine with(String entryName, String scriptName) {
             Function<Entry, List<Entry>> function = load(scriptName);
             return with(entryName, function);
         }
 
-        public Drive with(int index, String scriptName) {
+        public Engine with(int index, String scriptName) {
             Function<Entry, List<Entry>> function = load(scriptName);
             return with(index, function);
         }
@@ -153,21 +153,21 @@ public class Driver {
             return entryTransformer::execute;
         }
 
-        public Drive endWith(Function<List<Entry>, List<Entry>> after) {
+        public Engine endWith(Function<List<Entry>, List<Entry>> after) {
             this.after = after;
             return this;
         }
 
-        public Drive endWith(String scriptName) {
+        public Engine endWith(String scriptName) {
             RowTransformer rowTransformer = this.loader.getRowTransformer(scriptName);
             return endWith(rowTransformer::execute);
         }
 
-        public void go(String sql) {
-            Driver driver = new Driver(this.source, this.resultSetToEntries,
+        public void start(String sql) {
+            Pump pump = new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions, this.indexedFunctions,
                     this.after, this.sink);
-            driver.process(sql);
+            pump.process(sql);
         }
     }
 }
