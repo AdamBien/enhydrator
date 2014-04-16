@@ -4,14 +4,23 @@ import com.airhacks.enhydrator.db.JDBCConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author airhacks.com
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
 public class JDBCSource extends JDBCConnection {
 
-    private JDBCSource(String driver, String url, String user, String pwd) {
+    JDBCSource() {
+        //JAXB requires a no-arg contructor
+    }
+
+    JDBCSource(String driver, String url, String user, String pwd) {
         super(driver, url, user, pwd);
     }
 

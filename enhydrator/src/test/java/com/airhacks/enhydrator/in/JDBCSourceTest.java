@@ -3,15 +3,28 @@ package com.airhacks.enhydrator.in;
 import com.airhacks.enhydrator.CoffeeTestFixture;
 import com.airhacks.enhydrator.Roast;
 import com.airhacks.enhydrator.transform.ResultSetToEntries;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.StreamSupport;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.not;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.mockito.Matchers;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 
 /**
  *
@@ -113,6 +126,26 @@ public class JDBCSourceTest {
                         spliterator(), false).
                 map(new ResultSetToEntries()).
                 forEach(t -> System.out.println(t));
+
+    }
+
+    @Test
+    public void jaxbSerialization() throws JAXBException, UnsupportedEncodingException {
+        JAXBContext context = JAXBContext.newInstance(JDBCSource.class);
+        Marshaller marshaller = context.createMarshaller();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final JDBCSource origin = getSource();
+        marshaller.marshal(origin, baos);
+
+        byte[] content = baos.toByteArray();
+        System.out.println("Serialized: " + new String(content, "UTF-8"));
+        ByteArrayInputStream bais = new ByteArrayInputStream(content);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        JDBCSource deserialized = (JDBCSource) unmarshaller.unmarshal(bais);
+        assertNotNull(deserialized);
+
+        assertThat(deserialized, not(same(origin)));
+        assertThat(deserialized, is(origin));
 
     }
 
