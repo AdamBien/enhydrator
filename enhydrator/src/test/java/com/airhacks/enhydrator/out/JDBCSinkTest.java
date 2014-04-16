@@ -19,7 +19,11 @@ public class JDBCSinkTest {
 
     @Before
     public void init() {
-        this.cut = new JDBCSink(null, null, null, null, TABLE_NAME);
+        this.cut = getSink();
+    }
+
+    public static JDBCSink getSink() {
+        return new JDBCSink("aDriver", "localhost", "duke", "s3cret", TABLE_NAME);
     }
 
     @Test

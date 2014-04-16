@@ -8,17 +8,36 @@ import java.sql.Types;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author airhacks.com
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "jdbc-sink")
 public class JDBCSink extends JDBCConnection implements Sink {
 
     private static final char ESC_CHAR = '\'';
-    private final String targetTable;
+
+    @XmlElement(name = "target-table")
+    private String targetTable;
+    @XmlTransient
     private Statement statement;
+    @XmlTransient
     private static final Logger LOG = Logger.getLogger(JDBCSink.class.getName());
+
+    @XmlAttribute
+    private String name;
+
+    public JDBCSink() {
+        //JAXB...
+    }
 
     JDBCSink(String driver, String url, String user, String pwd, String table) {
         super(driver, url, user, pwd);

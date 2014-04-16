@@ -1,6 +1,7 @@
 package com.airhacks.enhydrator.flexpipe;
 
 import com.airhacks.enhydrator.in.JDBCSource;
+import com.airhacks.enhydrator.out.JDBCSink;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -37,7 +38,7 @@ public class Plumber {
         this.configurationFolder = configurationFolder;
         try {
             Files.createDirectories(Paths.get(baseFolder, configurationFolder));
-            this.context = JAXBContext.newInstance(JDBCSource.class, JDBCPipeline.class);
+            this.context = JAXBContext.newInstance(JDBCSource.class, JDBCPipeline.class, JDBCSink.class);
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             this.unmarshaller = context.createUnmarshaller();

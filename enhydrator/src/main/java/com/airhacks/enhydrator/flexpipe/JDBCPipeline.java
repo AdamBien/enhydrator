@@ -1,6 +1,7 @@
 package com.airhacks.enhydrator.flexpipe;
 
 import com.airhacks.enhydrator.in.JDBCSource;
+import com.airhacks.enhydrator.out.Sink;
 import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -16,13 +17,15 @@ public class JDBCPipeline implements Pipeline {
 
     private String name;
     private JDBCSource source;
+    private Sink sink;
 
     JDBCPipeline() {
     }
 
-    public JDBCPipeline(String name, JDBCSource source) {
+    public JDBCPipeline(String name, JDBCSource source, Sink sink) {
         this.name = name;
         this.source = source;
+        this.sink = sink;
     }
 
     @Override
@@ -32,9 +35,10 @@ public class JDBCPipeline implements Pipeline {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 11 * hash + Objects.hashCode(this.name);
-        hash = 11 * hash + Objects.hashCode(this.source);
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 97 * hash + Objects.hashCode(this.source);
+        hash = 97 * hash + Objects.hashCode(this.sink);
         return hash;
     }
 
@@ -53,12 +57,15 @@ public class JDBCPipeline implements Pipeline {
         if (!Objects.equals(this.source, other.source)) {
             return false;
         }
+        if (!Objects.equals(this.sink, other.sink)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
-        return "JDBCPipeline{" + "name=" + name + ", source=" + source + '}';
+        return "JDBCPipeline{" + "name=" + name + ", source=" + source + ", sink=" + sink + '}';
     }
 
 }
