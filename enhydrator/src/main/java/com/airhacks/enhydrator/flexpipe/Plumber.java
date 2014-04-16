@@ -39,6 +39,7 @@ public class Plumber {
             Files.createDirectories(Paths.get(baseFolder, configurationFolder));
             this.context = JAXBContext.newInstance(JDBCSource.class, JDBCPipeline.class);
             this.marshaller = context.createMarshaller();
+            this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             this.unmarshaller = context.createUnmarshaller();
         } catch (JAXBException | IOException ex) {
             throw new IllegalStateException("Plumber construction failed ", ex);

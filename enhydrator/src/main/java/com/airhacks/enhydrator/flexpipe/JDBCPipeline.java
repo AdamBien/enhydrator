@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author airhacks.com
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement
+@XmlRootElement(name = "jdbc-pipeline")
 public class JDBCPipeline implements Pipeline {
 
     private String name;
