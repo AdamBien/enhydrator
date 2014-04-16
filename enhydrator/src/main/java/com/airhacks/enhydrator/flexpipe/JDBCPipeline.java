@@ -19,6 +19,8 @@ public class JDBCPipeline implements Pipeline {
 
     private String name;
     private JDBCSource source;
+    private String sqlQuery;
+    private List<Object> queryParams;
     private Sink sink;
 
     private List<String> preRowTransformers;
@@ -29,11 +31,14 @@ public class JDBCPipeline implements Pipeline {
         this.preRowTransformers = new ArrayList<>();
         this.entryTransformations = new ArrayList<>();
         this.postRowTransfomers = new ArrayList<>();
+        this.queryParams = new ArrayList<>();
+
     }
 
-    public JDBCPipeline(String name, JDBCSource source, Sink sink) {
+    public JDBCPipeline(String name, String sqlQuery, JDBCSource source, Sink sink) {
         this();
         this.preRowTransformers = new ArrayList<>();
+        this.sqlQuery = sqlQuery;
         this.name = name;
         this.source = source;
         this.sink = sink;
@@ -54,6 +59,10 @@ public class JDBCPipeline implements Pipeline {
 
     public void addPostRowTransformation(String transformer) {
         this.postRowTransfomers.add(transformer);
+    }
+
+    public void addQueryParam(Object value) {
+        this.queryParams.add(value);
     }
 
     @Override
