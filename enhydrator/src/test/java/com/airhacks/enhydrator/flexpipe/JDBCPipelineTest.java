@@ -37,6 +37,7 @@ public class JDBCPipelineTest {
         origin.addPreRowTransforation("validate");
         origin.addPostRowTransformation("compress");
         origin.addPostRowTransformation("encrypt");
+        origin.addExpression("print(current)");
         return origin;
     }
 

@@ -37,12 +37,15 @@ public class JDBCPipeline implements Pipeline {
     @XmlElement(name = "post-row-transformer")
     private List<String> postRowTransfomers;
 
+    @XmlElement(name = "expression")
+    private List<String> expressions;
+
     JDBCPipeline() {
         this.preRowTransformers = new ArrayList<>();
         this.entryTransformations = new ArrayList<>();
         this.postRowTransfomers = new ArrayList<>();
         this.queryParams = new ArrayList<>();
-
+        this.expressions = new ArrayList<>();
     }
 
     public JDBCPipeline(String name, String sqlQuery, JDBCSource source, Sink sink) {
@@ -71,6 +74,10 @@ public class JDBCPipeline implements Pipeline {
         this.postRowTransfomers.add(transformer);
     }
 
+    public void addExpression(String expression) {
+        this.expressions.add(expression);
+    }
+
     public void addQueryParam(Object value) {
         this.queryParams.add(value);
     }
@@ -78,12 +85,15 @@ public class JDBCPipeline implements Pipeline {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 59 * hash + Objects.hashCode(this.name);
-        hash = 59 * hash + Objects.hashCode(this.source);
-        hash = 59 * hash + Objects.hashCode(this.sink);
-        hash = 59 * hash + Objects.hashCode(this.preRowTransformers);
-        hash = 59 * hash + Objects.hashCode(this.entryTransformations);
-        hash = 59 * hash + Objects.hashCode(this.postRowTransfomers);
+        hash = 67 * hash + Objects.hashCode(this.name);
+        hash = 67 * hash + Objects.hashCode(this.source);
+        hash = 67 * hash + Objects.hashCode(this.sqlQuery);
+        hash = 67 * hash + Objects.hashCode(this.queryParams);
+        hash = 67 * hash + Objects.hashCode(this.sink);
+        hash = 67 * hash + Objects.hashCode(this.preRowTransformers);
+        hash = 67 * hash + Objects.hashCode(this.entryTransformations);
+        hash = 67 * hash + Objects.hashCode(this.postRowTransfomers);
+        hash = 67 * hash + Objects.hashCode(this.expressions);
         return hash;
     }
 
@@ -102,6 +112,12 @@ public class JDBCPipeline implements Pipeline {
         if (!Objects.equals(this.source, other.source)) {
             return false;
         }
+        if (!Objects.equals(this.sqlQuery, other.sqlQuery)) {
+            return false;
+        }
+        if (!Objects.equals(this.queryParams, other.queryParams)) {
+            return false;
+        }
         if (!Objects.equals(this.sink, other.sink)) {
             return false;
         }
@@ -114,12 +130,14 @@ public class JDBCPipeline implements Pipeline {
         if (!Objects.equals(this.postRowTransfomers, other.postRowTransfomers)) {
             return false;
         }
+        if (!Objects.equals(this.expressions, other.expressions)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
-        return "JDBCPipeline{" + "name=" + name + ", source=" + source + ", sink=" + sink + ", preRowTransformers=" + preRowTransformers + ", entryTransformations=" + entryTransformations + ", postRowTransfomers=" + postRowTransfomers + '}';
+        return "JDBCPipeline{" + "name=" + name + ", source=" + source + ", sqlQuery=" + sqlQuery + ", queryParams=" + queryParams + ", sink=" + sink + ", preRowTransformers=" + preRowTransformers + ", entryTransformations=" + entryTransformations + ", postRowTransfomers=" + postRowTransfomers + ", expressions=" + expressions + '}';
     }
-
 }
