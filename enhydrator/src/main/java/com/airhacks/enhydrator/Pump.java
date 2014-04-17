@@ -76,7 +76,7 @@ public class Pump {
     }
 
     List<Entry> applyOrReturnOnNamed(Entry e) {
-        final Function<Entry, List<Entry>> function = this.namedEntryFunctions.get(e.getSlot());
+        final Function<Entry, List<Entry>> function = this.namedEntryFunctions.get(e.getName());
         if (function != null) {
             return function.apply(e);
         } else {
