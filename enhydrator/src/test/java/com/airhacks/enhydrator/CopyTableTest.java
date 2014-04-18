@@ -44,9 +44,10 @@ public class CopyTableTest {
     public void plainCopy() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        new Pump.Engine().
+        Pump pump = new Pump.Engine().
                 from(this.source).
-                to(this.sink).start("select * from Coffee");
+                to(this.sink).build();
+        pump.start("select * from Coffee");
         List<DeveloperDrink> all = CoffeeTestFixture.all();
         assertThat(all.size(), is(2));
     }

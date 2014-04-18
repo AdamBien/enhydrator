@@ -34,6 +34,8 @@ public class Plumber {
     }
 
     public Plumber(String baseFolder, String configurationFolder) {
+        Objects.requireNonNull(baseFolder, "Base folder cannot be null");
+        Objects.requireNonNull(configurationFolder, "Configuration folder cannot be null");
         this.baseFolder = baseFolder;
         this.configurationFolder = configurationFolder;
         try {
@@ -76,6 +78,5 @@ public class Plumber {
         } catch (IOException | JAXBException ex) {
             throw new IllegalStateException("Cannot create configuration for pipeline ", ex);
         }
-
     }
 }

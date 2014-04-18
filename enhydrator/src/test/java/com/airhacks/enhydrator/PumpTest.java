@@ -34,10 +34,11 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = mock(Sink.class);
-        new Pump.Engine().
+        Pump pump = new Pump.Engine().
                 from(source).
                 with("name", t -> t.asList()).
-                to(consumer).start("select * from Coffee");
+                to(consumer).build();
+        pump.start("select * from Coffee");
         verify(consumer, times(2)).processRow(any(List.class));
     }
 
@@ -46,10 +47,11 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = mock(Sink.class);
-        new Pump.Engine().
+        Pump pump = new Pump.Engine().
                 from(source).
                 with(1, t -> t.changeValue("duke").asList()).
-                to(consumer).start("select * from Coffee");
+                to(consumer).build();
+        pump.start("select * from Coffee");
         verify(consumer, times(2)).processRow(any(List.class));
     }
 
@@ -59,10 +61,11 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = mock(Sink.class);
         final ArrayList<Entry> entries = new ArrayList<>();
-        new Pump.Engine().
+        Pump pump = new Pump.Engine().
                 from(source).
                 startWith(l -> entries).
-                to(consumer).start("select * from Coffee");
+                to(consumer).build();
+        pump.start("select * from Coffee");
         verify(consumer, times(2)).processRow(entries);
     }
 
@@ -72,10 +75,11 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = mock(Sink.class);
         final ArrayList<Entry> entries = new ArrayList<>();
-        new Pump.Engine().
+        Pump pump = new Pump.Engine().
                 from(source).
                 endWith(l -> entries).
-                to(consumer).start("select * from Coffee");
+                to(consumer).build();
+        pump.start("select * from Coffee");
         verify(consumer, times(2)).processRow(entries);
     }
 
@@ -84,9 +88,10 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = mock(Sink.class);
-        new Pump.Engine().
+        Pump pump = new Pump.Engine().
                 from(source).
-                to(consumer).start("select * from Coffee");
+                to(consumer).build();
+        pump.start("select * from Coffee");
         verify(consumer, times(2)).processRow(any(List.class));
     }
 
@@ -95,11 +100,12 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = mock(Sink.class);
-        new Pump.Engine().
+        Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 from(source).
                 with(1, "quote").
-                to(consumer).start("select * from Coffee");
+                to(consumer).build();
+        pump.start("select * from Coffee");
         verify(consumer, times(2)).processRow(any(List.class));
 
     }
@@ -109,11 +115,13 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = mock(Sink.class);
-        new Pump.Engine().
+        Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 startWith("reverse").
                 from(source).
-                to(consumer).start("select * from Coffee");
+                to(consumer).
+                build();
+        pump.start("select * from Coffee");
         verify(consumer, times(2)).processRow(any(List.class));
 
     }

@@ -45,7 +45,7 @@ public class Pump {
         this.sink = sink;
     }
 
-    void process(String sql, Object... params) {
+    public void start(String sql, Object... params) {
         Iterable<ResultSet> results = this.source.query(sql, params);
         this.sink.init();
         results.forEach(this::onNewRow);
@@ -164,11 +164,10 @@ public class Pump {
             return endWith(rowTransformer::execute);
         }
 
-        public void start(String sql, Object... queryParams) {
-            Pump pump = new Pump(source, this.resultSetToEntries,
+        public Pump build() {
+            return new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions, this.indexedFunctions,
                     this.after, this.sink);
-            pump.process(sql, queryParams);
         }
     }
 }
