@@ -8,6 +8,7 @@ import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.transform.EntryTransformer;
+import com.airhacks.enhydrator.transform.Expression;
 import com.airhacks.enhydrator.transform.FunctionScriptLoader;
 import com.airhacks.enhydrator.transform.ResultSetToEntries;
 import com.airhacks.enhydrator.transform.RowTransformer;
@@ -36,6 +37,7 @@ public class Pump {
     private final Sink sink;
     private final String sql;
     private final Object[] params;
+    private final Expression expression;
 
     private Pump(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
             Function<List<Entry>, List<Entry>> before,
@@ -44,6 +46,7 @@ public class Pump {
             List<String> expressions,
             Function<List<Entry>, List<Entry>> after,
             Sink sink, String sql, Object... params) {
+        this.expression = new Expression();
         this.source = source;
         this.before = before;
         this.rowTransformer = rowTransformer;
@@ -71,9 +74,20 @@ public class Pump {
                 flatMap(l -> l.stream()).
                 map(e -> applyOrReturnOnNamed(e)).
                 flatMap(l -> l.stream()).
+                map(e -> applyExpression(convertedColumns, e)).
+                flatMap(l -> l.stream()).
                 collect(Collectors.toList());
         List<Entry> afterProcessed = this.after.apply(transformed);
         this.sink.processRow(afterProcessed);
+
+    }
+
+    List<Entry> applyExpression(List<Entry> columns, Entry current) {
+        return this.expressions.stream().
+                map(e -> this.expression.
+                        execute(columns, current, e)).
+                flatMap(l -> l.stream()).
+                collect(Collectors.toList());
 
     }
 
