@@ -34,6 +34,8 @@ public class Pump {
     private final Function<List<Entry>, List<Entry>> after;
     private final List<String> expressions;
     private final Sink sink;
+    private final String sql;
+    private final Object[] params;
 
     private Pump(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
             Function<List<Entry>, List<Entry>> before,
@@ -41,7 +43,7 @@ public class Pump {
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
             List<String> expressions,
             Function<List<Entry>, List<Entry>> after,
-            Sink sink) {
+            Sink sink, String sql, Object... params) {
         this.source = source;
         this.before = before;
         this.rowTransformer = rowTransformer;
@@ -50,9 +52,11 @@ public class Pump {
         this.expressions = expressions;
         this.after = after;
         this.sink = sink;
+        this.sql = sql;
+        this.params = params;
     }
 
-    public void start(String sql, Object... params) {
+    public void start() {
         Iterable<ResultSet> results = this.source.query(sql, params);
         this.sink.init();
         results.forEach(this::onNewRow);
@@ -102,6 +106,8 @@ public class Pump {
         private Function<List<Entry>, List<Entry>> after;
         private FunctionScriptLoader loader;
         private List<String> expressions;
+        private String sql;
+        private Object[] params;
 
         public Engine() {
             this.expressions = new ArrayList<>();
@@ -173,10 +179,16 @@ public class Pump {
             return endWith(rowTransformer::execute);
         }
 
+        public Engine sql(String sql, Object... params) {
+            this.sql = sql;
+            this.params = params;
+            return this;
+        }
+
         public Pump build() {
             return new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions, this.indexedFunctions,
-                    this.expressions, this.after, this.sink);
+                    this.expressions, this.after, this.sink, this.sql, this.params);
         }
 
         public Pump use(Pipeline pipeline) {
@@ -196,6 +208,12 @@ public class Pump {
             });
             pipeline.getPostRowTransfomers().forEach(t -> endWith(t));
             this.expressions = pipeline.getExpressions();
+            List<Object> queryParams = pipeline.getQueryParams();
+            if (queryParams == null || queryParams.isEmpty()) {
+                sql(pipeline.getSqlQuery());
+            } else {
+                sql(pipeline.getSqlQuery(), queryParams.toArray());
+            }
             return build();
         }
     }

@@ -39,8 +39,10 @@ public class PumpTest {
         Pump pump = new Pump.Engine().
                 from(source).
                 with("name", t -> t.asList()).
-                to(consumer).build();
-        pump.start("select * from Coffee");
+                to(consumer).
+                sql("select * from Coffee").
+                build();
+        pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
     }
 
@@ -52,8 +54,8 @@ public class PumpTest {
         Pump pump = new Pump.Engine().
                 from(source).
                 with(1, t -> t.changeValue("duke").asList()).
-                to(consumer).build();
-        pump.start("select * from Coffee");
+                to(consumer).sql("select * from Coffee").build();
+        pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
     }
 
@@ -66,8 +68,9 @@ public class PumpTest {
         Pump pump = new Pump.Engine().
                 from(source).
                 startWith(l -> entries).
+                sql("select * from Coffee").
                 to(consumer).build();
-        pump.start("select * from Coffee");
+        pump.start();
         verify(consumer, times(2)).processRow(entries);
     }
 
@@ -80,8 +83,10 @@ public class PumpTest {
         Pump pump = new Pump.Engine().
                 from(source).
                 endWith(l -> entries).
-                to(consumer).build();
-        pump.start("select * from Coffee");
+                to(consumer).
+                sql("select * from Coffee").
+                build();
+        pump.start();
         verify(consumer, times(2)).processRow(entries);
     }
 
@@ -92,8 +97,10 @@ public class PumpTest {
         Sink consumer = mock(Sink.class);
         Pump pump = new Pump.Engine().
                 from(source).
-                to(consumer).build();
-        pump.start("select * from Coffee");
+                to(consumer).
+                sql("select * from Coffee").
+                build();
+        pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
     }
 
@@ -106,8 +113,10 @@ public class PumpTest {
                 homeScriptFolder("./src/test/scripts").
                 from(source).
                 with(1, "quote").
-                to(consumer).build();
-        pump.start("select * from Coffee");
+                to(consumer).
+                sql("select * from Coffee").
+                build();
+        pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
 
     }
@@ -122,8 +131,9 @@ public class PumpTest {
                 startWith("reverse").
                 from(source).
                 to(consumer).
+                sql("select * from Coffee").
                 build();
-        pump.start("select * from Coffee");
+        pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
 
     }
@@ -137,8 +147,8 @@ public class PumpTest {
         Pump pump = new Pump.Engine().to(consumer).
                 homeScriptFolder("./src/test/scripts").
                 use(pipeline);
-        pump.start("select * from Coffee");
-        verify(consumer, times(2)).processRow(any(List.class));
+        pump.start();
+        verify(consumer).processRow(any(List.class));
 
     }
 

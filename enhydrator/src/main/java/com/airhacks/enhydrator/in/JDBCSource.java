@@ -36,7 +36,7 @@ public class JDBCSource extends JDBCConnection {
             try {
                 stmt.setObject(i + 1, param);
             } catch (SQLException ex) {
-                throw new IllegalStateException("Cannot set parameter (" + i + "," + param + ")", ex);
+                throw new IllegalStateException("Cannot set parameter (" + i + "," + param + ") for query: " + query, ex);
             }
         }
         return () -> {
