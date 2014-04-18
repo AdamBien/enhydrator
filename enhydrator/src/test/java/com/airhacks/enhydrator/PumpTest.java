@@ -39,8 +39,7 @@ public class PumpTest {
         Pump pump = new Pump.Engine().
                 from(source).
                 with("name", t -> t.asList()).
-                to(consumer).
-                sql("select * from Coffee").
+                to(consumer).sqlQuery("select * from Coffee").
                 build();
         pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
@@ -54,7 +53,9 @@ public class PumpTest {
         Pump pump = new Pump.Engine().
                 from(source).
                 with(1, t -> t.changeValue("duke").asList()).
-                to(consumer).sql("select * from Coffee").build();
+                to(consumer).
+                sqlQuery("select * from Coffee").
+                build();
         pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
     }
@@ -68,8 +69,9 @@ public class PumpTest {
         Pump pump = new Pump.Engine().
                 from(source).
                 startWith(l -> entries).
-                sql("select * from Coffee").
-                to(consumer).build();
+                sqlQuery("select * from Coffee").
+                to(consumer).
+                build();
         pump.start();
         verify(consumer, times(2)).processRow(entries);
     }
@@ -84,7 +86,7 @@ public class PumpTest {
                 from(source).
                 endWith(l -> entries).
                 to(consumer).
-                sql("select * from Coffee").
+                sqlQuery("select * from Coffee").
                 build();
         pump.start();
         verify(consumer, times(2)).processRow(entries);
@@ -98,8 +100,7 @@ public class PumpTest {
         Pump pump = new Pump.Engine().
                 from(source).
                 to(consumer).
-                sql("select * from Coffee").
-                build();
+                sqlQuery("select * from Coffee").build();
         pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
     }
@@ -114,7 +115,7 @@ public class PumpTest {
                 from(source).
                 with(1, "quote").
                 to(consumer).
-                sql("select * from Coffee").
+                sqlQuery("select * from Coffee").
                 build();
         pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
@@ -131,7 +132,7 @@ public class PumpTest {
                 startWith("reverse").
                 from(source).
                 to(consumer).
-                sql("select * from Coffee").
+                sqlQuery("select * from Coffee").
                 build();
         pump.start();
         verify(consumer, times(2)).processRow(any(List.class));

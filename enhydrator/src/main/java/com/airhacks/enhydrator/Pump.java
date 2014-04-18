@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,14 +40,18 @@ public class Pump {
     private final Object[] params;
     private final Expression expression;
 
+    private Consumer<String> flowListener;
+
     private Pump(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
             Function<List<Entry>, List<Entry>> before,
             Map<String, Function<Entry, List<Entry>>> namedFunctions,
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
             List<String> expressions,
             Function<List<Entry>, List<Entry>> after,
-            Sink sink, String sql, Object... params) {
+            Sink sink, String sql,
+            Consumer<String> flowListener, Object... params) {
         this.expression = new Expression();
+        this.flowListener = flowListener;
         this.source = source;
         this.before = before;
         this.rowTransformer = rowTransformer;
@@ -122,6 +127,7 @@ public class Pump {
         private List<String> expressions;
         private String sql;
         private Object[] params;
+        private Consumer<String> flowListener;
 
         public Engine() {
             this.expressions = new ArrayList<>();
@@ -131,6 +137,8 @@ public class Pump {
             this.after = f -> f;
             this.indexedFunctions = new HashMap<>();
             this.loader = new FunctionScriptLoader();
+            this.flowListener = f -> {
+            };
         }
 
         public Engine homeScriptFolder(String baseFolder) {
@@ -193,16 +201,22 @@ public class Pump {
             return endWith(rowTransformer::execute);
         }
 
-        public Engine sql(String sql, Object... params) {
+        public Engine sqlQuery(String sql, Object... params) {
             this.sql = sql;
             this.params = params;
+            return this;
+        }
+
+        public Engine flowListener(Consumer<String> listener) {
+            this.flowListener = listener;
             return this;
         }
 
         public Pump build() {
             return new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions, this.indexedFunctions,
-                    this.expressions, this.after, this.sink, this.sql, this.params);
+                    this.expressions, this.after, this.sink, this.sql, this.flowListener,
+                    this.params);
         }
 
         public Pump use(Pipeline pipeline) {
@@ -224,9 +238,9 @@ public class Pump {
             this.expressions = pipeline.getExpressions();
             List<Object> queryParams = pipeline.getQueryParams();
             if (queryParams == null || queryParams.isEmpty()) {
-                sql(pipeline.getSqlQuery());
+                sqlQuery(pipeline.getSqlQuery());
             } else {
-                sql(pipeline.getSqlQuery(), queryParams.toArray());
+                sqlQuery(pipeline.getSqlQuery(), queryParams.toArray());
             }
             return build();
         }

@@ -46,8 +46,7 @@ public class CopyTableTest {
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Pump pump = new Pump.Engine().
                 from(this.source).
-                to(this.sink).
-                sql("select * from Coffee").
+                to(this.sink).sqlQuery("select * from Coffee").
                 build();
         pump.start();
         List<DeveloperDrink> all = CoffeeTestFixture.all();
