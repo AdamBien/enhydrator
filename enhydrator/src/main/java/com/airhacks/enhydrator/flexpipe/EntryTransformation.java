@@ -36,7 +36,7 @@ public class EntryTransformation {
         return columnName;
     }
 
-    public int getSlot() {
+    public Integer getSlot() {
         return slot;
     }
 

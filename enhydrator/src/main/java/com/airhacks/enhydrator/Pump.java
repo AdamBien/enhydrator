@@ -1,6 +1,9 @@
 package com.airhacks.enhydrator;
 
+import com.airhacks.enhydrator.flexpipe.EntryTransformation;
 import com.airhacks.enhydrator.flexpipe.JDBCPipeline;
+import com.airhacks.enhydrator.flexpipe.Pipeline;
+import com.airhacks.enhydrator.flexpipe.Plumber;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
@@ -9,9 +12,11 @@ import com.airhacks.enhydrator.transform.FunctionScriptLoader;
 import com.airhacks.enhydrator.transform.ResultSetToEntries;
 import com.airhacks.enhydrator.transform.RowTransformer;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,13 +32,14 @@ public class Pump {
     private final Map<Integer, Function<Entry, List<Entry>>> indexedEntryFunctions;
     private final Function<List<Entry>, List<Entry>> before;
     private final Function<List<Entry>, List<Entry>> after;
-
+    private final List<String> expressions;
     private final Sink sink;
 
     private Pump(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
             Function<List<Entry>, List<Entry>> before,
             Map<String, Function<Entry, List<Entry>>> namedFunctions,
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
+            List<String> expressions,
             Function<List<Entry>, List<Entry>> after,
             Sink sink) {
         this.source = source;
@@ -41,6 +47,7 @@ public class Pump {
         this.rowTransformer = rowTransformer;
         this.namedEntryFunctions = namedFunctions;
         this.indexedEntryFunctions = indexedFunctions;
+        this.expressions = expressions;
         this.after = after;
         this.sink = sink;
     }
@@ -94,8 +101,10 @@ public class Pump {
         private Function<List<Entry>, List<Entry>> before;
         private Function<List<Entry>, List<Entry>> after;
         private FunctionScriptLoader loader;
+        private List<String> expressions;
 
         public Engine() {
+            this.expressions = new ArrayList<>();
             this.resultSetToEntries = new ResultSetToEntries();
             this.entryFunctions = new HashMap<>();
             this.before = f -> f;
@@ -167,7 +176,27 @@ public class Pump {
         public Pump build() {
             return new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions, this.indexedFunctions,
-                    this.after, this.sink);
+                    this.expressions, this.after, this.sink);
+        }
+
+        public Pump use(Pipeline pipeline) {
+            this.source = pipeline.getSource();
+            this.resultSetToEntries = new ResultSetToEntries();
+            pipeline.getPreRowTransformers().forEach(t -> startWith(t));
+            List<EntryTransformation> trafos = pipeline.getEntryTransformations();
+            trafos.forEach(t -> {
+                String name = t.getColumnName();
+                if (name != null) {
+                    with(name, t.getFunction());
+                } else {
+                    Integer slot = t.getSlot();
+                    Objects.requireNonNull(slot, "Column name was null, slot has to be set");
+                    with(slot, t.getFunction());
+                }
+            });
+            pipeline.getPostRowTransfomers().forEach(t -> endWith(t));
+            this.expressions = pipeline.getExpressions();
+            return build();
         }
     }
 }

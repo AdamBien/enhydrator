@@ -1,5 +1,7 @@
 package com.airhacks.enhydrator;
 
+import com.airhacks.enhydrator.flexpipe.JDBCPipeline;
+import com.airhacks.enhydrator.flexpipe.JDBCPipelineTest;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
@@ -121,6 +123,20 @@ public class PumpTest {
                 from(source).
                 to(consumer).
                 build();
+        pump.start("select * from Coffee");
+        verify(consumer, times(2)).processRow(any(List.class));
+
+    }
+
+    @Test
+    public void usePipeline() {
+        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
+        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
+        JDBCPipeline pipeline = JDBCPipelineTest.getJDBCPipeline();
+        Sink consumer = mock(Sink.class);
+        Pump pump = new Pump.Engine().to(consumer).
+                homeScriptFolder("./src/test/scripts").
+                use(pipeline);
         pump.start("select * from Coffee");
         verify(consumer, times(2)).processRow(any(List.class));
 

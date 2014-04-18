@@ -83,6 +83,46 @@ public class JDBCPipeline implements Pipeline {
     }
 
     @Override
+    public JDBCSource getSource() {
+        return source;
+    }
+
+    @Override
+    public String getSqlQuery() {
+        return sqlQuery;
+    }
+
+    @Override
+    public List<Object> getQueryParams() {
+        return queryParams;
+    }
+
+    @Override
+    public Sink getSink() {
+        return sink;
+    }
+
+    @Override
+    public List<String> getPreRowTransformers() {
+        return preRowTransformers;
+    }
+
+    @Override
+    public List<EntryTransformation> getEntryTransformations() {
+        return entryTransformations;
+    }
+
+    @Override
+    public List<String> getPostRowTransfomers() {
+        return postRowTransfomers;
+    }
+
+    @Override
+    public List<String> getExpressions() {
+        return expressions;
+    }
+
+    @Override
     public int hashCode() {
         int hash = 3;
         hash = 67 * hash + Objects.hashCode(this.name);
