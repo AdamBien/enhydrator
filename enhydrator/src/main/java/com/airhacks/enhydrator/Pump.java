@@ -1,9 +1,7 @@
 package com.airhacks.enhydrator;
 
 import com.airhacks.enhydrator.flexpipe.EntryTransformation;
-import com.airhacks.enhydrator.flexpipe.JDBCPipeline;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
-import com.airhacks.enhydrator.flexpipe.Plumber;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
@@ -21,6 +19,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -66,24 +65,37 @@ public class Pump {
 
     public void start() {
         Iterable<ResultSet> results = this.source.query(sql, params);
+        this.flowListener.accept("Query executed: " + sql);
         this.sink.init();
+        this.flowListener.accept("Sink initialized");
         results.forEach(this::onNewRow);
+        this.flowListener.accept("Results processed");
         this.sink.close();
+        this.flowListener.accept("Sink closed");
+
     }
 
     void onNewRow(ResultSet columns) {
         List<Entry> convertedColumns = this.rowTransformer.apply(columns);
         List<Entry> entryColumns = this.before.apply(convertedColumns);
-        List<Entry> transformed = entryColumns.stream().
+        final Stream<Entry> indexed = entryColumns.stream().
                 map(e -> applyOrReturnOnIndexed(e)).
-                flatMap(l -> l.stream()).
+                flatMap(l -> l.stream());
+        this.flowListener.accept("Indexed functions processed");
+        final Stream<Entry> named = indexed.
                 map(e -> applyOrReturnOnNamed(e)).
-                flatMap(l -> l.stream()).
+                flatMap(l -> l.stream());
+        this.flowListener.accept("Named functions processed");
+        final Stream<Entry> expressionList = named.
                 map(e -> applyExpressions(convertedColumns, e)).
-                flatMap(l -> l.stream()).
+                flatMap(l -> l.stream());
+        this.flowListener.accept("Expressions processed");
+        List<Entry> transformed = expressionList.
                 collect(Collectors.toList());
+        this.flowListener.accept("Result collected");
         List<Entry> afterProcessed = this.after.apply(transformed);
         this.sink.processRow(afterProcessed);
+        this.flowListener.accept("Result passed to sink");
 
     }
 
@@ -112,7 +124,7 @@ public class Pump {
             this.flowListener.accept("Function: " + function + " found for slot: " + slot);
             return function.apply(e);
         } else {
-            this.flowListener.accept("No function found, returning an empty list");
+            this.flowListener.accept("No function found for slot: " + slot);
             return e.asList();
         }
     }
@@ -124,6 +136,7 @@ public class Pump {
             this.flowListener.accept("Function: " + function + " found for name: " + name);
             return function.apply(e);
         } else {
+            this.flowListener.accept("No function found for name: " + name);
             return e.asList();
         }
     }
