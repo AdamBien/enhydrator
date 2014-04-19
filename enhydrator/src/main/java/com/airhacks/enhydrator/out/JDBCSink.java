@@ -63,6 +63,7 @@ public class JDBCSink extends JDBCConnection implements Sink {
     public void processRow(List<Entry> entries) {
         if (entries == null || entries.isEmpty()) {
             this.LOG.accept("Nothing to do -> empty entry list");
+            return;
         }
         try {
             final String insertSQL = generateInsertStatement(entries);
@@ -80,6 +81,9 @@ public class JDBCSink extends JDBCConnection implements Sink {
     }
 
     static String valueList(List<Entry> entries) {
+        if (entries == null || entries.isEmpty()) {
+            return null;
+        }
         return (String) entries.stream().
                 map(e -> asInsertSQL(e)).
                 reduce((t, u) -> t + "," + u).

@@ -54,4 +54,17 @@ public class JDBCSinkTest {
         assertNull(columns);
     }
 
+    @Test
+    public void valueList() {
+        String expected = "java,tengah";
+        String columns = JDBCSink.valueList(getEntries());
+        assertThat(columns, is(expected));
+    }
+
+    @Test
+    public void emptyValueList() {
+        String columns = JDBCSink.valueList(new ArrayList<>());
+        assertNull(columns);
+    }
+
 }
