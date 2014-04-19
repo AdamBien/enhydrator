@@ -28,7 +28,7 @@ public class JDBCPipelineTest {
         JDBCSink sink = JDBCSinkTest.getSink();
         EntryTransformation e1 = new EntryTransformation("name", "convert", true);
         EntryTransformation e2 = new EntryTransformation(42, "compress", true);
-        JDBCPipeline origin = new JDBCPipeline("tst", "select * from Coffee where name like ? and strength = ?", source, sink);
+        JDBCPipeline origin = new JDBCPipeline("tst", "./src/test/scripts", "select * from Coffee where name like ? and strength = ?", source, sink);
         origin.addQueryParam("arabica");
         origin.addQueryParam(2);
         origin.addEntryTransformation(e1);

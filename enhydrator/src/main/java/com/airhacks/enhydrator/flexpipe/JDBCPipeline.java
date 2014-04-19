@@ -21,6 +21,9 @@ public class JDBCPipeline implements Pipeline {
     private String name;
     private JDBCSource source;
 
+    @XmlElement(name = "scripts-home")
+    private String scriptsHome;
+
     @XmlElement(name = "sql-query")
     private String sqlQuery;
 
@@ -48,10 +51,11 @@ public class JDBCPipeline implements Pipeline {
         this.expressions = new ArrayList<>();
     }
 
-    public JDBCPipeline(String name, String sqlQuery, JDBCSource source, Sink sink) {
+    public JDBCPipeline(String name, String scriptsHome, String sqlQuery, JDBCSource source, Sink sink) {
         this();
         this.preRowTransformers = new ArrayList<>();
         this.sqlQuery = sqlQuery;
+        this.scriptsHome = scriptsHome;
         this.name = name;
         this.source = source;
         this.sink = sink;
