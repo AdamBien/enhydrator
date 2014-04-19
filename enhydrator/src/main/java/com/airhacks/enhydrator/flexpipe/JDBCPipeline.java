@@ -127,6 +127,11 @@ public class JDBCPipeline implements Pipeline {
     }
 
     @Override
+    public String getScriptsHome() {
+        return scriptsHome;
+    }
+
+    @Override
     public int hashCode() {
         int hash = 3;
         hash = 67 * hash + Objects.hashCode(this.name);

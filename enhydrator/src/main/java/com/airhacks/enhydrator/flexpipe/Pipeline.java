@@ -24,6 +24,8 @@ public interface Pipeline {
 
     Sink getSink();
 
+    String getScriptsHome();
+
     JDBCSource getSource();
 
     String getSqlQuery();

@@ -149,12 +149,25 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         JDBCPipeline pipeline = JDBCPipelineTest.getJDBCPipeline();
         Sink consumer = mock(Sink.class);
-        Pump pump = new Pump.Engine().to(consumer).
-                homeScriptFolder("./src/test/scripts").
+        Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
-                use(pipeline);
+                use(pipeline).
+                to(consumer).
+                build();
         pump.start();
         verify(consumer).processRow(any(List.class));
+    }
+
+    @Test
+    public void usePipelineWithSink() {
+        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
+        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
+        JDBCPipeline pipeline = JDBCPipelineTest.getJDBCPipeline();
+        Pump pump = new Pump.Engine().
+                flowListener(l -> System.out.println(l)).
+                use(pipeline).
+                build();
+        pump.start();
     }
 
     @Test

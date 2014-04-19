@@ -2,6 +2,7 @@ package com.airhacks.enhydrator;
 
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.JDBCSink;
+import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.List;
 import java.util.logging.Logger;
@@ -29,11 +30,7 @@ public class CopyTableTest {
                 driver("org.apache.derby.jdbc.EmbeddedDriver").
                 url("jdbc:derby:./coffees;create=true").
                 newSource();
-        this.sink = new JDBCSink.Configuration().
-                driver("org.apache.derby.jdbc.EmbeddedDriver").
-                url("jdbc:derby:./targetDB;create=true").
-                targetTable("DEVELOPER_DRINK").
-                newSink();
+        this.sink = JDBCSinkTest.getSink();
 
     }
 

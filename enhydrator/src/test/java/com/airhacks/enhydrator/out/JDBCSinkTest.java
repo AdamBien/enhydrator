@@ -19,11 +19,19 @@ public class JDBCSinkTest {
 
     @Before
     public void init() {
-        this.cut = getSink();
+        this.cut = getDummySink();
     }
 
-    public static JDBCSink getSink() {
+    public static JDBCSink getDummySink() {
         return new JDBCSink("aDriver", "localhost", "duke", "s3cret", TABLE_NAME);
+    }
+
+    public static Sink getSink() {
+        return new JDBCSink.Configuration().
+                driver("org.apache.derby.jdbc.EmbeddedDriver").
+                url("jdbc:derby:./targetDB;create=true").
+                targetTable("DEVELOPER_DRINK").
+                newSink();
     }
 
     @Test

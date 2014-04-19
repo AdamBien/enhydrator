@@ -250,8 +250,10 @@ public class Pump {
                     this.params);
         }
 
-        public Pump use(Pipeline pipeline) {
+        public Engine use(Pipeline pipeline) {
+            homeScriptFolder(pipeline.getScriptsHome());
             this.source = pipeline.getSource();
+            this.sink = pipeline.getSink();
             this.resultSetToEntries = new ResultSetToEntries();
             pipeline.getPreRowTransformers().forEach(t -> startWith(t));
             List<EntryTransformation> trafos = pipeline.getEntryTransformations();
@@ -273,7 +275,7 @@ public class Pump {
             } else {
                 sqlQuery(pipeline.getSqlQuery(), queryParams.toArray());
             }
-            return build();
+            return this;
         }
     }
 }
