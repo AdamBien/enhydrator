@@ -101,6 +101,9 @@ public class Pump {
     }
 
     List<Entry> applyExpressions(List<Entry> columns, Entry current) {
+        if (this.expressions == null || this.expressions.isEmpty()) {
+            return current.asList();
+        }
         return this.expressions.stream().
                 map(e -> applyExpression(columns, current, e)).
                 flatMap(l -> l.stream()).
