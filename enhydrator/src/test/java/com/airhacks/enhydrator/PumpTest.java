@@ -147,6 +147,7 @@ public class PumpTest {
         Sink consumer = mock(Sink.class);
         Pump pump = new Pump.Engine().to(consumer).
                 homeScriptFolder("./src/test/scripts").
+                flowListener(l -> System.out.println(l)).
                 use(pipeline);
         pump.start();
         verify(consumer).processRow(any(List.class));

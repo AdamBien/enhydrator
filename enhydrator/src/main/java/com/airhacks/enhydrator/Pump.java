@@ -50,8 +50,8 @@ public class Pump {
             Function<List<Entry>, List<Entry>> after,
             Sink sink, String sql,
             Consumer<String> flowListener, Object... params) {
-        this.expression = new Expression();
         this.flowListener = flowListener;
+        this.expression = new Expression(flowListener);
         this.source = source;
         this.before = before;
         this.rowTransformer = rowTransformer;
@@ -79,7 +79,7 @@ public class Pump {
                 flatMap(l -> l.stream()).
                 map(e -> applyOrReturnOnNamed(e)).
                 flatMap(l -> l.stream()).
-                map(e -> applyExpression(convertedColumns, e)).
+                map(e -> applyExpressions(convertedColumns, e)).
                 flatMap(l -> l.stream()).
                 collect(Collectors.toList());
         List<Entry> afterProcessed = this.after.apply(transformed);
@@ -87,27 +87,41 @@ public class Pump {
 
     }
 
-    List<Entry> applyExpression(List<Entry> columns, Entry current) {
+    List<Entry> applyExpressions(List<Entry> columns, Entry current) {
         return this.expressions.stream().
-                map(e -> this.expression.
-                        execute(columns, current, e)).
+                map(e -> applyExpression(columns, current, e)).
                 flatMap(l -> l.stream()).
                 collect(Collectors.toList());
 
     }
 
+    List<Entry> applyExpression(List<Entry> columns, Entry current, String expression) {
+        this.flowListener.accept("Executing expression: " + expression);
+        try {
+            return this.expression.
+                    execute(columns, current, expression);
+        } finally {
+            this.flowListener.accept("Expression executed.");
+        }
+    }
+
     List<Entry> applyOrReturnOnIndexed(Entry e) {
-        final Function<Entry, List<Entry>> function = this.indexedEntryFunctions.get(e.getSlot());
+        final int slot = e.getSlot();
+        final Function<Entry, List<Entry>> function = this.indexedEntryFunctions.get(slot);
         if (function != null) {
+            this.flowListener.accept("Function: " + function + " found for slot: " + slot);
             return function.apply(e);
         } else {
+            this.flowListener.accept("No function found, returning an empty list");
             return e.asList();
         }
     }
 
     List<Entry> applyOrReturnOnNamed(Entry e) {
-        final Function<Entry, List<Entry>> function = this.namedEntryFunctions.get(e.getName());
+        final String name = e.getName();
+        final Function<Entry, List<Entry>> function = this.namedEntryFunctions.get(name);
         if (function != null) {
+            this.flowListener.accept("Function: " + function + " found for name: " + name);
             return function.apply(e);
         } else {
             return e.asList();
