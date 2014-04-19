@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.function.Consumer;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -24,10 +25,16 @@ public class JDBCConnection {
     @XmlTransient
     protected Connection connection;
 
+    @XmlTransient
+    protected Consumer<String> LOG;
+
     public JDBCConnection() {
+        this.LOG = l -> {
+        };
     }
 
     protected JDBCConnection(String driver, String url, String user, String pwd) {
+        this();
         this.driver = driver;
         this.user = user;
         this.pwd = pwd;

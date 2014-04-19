@@ -4,16 +4,13 @@ import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.persistence.Persistence;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 /**
  *
@@ -45,8 +42,10 @@ public class CopyTableTest {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Pump pump = new Pump.Engine().
+                flowListener(l -> Logger.getLogger("plainCopy").info(l)).
                 from(this.source).
-                to(this.sink).sqlQuery("select * from Coffee").
+                to(this.sink).
+                sqlQuery("select * from Coffee").
                 build();
         pump.start();
         List<DeveloperDrink> all = CoffeeTestFixture.all();

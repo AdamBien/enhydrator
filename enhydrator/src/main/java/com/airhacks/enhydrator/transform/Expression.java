@@ -40,7 +40,7 @@ public class Expression {
             Object result = this.engine.eval(expression, bindings);
             this.expressionListener.accept("Got result: " + result);
             if (!(result instanceof List)) {
-                return Collections.EMPTY_LIST;
+                return entry.asList();
             } else {
                 return (List<Entry>) result;
             }

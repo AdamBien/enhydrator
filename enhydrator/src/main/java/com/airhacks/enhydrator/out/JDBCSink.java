@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -29,14 +30,12 @@ public class JDBCSink extends JDBCConnection implements Sink {
     private String targetTable;
     @XmlTransient
     private Statement statement;
-    @XmlTransient
-    private static final Logger LOG = Logger.getLogger(JDBCSink.class.getName());
-
     @XmlAttribute
     private String name;
 
     public JDBCSink() {
         //JAXB...
+
     }
 
     JDBCSink(String driver, String url, String user, String pwd, String table) {
@@ -48,7 +47,7 @@ public class JDBCSink extends JDBCConnection implements Sink {
     public void init() {
         try {
             this.statement = this.connection.createStatement();
-            LOG.info("#init() Statement created");
+            LOG.accept("#init() Statement created");
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot create statement " + ex.getMessage(), ex);
         }
@@ -62,11 +61,14 @@ public class JDBCSink extends JDBCConnection implements Sink {
 
     @Override
     public void processRow(List<Entry> entries) {
+        if (entries == null || entries.isEmpty()) {
+            this.LOG.accept("Nothing to do -> empty entry list");
+        }
         try {
             final String insertSQL = generateInsertStatement(entries);
-            LOG.info("#processRow(): " + insertSQL);
+            LOG.accept("#processRow(): " + insertSQL);
             this.statement.execute(insertSQL);
-            LOG.info("#processRow() executed!");
+            LOG.accept("#processRow() executed!");
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot insert entry: " + ex.getMessage(), ex);
         }
@@ -85,6 +87,9 @@ public class JDBCSink extends JDBCConnection implements Sink {
     }
 
     static String columnList(List<Entry> entries) {
+        if (entries == null || entries.isEmpty()) {
+            return null;
+        }
         return (String) entries.stream().
                 map(e -> e.getName()).
                 reduce((t, u) -> t + "," + u).
@@ -111,7 +116,7 @@ public class JDBCSink extends JDBCConnection implements Sink {
     public void close() {
         try {
             this.connection.close();
-            LOG.info("#close() Connection successfully closed");
+            LOG.accept("#close() Connection successfully closed");
 
         } catch (SQLException ex) {
             Logger.getLogger(JDBCSink.class

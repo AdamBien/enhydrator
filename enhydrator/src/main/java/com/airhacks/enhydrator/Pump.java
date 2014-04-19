@@ -94,6 +94,7 @@ public class Pump {
                 collect(Collectors.toList());
         this.flowListener.accept("Result collected");
         List<Entry> afterProcessed = this.after.apply(transformed);
+        this.flowListener.accept("After process RowTransformer executed.");
         this.sink.processRow(afterProcessed);
         this.flowListener.accept("Result passed to sink");
 
