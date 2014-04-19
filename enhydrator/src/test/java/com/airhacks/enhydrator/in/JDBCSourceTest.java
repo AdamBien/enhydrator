@@ -5,7 +5,6 @@ import com.airhacks.enhydrator.Roast;
 import com.airhacks.enhydrator.transform.ResultSetToEntries;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,14 +16,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.not;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.mockito.Matchers;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 
 /**
  *
