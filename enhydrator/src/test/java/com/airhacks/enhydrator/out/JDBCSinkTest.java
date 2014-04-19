@@ -67,4 +67,10 @@ public class JDBCSinkTest {
         assertNull(columns);
     }
 
+    @Test
+    public void processEmptyRow() {
+        this.cut.processRow(null);
+        this.cut.processRow(new ArrayList<>());
+    }
+
 }
