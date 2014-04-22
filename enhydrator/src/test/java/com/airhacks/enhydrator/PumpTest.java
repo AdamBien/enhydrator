@@ -19,19 +19,22 @@ package com.airhacks.enhydrator;
  * limitations under the License.
  * #L%
  */
-
+import static com.airhacks.enhydrator.Pump.applyRowTransformations;
 import com.airhacks.enhydrator.flexpipe.JDBCPipeline;
 import com.airhacks.enhydrator.flexpipe.JDBCPipelineTest;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
 import org.junit.Assert;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Matchers.any;
@@ -92,7 +95,7 @@ public class PumpTest {
         final ArrayList<Entry> entries = new ArrayList<>();
         Pump pump = new Pump.Engine().
                 from(source).
-                startWith(l -> entries).
+                startWith(l -> null).
                 sqlQuery("select * from Coffee").
                 to(consumer).
                 build();
@@ -105,7 +108,7 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = mock(Sink.class);
-        final ArrayList<Entry> entries = new ArrayList<>();
+        final List<Entry> entries = new ArrayList<>();
         Pump pump = new Pump.Engine().
                 from(source).
                 endWith(l -> entries).
@@ -113,7 +116,7 @@ public class PumpTest {
                 sqlQuery("select * from Coffee").
                 build();
         pump.start();
-        verify(consumer, times(2)).processRow(entries);
+        verify(consumer, times(2)).processRow(any(List.class));
     }
 
     @Test
@@ -199,6 +202,22 @@ public class PumpTest {
         List<Entry> result = pump.applyExpressions(entries, expected);
         assertThat(result, CoreMatchers.hasItem(expected));
         assertThat(result.size(), is(1));
+    }
+
+    @Test
+    public void applyRowTransformationsWithoutFunctions() {
+        List<Entry> input = getEntries();
+        List<Entry> output = Pump.applyRowTransformations(new ArrayList<>(), input);
+        assertThat(output, is(input));
+    }
+
+    @Test
+    public void applyRowTransformationsWitDevNull() {
+        List<Entry> input = getEntries();
+        List<Function<List<Entry>, List<Entry>>> funcs = new ArrayList<>();
+        funcs.add(l -> new ArrayList<>());
+        List<Entry> output = Pump.applyRowTransformations(funcs, input);
+        assertTrue(output.isEmpty());
     }
 
     List<Entry> getEntries() {

@@ -19,7 +19,6 @@ package com.airhacks.enhydrator;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.flexpipe.EntryTransformation;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.Entry;
@@ -51,8 +50,8 @@ public class Pump {
     private final Function<ResultSet, List<Entry>> rowTransformer;
     private final Map<String, Function<Entry, List<Entry>>> namedEntryFunctions;
     private final Map<Integer, Function<Entry, List<Entry>>> indexedEntryFunctions;
-    private final Function<List<Entry>, List<Entry>> before;
-    private final Function<List<Entry>, List<Entry>> after;
+    private final List<Function<List<Entry>, List<Entry>>> beforeTransformations;
+    private final List<Function<List<Entry>, List<Entry>>> afterTransformations;
     private final List<String> expressions;
     private final Sink sink;
     private final String sql;
@@ -62,22 +61,22 @@ public class Pump {
     private Consumer<String> flowListener;
 
     private Pump(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
-            Function<List<Entry>, List<Entry>> before,
+            List<Function<List<Entry>, List<Entry>>> before,
             Map<String, Function<Entry, List<Entry>>> namedFunctions,
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
             List<String> expressions,
-            Function<List<Entry>, List<Entry>> after,
+            List<Function<List<Entry>, List<Entry>>> after,
             Sink sink, String sql,
             Consumer<String> flowListener, Object... params) {
         this.flowListener = flowListener;
         this.expression = new Expression(flowListener);
         this.source = source;
-        this.before = before;
+        this.beforeTransformations = before;
         this.rowTransformer = rowTransformer;
         this.namedEntryFunctions = namedFunctions;
         this.indexedEntryFunctions = indexedFunctions;
         this.expressions = expressions;
-        this.after = after;
+        this.afterTransformations = after;
         this.sink = sink;
         this.sql = sql;
         this.params = params;
@@ -97,7 +96,7 @@ public class Pump {
 
     void onNewRow(ResultSet columns) {
         List<Entry> convertedColumns = this.rowTransformer.apply(columns);
-        List<Entry> entryColumns = this.before.apply(convertedColumns);
+        List<Entry> entryColumns = applyRowTransformations(this.beforeTransformations, convertedColumns);
         final Stream<Entry> indexed = entryColumns.stream().
                 map(e -> applyOrReturnOnIndexed(e)).
                 flatMap(l -> l.stream());
@@ -113,7 +112,7 @@ public class Pump {
         List<Entry> transformed = expressionList.
                 collect(Collectors.toList());
         this.flowListener.accept("Result collected");
-        List<Entry> afterProcessed = this.after.apply(transformed);
+        List<Entry> afterProcessed = applyRowTransformations(this.afterTransformations, transformed);
         this.flowListener.accept("After process RowTransformer executed.");
         this.sink.processRow(afterProcessed);
         this.flowListener.accept("Result passed to sink");
@@ -165,6 +164,16 @@ public class Pump {
         }
     }
 
+    static List<Entry> applyRowTransformations(List<Function<List<Entry>, List<Entry>>> trafos, List<Entry> convertedColumns) {
+        if (trafos == null || trafos.isEmpty()) {
+            return convertedColumns;
+        }
+        return trafos.stream().
+                map(r -> r.apply(convertedColumns)).
+                filter(l -> (l != null && !l.isEmpty())).
+                flatMap(l -> l.stream()).collect(Collectors.toList());
+    }
+
     public static class Engine {
 
         private Sink sink;
@@ -172,8 +181,8 @@ public class Pump {
         private Function<ResultSet, List<Entry>> resultSetToEntries;
         private Map<String, Function<Entry, List<Entry>>> entryFunctions;
         private Map<Integer, Function<Entry, List<Entry>>> indexedFunctions;
-        private Function<List<Entry>, List<Entry>> before;
-        private Function<List<Entry>, List<Entry>> after;
+        private List<Function<List<Entry>, List<Entry>>> before;
+        private List<Function<List<Entry>, List<Entry>>> after;
         private FunctionScriptLoader loader;
         private List<String> expressions;
         private String sql;
@@ -184,8 +193,8 @@ public class Pump {
             this.expressions = new ArrayList<>();
             this.resultSetToEntries = new ResultSetToEntries();
             this.entryFunctions = new HashMap<>();
-            this.before = f -> f;
-            this.after = f -> f;
+            this.before = new ArrayList<>();
+            this.after = new ArrayList<>();
             this.indexedFunctions = new HashMap<>();
             this.loader = new FunctionScriptLoader();
             this.flowListener = f -> {
@@ -208,7 +217,7 @@ public class Pump {
         }
 
         public Engine startWith(Function<List<Entry>, List<Entry>> before) {
-            this.before = before;
+            this.before.add(before);
             return this;
         }
 
@@ -243,7 +252,7 @@ public class Pump {
         }
 
         public Engine endWith(Function<List<Entry>, List<Entry>> after) {
-            this.after = after;
+            this.after.add(after);
             return this;
         }
 
