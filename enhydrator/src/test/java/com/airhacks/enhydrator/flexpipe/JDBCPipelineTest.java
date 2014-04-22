@@ -19,13 +19,12 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.JDBCSourceTest;
-import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.Sink;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import org.junit.Test;
 
 /**
@@ -58,6 +57,7 @@ public class JDBCPipelineTest {
         origin.addPreRowTransforation("validate");
         origin.addPostRowTransformation("compress");
         origin.addPostRowTransformation("encrypt");
+        origin.addFilter("true");
         origin.addExpression("print(current); java.util.Collections.emptyList();");
         return origin;
     }

@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.ArrayList;
@@ -60,6 +59,9 @@ public class JDBCPipeline implements Pipeline {
     @XmlElement(name = "post-row-transformer")
     private List<String> postRowTransfomers;
 
+    @XmlElement(name = "filter")
+    private List<String> filters;
+
     @XmlElement(name = "expression")
     private List<String> expressions;
 
@@ -69,6 +71,7 @@ public class JDBCPipeline implements Pipeline {
         this.postRowTransfomers = new ArrayList<>();
         this.queryParams = new ArrayList<>();
         this.expressions = new ArrayList<>();
+        this.filters = new ArrayList<>();
     }
 
     public JDBCPipeline(String name, String scriptsHome, String sqlQuery, JDBCSource source, Sink sink) {
@@ -100,6 +103,10 @@ public class JDBCPipeline implements Pipeline {
 
     public void addExpression(String expression) {
         this.expressions.add(expression);
+    }
+
+    public void addFilter(String filter) {
+        this.filters.add(filter);
     }
 
     public void addQueryParam(Object value) {
