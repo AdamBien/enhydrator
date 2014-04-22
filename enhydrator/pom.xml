@@ -8,9 +8,9 @@
     </parent>
     <groupId>com.airhacks</groupId>
     <artifactId>enhydrator</artifactId>
+    <name>enhydrator</name>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>enhydrator</name>
     <description>enhydrator is an ETL based on Java 8</description>
     <url>https://github.com/AdamBien/enhydrator</url>
     <organization>
@@ -83,7 +83,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.5</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -111,7 +111,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.4.2</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                 </configuration>
