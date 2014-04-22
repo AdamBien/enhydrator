@@ -140,7 +140,9 @@ public class PumpTest {
                 from(source).
                 to(consumer).
                 sqlQuery("select * from Coffee").build();
-        pump.start();
+        long rowCount = pump.start();
+        //counts all rows, not processed rows
+        assertThat(rowCount, is(2l));
         verify(consumer, never()).processRow(any(List.class));
     }
 
@@ -156,7 +158,8 @@ public class PumpTest {
                 to(consumer).
                 sqlQuery("select * from Coffee").
                 build();
-        pump.start();
+        long rowCount = pump.start();
+        assertThat(rowCount, is(2l));
         verify(consumer, times(2)).processRow(any(List.class));
     }
 

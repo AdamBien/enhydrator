@@ -63,6 +63,7 @@ public class Pump {
     private final FilterExpression filterExpression;
 
     private Consumer<String> flowListener;
+    private long rowCount;
 
     private Pump(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
             List<Function<List<Entry>, List<Entry>>> before,
@@ -89,7 +90,8 @@ public class Pump {
         this.params = params;
     }
 
-    public void start() {
+    public long start() {
+        this.rowCount = 0;
         Iterable<ResultSet> results = this.source.query(sql, params);
         this.flowListener.accept("Query executed: " + sql);
         this.sink.init();
@@ -98,10 +100,12 @@ public class Pump {
         this.flowListener.accept("Results processed");
         this.sink.close();
         this.flowListener.accept("Sink closed");
+        return this.rowCount;
 
     }
 
     void onNewRow(ResultSet columns) {
+        this.rowCount++;
         List<Entry> convertedColumns = this.rowTransformer.apply(columns);
         Optional<Boolean> first = this.filterExpressions.stream().
                 map(e -> this.filterExpression.execute(convertedColumns, e)).
