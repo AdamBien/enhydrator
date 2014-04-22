@@ -9,9 +9,9 @@ package com.airhacks.enhydrator;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.transform.EntryTransformer;
 import com.airhacks.enhydrator.transform.Expression;
+import com.airhacks.enhydrator.transform.FilterExpression;
 import com.airhacks.enhydrator.transform.FunctionScriptLoader;
 import com.airhacks.enhydrator.transform.ResultSetToEntries;
 import com.airhacks.enhydrator.transform.RowTransformer;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,10 +55,12 @@ public class Pump {
     private final List<Function<List<Entry>, List<Entry>>> beforeTransformations;
     private final List<Function<List<Entry>, List<Entry>>> afterTransformations;
     private final List<String> expressions;
+    private final List<String> filterExpressions;
     private final Sink sink;
     private final String sql;
     private final Object[] params;
     private final Expression expression;
+    private final FilterExpression filterExpression;
 
     private Consumer<String> flowListener;
 
@@ -64,12 +68,15 @@ public class Pump {
             List<Function<List<Entry>, List<Entry>>> before,
             Map<String, Function<Entry, List<Entry>>> namedFunctions,
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
+            List<String> filterExpressions,
             List<String> expressions,
             List<Function<List<Entry>, List<Entry>>> after,
             Sink sink, String sql,
             Consumer<String> flowListener, Object... params) {
         this.flowListener = flowListener;
+        this.filterExpressions = filterExpressions;
         this.expression = new Expression(flowListener);
+        this.filterExpression = new FilterExpression(flowListener);
         this.source = source;
         this.beforeTransformations = before;
         this.rowTransformer = rowTransformer;
@@ -96,6 +103,18 @@ public class Pump {
 
     void onNewRow(ResultSet columns) {
         List<Entry> convertedColumns = this.rowTransformer.apply(columns);
+        Optional<Boolean> first = this.filterExpressions.stream().
+                map(e -> this.filterExpression.execute(convertedColumns, e)).
+                filter(r -> r == false).findFirst();
+        if (!first.isPresent()) {
+            onNewRow(convertedColumns);
+        } else {
+            this.flowListener.accept("Row ignored by filtering");
+        }
+
+    }
+
+    void onNewRow(List<Entry> convertedColumns) {
         List<Entry> entryColumns = applyRowTransformations(this.beforeTransformations, convertedColumns);
         final Stream<Entry> indexed = entryColumns.stream().
                 map(e -> applyOrReturnOnIndexed(e)).
@@ -185,12 +204,14 @@ public class Pump {
         private List<Function<List<Entry>, List<Entry>>> after;
         private FunctionScriptLoader loader;
         private List<String> expressions;
+        private List<String> filterExpressions;
         private String sql;
         private Object[] params;
         private Consumer<String> flowListener;
 
         public Engine() {
             this.expressions = new ArrayList<>();
+            this.filterExpressions = new ArrayList<>();
             this.resultSetToEntries = new ResultSetToEntries();
             this.entryFunctions = new HashMap<>();
             this.before = new ArrayList<>();
@@ -272,10 +293,17 @@ public class Pump {
             return this;
         }
 
+        public Engine filter(String expression) {
+            this.filterExpressions.add(expression);
+            return this;
+        }
+
         public Pump build() {
             return new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions, this.indexedFunctions,
-                    this.expressions, this.after, this.sink, this.sql, this.flowListener,
+                    this.filterExpressions,
+                    this.expressions,
+                    this.after, this.sink, this.sql, this.flowListener,
                     this.params);
         }
 

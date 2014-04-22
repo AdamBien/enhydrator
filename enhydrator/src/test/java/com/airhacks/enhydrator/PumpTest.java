@@ -9,9 +9,9 @@ package com.airhacks.enhydrator;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,26 +19,24 @@ package com.airhacks.enhydrator;
  * limitations under the License.
  * #L%
  */
-import static com.airhacks.enhydrator.Pump.applyRowTransformations;
 import com.airhacks.enhydrator.flexpipe.JDBCPipeline;
 import com.airhacks.enhydrator.flexpipe.JDBCPipelineTest;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
-import org.junit.Assert;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -130,6 +128,20 @@ public class PumpTest {
                 sqlQuery("select * from Coffee").build();
         pump.start();
         verify(consumer, times(2)).processRow(any(List.class));
+    }
+
+    @Test
+    public void ignoringFilter() {
+        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
+        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
+        Sink consumer = mock(Sink.class);
+        Pump pump = new Pump.Engine().
+                filter("false").
+                from(source).
+                to(consumer).
+                sqlQuery("select * from Coffee").build();
+        pump.start();
+        verify(consumer, never()).processRow(any(List.class));
     }
 
     @Test
