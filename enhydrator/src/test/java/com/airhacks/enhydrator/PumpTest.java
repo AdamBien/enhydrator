@@ -145,6 +145,22 @@ public class PumpTest {
     }
 
     @Test
+    public void acceptingFilter() {
+        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
+        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
+        Sink consumer = mock(Sink.class);
+        Pump pump = new Pump.Engine().
+                filter("true").
+                filter("columns.empty === false").
+                from(source).
+                to(consumer).
+                sqlQuery("select * from Coffee").
+                build();
+        pump.start();
+        verify(consumer, times(2)).processRow(any(List.class));
+    }
+
+    @Test
     public void scriptEntryTransformer() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
