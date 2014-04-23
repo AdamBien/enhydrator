@@ -19,9 +19,9 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
-
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 /**
@@ -33,7 +33,7 @@ public class PlumberTest {
     @Test
     public void writeAndReadConfiguration() {
         Plumber plumber = new Plumber();
-        JDBCPipeline origin = JDBCPipelineTest.getJDBCPipeline();
+        Pipeline origin = PipelineTest.getPipeline();
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
         assertNotSame(deserialized, origin);

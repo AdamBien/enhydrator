@@ -34,13 +34,16 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
+import com.airhacks.enhydrator.flexpipe.JAXBInterfaceAdapter;
 import java.util.List;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
  * @author airhacks.com
  */
+@FunctionalInterface
+@XmlJavaTypeAdapter(JAXBInterfaceAdapter.class)
 public interface Source {
 
     Iterable<List<Entry>> query(String query, Object... params);

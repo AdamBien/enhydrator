@@ -22,8 +22,8 @@ package com.airhacks.enhydrator;
 import com.airhacks.enhydrator.flexpipe.EntryTransformation;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.Entry;
-import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.ResultSetToEntries;
+import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.transform.EntryTransformer;
 import com.airhacks.enhydrator.transform.Expression;
@@ -48,7 +48,7 @@ import java.util.stream.Stream;
  */
 public class Pump {
 
-    private final JDBCSource source;
+    private final Source source;
     private final Map<String, Function<Entry, List<Entry>>> namedEntryFunctions;
     private final Map<Integer, Function<Entry, List<Entry>>> indexedEntryFunctions;
     private final List<Function<List<Entry>, List<Entry>>> beforeTransformations;
@@ -64,7 +64,7 @@ public class Pump {
     private Consumer<String> flowListener;
     private long rowCount;
 
-    private Pump(JDBCSource source, Function<ResultSet, List<Entry>> rowTransformer,
+    private Pump(Source source, Function<ResultSet, List<Entry>> rowTransformer,
             List<Function<List<Entry>, List<Entry>>> before,
             Map<String, Function<Entry, List<Entry>>> namedFunctions,
             Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
@@ -197,7 +197,7 @@ public class Pump {
     public static class Engine {
 
         private Sink sink;
-        private JDBCSource source;
+        private Source source;
         private Function<ResultSet, List<Entry>> resultSetToEntries;
         private Map<String, Function<Entry, List<Entry>>> entryFunctions;
         private Map<Integer, Function<Entry, List<Entry>>> indexedFunctions;
@@ -228,7 +228,7 @@ public class Pump {
             return this;
         }
 
-        public Engine from(JDBCSource source) {
+        public Engine from(Source source) {
             this.source = source;
             return this;
         }

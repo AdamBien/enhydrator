@@ -19,8 +19,8 @@ package com.airhacks.enhydrator;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.flexpipe.JDBCPipeline;
-import com.airhacks.enhydrator.flexpipe.JDBCPipelineTest;
+import com.airhacks.enhydrator.flexpipe.Pipeline;
+import com.airhacks.enhydrator.flexpipe.PipelineTest;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
@@ -201,7 +201,7 @@ public class PumpTest {
     public void usePipeline() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        JDBCPipeline pipeline = JDBCPipelineTest.getJDBCPipeline();
+        Pipeline pipeline = PipelineTest.getPipeline();
         Sink consumer = mock(Sink.class);
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
@@ -216,7 +216,7 @@ public class PumpTest {
     public void usePipelineWithSink() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        JDBCPipeline pipeline = JDBCPipelineTest.getJDBCPipeline();
+        Pipeline pipeline = PipelineTest.getPipeline();
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
                 use(pipeline).

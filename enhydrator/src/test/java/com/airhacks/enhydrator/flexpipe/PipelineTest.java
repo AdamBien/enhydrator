@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.flexpipe;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,11 +31,11 @@ import org.junit.Test;
  *
  * @author airhacks.com
  */
-public class JDBCPipelineTest {
+public class PipelineTest {
 
     @Test
     public void jaxbSerialization() {
-        JDBCPipeline origin = getJDBCPipeline();
+        Pipeline origin = getPipeline();
         Plumber plumber = new Plumber(".", "config");
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
@@ -43,12 +43,12 @@ public class JDBCPipelineTest {
         assertEquals(deserialized, origin);
     }
 
-    public static JDBCPipeline getJDBCPipeline() {
+    public static Pipeline getPipeline() {
         JDBCSource source = JDBCSourceTest.getSource();
         Sink sink = JDBCSinkTest.getSink();
         EntryTransformation e1 = new EntryTransformation("name", "convert", true);
         EntryTransformation e2 = new EntryTransformation(42, "compress", true);
-        JDBCPipeline origin = new JDBCPipeline("tst", "./src/test/scripts", "select * from Coffee where name like ? and strength = ?", source, sink);
+        Pipeline origin = new Pipeline("tst", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source, sink);
         origin.addQueryParam("arabica");
         origin.addQueryParam(2);
         origin.addEntryTransformation(e1);
