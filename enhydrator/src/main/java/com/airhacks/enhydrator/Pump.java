@@ -23,12 +23,12 @@ import com.airhacks.enhydrator.flexpipe.EntryTransformation;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
+import com.airhacks.enhydrator.in.ResultSetToEntries;
 import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.transform.EntryTransformer;
 import com.airhacks.enhydrator.transform.Expression;
 import com.airhacks.enhydrator.transform.FilterExpression;
 import com.airhacks.enhydrator.transform.FunctionScriptLoader;
-import com.airhacks.enhydrator.transform.ResultSetToEntries;
 import com.airhacks.enhydrator.transform.RowTransformer;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -49,7 +49,6 @@ import java.util.stream.Stream;
 public class Pump {
 
     private final JDBCSource source;
-    private final Function<ResultSet, List<Entry>> rowTransformer;
     private final Map<String, Function<Entry, List<Entry>>> namedEntryFunctions;
     private final Map<Integer, Function<Entry, List<Entry>>> indexedEntryFunctions;
     private final List<Function<List<Entry>, List<Entry>>> beforeTransformations;
@@ -80,7 +79,6 @@ public class Pump {
         this.filterExpression = new FilterExpression(flowListener);
         this.source = source;
         this.beforeTransformations = before;
-        this.rowTransformer = rowTransformer;
         this.namedEntryFunctions = namedFunctions;
         this.indexedEntryFunctions = indexedFunctions;
         this.expressions = expressions;
@@ -92,11 +90,11 @@ public class Pump {
 
     public long start() {
         this.rowCount = 0;
-        Iterable<ResultSet> results = this.source.query(sql, params);
+        Iterable<List<Entry>> input = this.source.query(sql, params);
         this.flowListener.accept("Query executed: " + sql);
         this.sink.init();
         this.flowListener.accept("Sink initialized");
-        results.forEach(this::onNewRow);
+        input.forEach(this::onNewRow);
         this.flowListener.accept("Results processed");
         this.sink.close();
         this.flowListener.accept("Sink closed");
@@ -104,21 +102,20 @@ public class Pump {
 
     }
 
-    void onNewRow(ResultSet columns) {
+    void onNewRow(List<Entry> columns) {
         this.rowCount++;
-        List<Entry> convertedColumns = this.rowTransformer.apply(columns);
         Optional<Boolean> first = this.filterExpressions.stream().
-                map(e -> this.filterExpression.execute(convertedColumns, e)).
+                map(e -> this.filterExpression.execute(columns, e)).
                 filter(r -> r == false).findFirst();
         if (!first.isPresent()) {
-            onNewRow(convertedColumns);
+            transformRow(columns);
         } else {
             this.flowListener.accept("Row ignored by filtering");
         }
 
     }
 
-    void onNewRow(List<Entry> convertedColumns) {
+    void transformRow(List<Entry> convertedColumns) {
         List<Entry> entryColumns = applyRowTransformations(this.beforeTransformations, convertedColumns);
         final Stream<Entry> indexed = entryColumns.stream().
                 map(e -> applyOrReturnOnIndexed(e)).

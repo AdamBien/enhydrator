@@ -1,4 +1,4 @@
-package com.airhacks.enhydrator.transform;
+package com.airhacks.enhydrator.in;
 
 /*
  * #%L

@@ -19,17 +19,13 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.CoffeeTestFixture;
 import com.airhacks.enhydrator.Roast;
-import com.airhacks.enhydrator.transform.ResultSetToEntries;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
 import java.util.stream.StreamSupport;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -37,7 +33,12 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 
 /**
@@ -77,9 +78,9 @@ public class JDBCSourceTest {
 
     @Test
     public void queryExecutionWithEmptyTable() {
-        Iterable<ResultSet> result = getSource().query("select * from Coffee");
+        Iterable<List<Entry>> result = getSource().query("select * from Coffee");
         boolean iterated = false;
-        for (ResultSet resultSet : result) {
+        for (List<Entry> resultSet : result) {
             fail("There should be no data");
         }
         assertNotNull(result);
@@ -89,11 +90,11 @@ public class JDBCSourceTest {
     @Test
     public void queryExecution() throws SQLException {
         CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
-        Iterable<ResultSet> result = getSource().query("select * from Coffee");
+        Iterable<List<Entry>> result = getSource().query("select * from Coffee");
         boolean iterated = false;
-        for (ResultSet resultSet : result) {
+        for (List<Entry> resultSet : result) {
             iterated = true;
-            Object object = resultSet.getObject(1);
+            Entry object = resultSet.get(1);
             assertNotNull(object);
             System.out.println("First row: " + object);
         }
@@ -105,12 +106,12 @@ public class JDBCSourceTest {
     public void queryExecutionWithParameters() throws SQLException {
         CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
         CoffeeTestFixture.insertCoffee("espresso", 42, "tengah", Roast.DARK, "good", "whole");
-        Iterable<ResultSet> result = getSource().query("select * from Coffee where name like ?", "java");
+        Iterable<List<Entry>> result = getSource().query("select * from Coffee where name like ?", "java");
         boolean iterated = false;
         int counter = 0;
-        for (ResultSet resultSet : result) {
+        for (List<Entry> resultSet : result) {
             iterated = true;
-            Object object = resultSet.getObject(1);
+            Object object = resultSet.get(1);
             assertNotNull(object);
             counter++;
         }
@@ -124,23 +125,8 @@ public class JDBCSourceTest {
         CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
         StreamSupport.stream(getSource().query("select * from Coffee").spliterator(), false).
                 forEach(t -> {
-                    try {
-                        System.out.println(t.getObject(1));
-                    } catch (SQLException ex) {
-                        Logger.getLogger(JDBCSource.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    System.out.println(t.get(1));
                 });
-    }
-
-    @Test
-    public void convertToEntry() {
-        CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
-        StreamSupport.
-                stream(getSource().query("select * from Coffee").
-                        spliterator(), false).
-                map(new ResultSetToEntries()).
-                forEach(t -> System.out.println(t));
-
     }
 
     @Test

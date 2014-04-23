@@ -19,11 +19,10 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.db.JDBCConnection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -34,7 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
-public class JDBCSource extends JDBCConnection {
+public class JDBCSource extends JDBCConnection implements Source {
 
     JDBCSource() {
         //JAXB requires a no-arg contructor
@@ -44,7 +43,8 @@ public class JDBCSource extends JDBCConnection {
         super(driver, url, user, pwd);
     }
 
-    public Iterable<ResultSet> query(String query, Object... params) {
+    @Override
+    public Iterable<List<Entry>> query(String query, Object... params) {
         PreparedStatement stmt;
         try {
             stmt = this.connection.prepareStatement(query);
@@ -59,13 +59,11 @@ public class JDBCSource extends JDBCConnection {
                 throw new IllegalStateException("Cannot set parameter (" + i + "," + param + ") for query: " + query, ex);
             }
         }
-        return () -> {
-            try {
-                return new ResultSetIterator(stmt.executeQuery());
-            } catch (SQLException ex) {
-                throw new IllegalStateException("Cannot execute query: " + query, ex);
-            }
-        };
+        try {
+            return new EntryIterable(new ResultSetIterator(stmt.executeQuery()));
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Cannot execute query: " + query, ex);
+        }
     }
 
     public static class Configuration {
