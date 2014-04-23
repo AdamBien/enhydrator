@@ -19,7 +19,7 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +40,10 @@ public class Entry {
         this.name = name.toLowerCase();
         this.sqlType = sqlType;
         this.value = value;
+    }
+
+    public Entry(int slot, String name, String value) {
+        this(slot, name, Types.VARCHAR, value);
     }
 
     public int getSlot() {
