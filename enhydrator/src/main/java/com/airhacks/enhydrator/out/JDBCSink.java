@@ -42,11 +42,10 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "jdbc-sink")
-public class JDBCSink implements Sink {
+public class JDBCSink extends Sink {
 
     private static final char ESC_CHAR = '\'';
 
-    private String name;
     @XmlElement(name = "target-table")
     private String targetTable;
     @XmlTransient

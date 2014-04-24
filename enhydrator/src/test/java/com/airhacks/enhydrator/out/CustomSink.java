@@ -19,44 +19,23 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.flexpipe.JAXBInterfaceAdapter;
 import com.airhacks.enhydrator.in.Entry;
 import java.util.List;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
  * @author airhacks.com
  */
-@XmlJavaTypeAdapter(JAXBInterfaceAdapter.class)
-public abstract class Sink implements AutoCloseable {
+public class CustomSink extends Sink {
 
-    protected String name;
-
-    public Sink(String name) {
-        this.name = name;
-    }
-
-    public Sink() {
-        this.name = computeDefaultName(this.getClass());
-
-    }
-
-    static String computeDefaultName(Class clazz) {
-        String simpleName = clazz.getSimpleName();
-        return Character.toString(simpleName.charAt(0)).toLowerCase() + simpleName.substring(1);
-    }
-
-    public void init() {
-    }
-
-    public abstract void processRow(List<Entry> entries);
-
-    public String getName() {
-        return name;
+    @Override
+    public void processRow(List<Entry> entries) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void close() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
+
 }

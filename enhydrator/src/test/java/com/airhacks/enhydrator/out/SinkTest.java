@@ -19,22 +19,30 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.Entry;
-import java.util.List;
-import java.util.logging.Logger;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 /**
  *
  * @author airhacks.com
  */
-public class LogSink extends Sink {
+public class SinkTest {
 
-    private static final Logger LOG = Logger.getLogger(LogSink.class.getName());
+    @Test
+    public void defaultName() {
+        Sink sink = new CustomSink();
+        String name = sink.getName();
+        assertThat(name, is("customSink"));
+    }
 
-    @Override
-    public void processRow(List<Entry> entries) {
-        String row = entries.stream().map(e -> e.toString()).reduce((String t, String u) -> t + "," + u).get();
-        LOG.info(row);
+    @Test
+    public void shortName() {
+        Sink sink = new Z();
+        String name = sink.getName();
+        assertThat(name, is("z"));
+
     }
 
 }
