@@ -41,7 +41,6 @@ public abstract class Sink implements AutoCloseable {
     }
 
     public Sink() {
-        this.name = computeDefaultName(this.getClass());
 
     }
 
@@ -56,7 +55,10 @@ public abstract class Sink implements AutoCloseable {
     public abstract void processRow(List<Entry> entries);
 
     public String getName() {
-        return name;
+        if (this.name == null) {
+            this.name = computeDefaultName(this.getClass());
+        }
+        return this.name;
     }
 
     @Override
