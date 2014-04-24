@@ -31,6 +31,13 @@ public class LogSink extends Sink {
 
     private static final Logger LOG = Logger.getLogger(LogSink.class.getName());
 
+    public LogSink(String name) {
+        super(name);
+    }
+
+    public LogSink() {
+    }
+
     @Override
     public void processRow(List<Entry> entries) {
         if (entries == null || entries.isEmpty()) {
