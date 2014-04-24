@@ -89,7 +89,7 @@ public class Pipeline {
         return name;
     }
 
-    public void addPreRowTransforation(String transformer) {
+    public void addPreRowTransformation(String transformer) {
         this.preRowTransformers.add(transformer);
     }
 

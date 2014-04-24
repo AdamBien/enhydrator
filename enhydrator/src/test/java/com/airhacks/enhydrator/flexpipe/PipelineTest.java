@@ -52,11 +52,11 @@ public class PipelineTest {
         origin.addSink(sink);
         origin.addQueryParam("arabica");
         origin.addQueryParam(2);
+        origin.addEntryTransformation(e1);
+        origin.addEntryTransformation(e2);
+        origin.addPreRowTransformation("validate");
+        origin.addPreRowTransformation("reverse");
         /*
-         origin.addEntryTransformation(e1);
-         origin.addEntryTransformation(e2);
-         origin.addPreRowTransforation("reverse");
-         origin.addPreRowTransforation("validate");
          origin.addPostRowTransformation("compress");
          origin.addPostRowTransformation("encrypt");
          */

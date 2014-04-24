@@ -224,10 +224,13 @@ public class Pump {
         if (trafos == null || trafos.isEmpty()) {
             return convertedColumns;
         }
-        return trafos.stream().
-                map(r -> r.apply(convertedColumns)).
-                filter(l -> (l != null && !l.isEmpty())).
-                flatMap(l -> l.stream()).collect(Collectors.toList());
+        final Function<List<Entry>, List<Entry>> composition = trafos.stream().reduce((i, j) -> i.compose(j)).get();
+        List<Entry> result = composition.apply(convertedColumns);
+        if (result == null) {
+            return new ArrayList<>();
+        } else {
+            return result;
+        }
     }
 
     public static class Engine {
