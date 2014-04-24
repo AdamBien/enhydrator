@@ -52,14 +52,16 @@ public class PipelineTest {
         origin.addSink(sink);
         origin.addQueryParam("arabica");
         origin.addQueryParam(2);
-        origin.addEntryTransformation(e1);
-        origin.addEntryTransformation(e2);
-        origin.addPreRowTransforation("reverse");
-        origin.addPreRowTransforation("validate");
-        origin.addPostRowTransformation("compress");
-        origin.addPostRowTransformation("encrypt");
+        /*
+         origin.addEntryTransformation(e1);
+         origin.addEntryTransformation(e2);
+         origin.addPreRowTransforation("reverse");
+         origin.addPreRowTransforation("validate");
+         origin.addPostRowTransformation("compress");
+         origin.addPostRowTransformation("encrypt");
+         */
         origin.addFilter("true");
-        origin.addExpression("print(current); columns;");
+        origin.addExpression("print(current); current.asList();");
         return origin;
     }
 
