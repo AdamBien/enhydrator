@@ -19,26 +19,32 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.Entry;
-import java.util.List;
-import java.util.logging.Logger;
+
+import java.util.ArrayList;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
  * @author airhacks.com
  */
-public class LogSink extends Sink {
+public class LogSinkTest {
 
-    private static final Logger LOG = Logger.getLogger(LogSink.class.getName());
+    LogSink cut;
 
-    @Override
-    public void processRow(List<Entry> entries) {
-        if (entries == null || entries.isEmpty()) {
-            LOG.info("Empty list");
-            return;
-        }
-        String row = entries.stream().map(e -> e.toString()).reduce((String t, String u) -> t + "," + u).get();
-        LOG.info(row);
+    @Before
+    public void init() {
+        this.cut = new LogSink();
+    }
+
+    @Test
+    public void logEmptyList() {
+        this.cut.processRow(new ArrayList<>());
+    }
+
+    @Test
+    public void logNullList() {
+        this.cut.processRow(null);
     }
 
 }
