@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author airhacks.com
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "jdbc-pipeline")
+@XmlRootElement(name = "pipeline")
 public class Pipeline {
 
     private String name;

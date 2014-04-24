@@ -19,12 +19,13 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-
+import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
 import com.airhacks.enhydrator.in.Entry;
 import java.util.ArrayList;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class JDBCSinkTest {
     }
 
     public static JDBCSink getDummySink() {
-        return new JDBCSink("aDriver", "localhost", "duke", "s3cret", TABLE_NAME);
+        return new JDBCSink(new UnmanagedConnectionProvider("aDriver", "localhost", "duke", "s3cret"), TABLE_NAME);
     }
 
     public static Sink getSink() {

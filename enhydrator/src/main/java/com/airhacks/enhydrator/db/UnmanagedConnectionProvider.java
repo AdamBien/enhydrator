@@ -19,12 +19,12 @@ package com.airhacks.enhydrator.db;
  * limitations under the License.
  * #L%
  */
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
-public class JDBCConnection {
+public class UnmanagedConnectionProvider implements Supplier<Connection> {
 
     protected String user;
     protected String pwd;
@@ -48,12 +48,12 @@ public class JDBCConnection {
     @XmlTransient
     protected Consumer<String> LOG;
 
-    public JDBCConnection() {
+    public UnmanagedConnectionProvider() {
         this.LOG = l -> {
         };
     }
 
-    protected JDBCConnection(String driver, String url, String user, String pwd) {
+    public UnmanagedConnectionProvider(String driver, String url, String user, String pwd) {
         this();
         this.driver = driver;
         this.user = user;
@@ -61,7 +61,7 @@ public class JDBCConnection {
         this.url = url;
     }
 
-    protected void connect() {
+    public void connect() {
         try {
             Class.forName(this.driver);
         } catch (ClassNotFoundException ex) {
@@ -83,6 +83,11 @@ public class JDBCConnection {
     }
 
     @Override
+    public Connection get() {
+        return this.connection;
+    }
+
+    @Override
     public int hashCode() {
         int hash = 7;
         hash = 79 * hash + Objects.hashCode(this.user);
@@ -100,7 +105,7 @@ public class JDBCConnection {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final JDBCConnection other = (JDBCConnection) obj;
+        final UnmanagedConnectionProvider other = (UnmanagedConnectionProvider) obj;
         if (!Objects.equals(this.user, other.user)) {
             return false;
         }
@@ -120,4 +125,5 @@ public class JDBCConnection {
     public String toString() {
         return "JDBCConnection{" + "user=" + user + ", pwd=" + pwd + ", url=" + url + ", driver=" + driver + '}';
     }
+
 }

@@ -19,17 +19,19 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.db.JDBCConnection;
+import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
 import com.airhacks.enhydrator.in.Entry;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -40,31 +42,41 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "jdbc-sink")
-public class JDBCSink extends JDBCConnection implements Sink {
+public class JDBCSink implements Sink {
 
     private static final char ESC_CHAR = '\'';
 
+    private String name;
     @XmlElement(name = "target-table")
     private String targetTable;
     @XmlTransient
     private Statement statement;
-    @XmlAttribute
-    private String name;
+    private UnmanagedConnectionProvider connectionProvider;
+
+    @XmlTransient
+    private Connection connection;
+
+    @XmlTransient
+    protected Consumer<String> LOG;
 
     public JDBCSink() {
-        //JAXB...
+        this.LOG = l -> {
+        };
 
     }
 
-    JDBCSink(String driver, String url, String user, String pwd, String table) {
-        super(driver, url, user, pwd);
+    JDBCSink(UnmanagedConnectionProvider connection, String table) {
+        this();
+        this.connectionProvider = connection;
         this.targetTable = table;
     }
 
     @Override
     public void init() {
         try {
-            this.statement = this.connection.createStatement();
+            this.connectionProvider.connect();
+            this.connection = this.connectionProvider.get();
+            this.statement = connection.createStatement();
             LOG.accept("#init() Statement created");
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot create statement " + ex.getMessage(), ex);
@@ -155,6 +167,36 @@ public class JDBCSink extends JDBCConnection implements Sink {
 
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 37 * hash + Objects.hashCode(this.name);
+        hash = 37 * hash + Objects.hashCode(this.targetTable);
+        hash = 37 * hash + Objects.hashCode(this.connectionProvider);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final JDBCSink other = (JDBCSink) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.targetTable, other.targetTable)) {
+            return false;
+        }
+        if (!Objects.equals(this.connectionProvider, other.connectionProvider)) {
+            return false;
+        }
+        return true;
+    }
+
     public static class Configuration {
 
         protected String url;
@@ -189,8 +231,8 @@ public class JDBCSink extends JDBCConnection implements Sink {
         }
 
         public Sink newSink() {
-            JDBCSink source = new JDBCSink(this.driver, this.url, this.user, this.password, this.targetTable);
-            source.connect();
+            JDBCSink source = new JDBCSink(new UnmanagedConnectionProvider(driver, url, user, url), this.targetTable);
+            source.init();
             return source;
         }
     }

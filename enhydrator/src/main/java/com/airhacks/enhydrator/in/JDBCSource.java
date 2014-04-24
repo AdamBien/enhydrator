@@ -19,7 +19,8 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.db.JDBCConnection;
+
+import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -34,7 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
-public class JDBCSource extends JDBCConnection implements Source {
+public class JDBCSource extends UnmanagedConnectionProvider implements Source {
 
     @XmlAttribute
     private String name;
