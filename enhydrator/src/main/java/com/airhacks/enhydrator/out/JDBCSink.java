@@ -19,14 +19,12 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.db.JDBCConnection;
 import com.airhacks.enhydrator.in.Entry;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.annotation.XmlAccessType;
