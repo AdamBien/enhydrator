@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

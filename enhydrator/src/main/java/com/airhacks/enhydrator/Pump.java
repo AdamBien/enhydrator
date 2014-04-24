@@ -24,6 +24,7 @@ import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.ResultSetToEntries;
 import com.airhacks.enhydrator.in.Source;
+import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.transform.EntryTransformer;
 import com.airhacks.enhydrator.transform.Expression;
@@ -55,13 +56,14 @@ public class Pump {
     private final List<Function<List<Entry>, List<Entry>>> afterTransformations;
     private final List<String> expressions;
     private final List<String> filterExpressions;
-    private final Sink sink;
+    private final List<Sink> sinks;
     private final String sql;
     private final Object[] params;
     private final Expression expression;
     private final FilterExpression filterExpression;
 
-    private Consumer<String> flowListener;
+    private final Sink deadLetterQueue;
+    private final Consumer<String> flowListener;
     private long rowCount;
 
     private Pump(Source source, Function<ResultSet, List<Entry>> rowTransformer,
@@ -71,7 +73,9 @@ public class Pump {
             List<String> filterExpressions,
             List<String> expressions,
             List<Function<List<Entry>, List<Entry>>> after,
-            Sink sink, String sql,
+            List<Sink> sink,
+            Sink dlq,
+            String sql,
             Consumer<String> flowListener, Object... params) {
         this.flowListener = flowListener;
         this.filterExpressions = filterExpressions;
@@ -83,20 +87,22 @@ public class Pump {
         this.indexedEntryFunctions = indexedFunctions;
         this.expressions = expressions;
         this.afterTransformations = after;
-        this.sink = sink;
+        this.sinks = sink;
+        this.deadLetterQueue = dlq;
         this.sql = sql;
         this.params = params;
+
     }
 
     public long start() {
         this.rowCount = 0;
         Iterable<List<Entry>> input = this.source.query(sql, params);
         this.flowListener.accept("Query executed: " + sql);
-        this.sink.init();
+        this.sinks.forEach(s -> s.init());
         this.flowListener.accept("Sink initialized");
         input.forEach(this::onNewRow);
         this.flowListener.accept("Results processed");
-        this.sink.close();
+        this.sinks.forEach(s -> s.close());
         this.flowListener.accept("Sink closed");
         return this.rowCount;
 
@@ -134,9 +140,39 @@ public class Pump {
         this.flowListener.accept("Result collected");
         List<Entry> afterProcessed = applyRowTransformations(this.afterTransformations, transformed);
         this.flowListener.accept("After process RowTransformer executed.");
-        this.sink.processRow(afterProcessed);
-        this.flowListener.accept("Result passed to sink");
+        this.sink(afterProcessed);
+        this.flowListener.accept("Result passed to sinks");
+    }
 
+    void sink(List<Entry> afterProcessed) {
+        Map<String, List<Entry>> groupedByDestinations = groupByDestinations(afterProcessed);
+        if (groupedByDestinations != null && !groupedByDestinations.isEmpty()) {
+            this.sinks.forEach(s -> sink(s, groupedByDestinations));
+        } else {
+            this.flowListener.accept("Empty grouping received for sinks: " + this.sinks);
+        }
+    }
+
+    void sink(Sink sink, Map<String, List<Entry>> groupByDestinations) {
+        String destination = sink.getName();
+        if (destination == null) {
+            this.flowListener.accept(sink + " has a null destination, skipping");
+            return;
+        }
+        List<Entry> entriesForSink = groupByDestinations.get(destination);
+        if (entriesForSink != null) {
+            this.flowListener.accept("Processing entries " + entriesForSink + " with " + destination);
+            sink.processRow(entriesForSink);
+            this.flowListener.accept("Entries processed!");
+        } else {
+            this.flowListener.accept("No entries found for: " + destination);
+        }
+    }
+
+    Map<String, List<Entry>> groupByDestinations(List<Entry> transformationResult) {
+        return transformationResult.
+                stream().
+                collect(Collectors.groupingBy(e -> e.getDestination()));
     }
 
     List<Entry> applyExpressions(List<Entry> columns, Entry current) {
@@ -196,7 +232,8 @@ public class Pump {
 
     public static class Engine {
 
-        private Sink sink;
+        private List<Sink> sinks;
+        private Sink deadLetterQueue;
         private Source source;
         private Function<ResultSet, List<Entry>> resultSetToEntries;
         private Map<String, Function<Entry, List<Entry>>> entryFunctions;
@@ -211,6 +248,7 @@ public class Pump {
         private Consumer<String> flowListener;
 
         public Engine() {
+            this.sinks = new ArrayList<>();
             this.expressions = new ArrayList<>();
             this.filterExpressions = new ArrayList<>();
             this.resultSetToEntries = new ResultSetToEntries();
@@ -221,6 +259,7 @@ public class Pump {
             this.loader = new FunctionScriptLoader();
             this.flowListener = f -> {
             };
+            this.deadLetterQueue = new LogSink();
         }
 
         public Engine homeScriptFolder(String baseFolder) {
@@ -234,7 +273,12 @@ public class Pump {
         }
 
         public Engine to(Sink sink) {
-            this.sink = sink;
+            this.sinks.add(sink);
+            return this;
+        }
+
+        public Engine dlq(Sink sink) {
+            this.deadLetterQueue = sink;
             return this;
         }
 
@@ -304,14 +348,17 @@ public class Pump {
                     this.before, this.entryFunctions, this.indexedFunctions,
                     this.filterExpressions,
                     this.expressions,
-                    this.after, this.sink, this.sql, this.flowListener,
+                    this.after, this.sinks,
+                    this.deadLetterQueue,
+                    this.sql,
+                    this.flowListener,
                     this.params);
         }
 
         public Engine use(Pipeline pipeline) {
             homeScriptFolder(pipeline.getScriptsHome());
             this.source = pipeline.getSource();
-            this.sink = pipeline.getSink();
+            this.sinks = pipeline.getSinks();
             this.resultSetToEntries = new ResultSetToEntries();
             pipeline.getPreRowTransformers().forEach(t -> startWith(t));
             List<EntryTransformation> trafos = pipeline.getEntryTransformations();

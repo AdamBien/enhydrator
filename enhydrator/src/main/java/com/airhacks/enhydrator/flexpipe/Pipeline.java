@@ -48,7 +48,8 @@ public class Pipeline {
 
     @XmlElement(name = "query-param")
     private List<Object> queryParams;
-    private Sink sink;
+
+    private List<Sink> sinks;
 
     @XmlElement(name = "pre-row-transformer")
     private List<String> preRowTransformers;
@@ -74,14 +75,14 @@ public class Pipeline {
         this.filters = new ArrayList<>();
     }
 
-    public Pipeline(String name, String scriptsHome, String sqlQuery, Source source, Sink sink) {
+    public Pipeline(String name, String scriptsHome, String sqlQuery, Source source) {
         this();
         this.preRowTransformers = new ArrayList<>();
+        this.sinks = new ArrayList<>();
         this.sqlQuery = sqlQuery;
         this.scriptsHome = scriptsHome;
         this.name = name;
         this.source = source;
-        this.sink = sink;
     }
 
     public String getName() {
@@ -112,6 +113,10 @@ public class Pipeline {
         this.queryParams.add(value);
     }
 
+    public void addSink(Sink sink) {
+        this.sinks.add(sink);
+    }
+
     public Source getSource() {
         return source;
     }
@@ -124,8 +129,8 @@ public class Pipeline {
         return queryParams;
     }
 
-    public Sink getSink() {
-        return sink;
+    public List<Sink> getSinks() {
+        return sinks;
     }
 
     public List<String> getPreRowTransformers() {
@@ -155,7 +160,7 @@ public class Pipeline {
         hash = 67 * hash + Objects.hashCode(this.source);
         hash = 67 * hash + Objects.hashCode(this.sqlQuery);
         hash = 67 * hash + Objects.hashCode(this.queryParams);
-        hash = 67 * hash + Objects.hashCode(this.sink);
+        hash = 67 * hash + Objects.hashCode(this.sinks);
         hash = 67 * hash + Objects.hashCode(this.preRowTransformers);
         hash = 67 * hash + Objects.hashCode(this.entryTransformations);
         hash = 67 * hash + Objects.hashCode(this.postRowTransfomers);
@@ -184,7 +189,7 @@ public class Pipeline {
         if (!Objects.equals(this.queryParams, other.queryParams)) {
             return false;
         }
-        if (!Objects.equals(this.sink, other.sink)) {
+        if (!Objects.equals(this.sinks, other.sinks)) {
             return false;
         }
         if (!Objects.equals(this.preRowTransformers, other.preRowTransformers)) {
@@ -204,6 +209,6 @@ public class Pipeline {
 
     @Override
     public String toString() {
-        return "JDBCPipeline{" + "name=" + name + ", source=" + source + ", sqlQuery=" + sqlQuery + ", queryParams=" + queryParams + ", sink=" + sink + ", preRowTransformers=" + preRowTransformers + ", entryTransformations=" + entryTransformations + ", postRowTransfomers=" + postRowTransfomers + ", expressions=" + expressions + '}';
+        return "JDBCPipeline{" + "name=" + name + ", source=" + source + ", sqlQuery=" + sqlQuery + ", queryParams=" + queryParams + ", sink=" + sinks + ", preRowTransformers=" + preRowTransformers + ", entryTransformations=" + entryTransformations + ", postRowTransfomers=" + postRowTransfomers + ", expressions=" + expressions + '}';
     }
 }
