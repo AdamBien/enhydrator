@@ -56,10 +56,8 @@ public class PipelineTest {
         origin.addEntryTransformation(e2);
         origin.addPreRowTransformation("validate");
         origin.addPreRowTransformation("reverse");
-        /*
-         origin.addPostRowTransformation("compress");
-         origin.addPostRowTransformation("encrypt");
-         */
+        origin.addPostRowTransformation("compress");
+        origin.addPostRowTransformation("encrypt");
         origin.addFilter("true");
         origin.addExpression("print(current); current.asList();");
         return origin;
