@@ -236,7 +236,7 @@ public class JDBCSink extends Sink {
         }
 
         public Sink newSink() {
-            JDBCSink source = new JDBCSink(new UnmanagedConnectionProvider(driver, url, user, url), this.targetTable);
+            JDBCSink source = new JDBCSink(new UnmanagedConnectionProvider(driver, url, user, password), this.targetTable);
             if (this.name != null) {
                 source.name = this.name;
             }
