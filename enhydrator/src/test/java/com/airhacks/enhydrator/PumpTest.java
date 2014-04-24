@@ -26,6 +26,7 @@ import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.is;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -60,7 +62,7 @@ public class PumpTest {
     public void oneToOneTransformationWithName() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
                 with("name", t -> t.asList()).
@@ -70,11 +72,17 @@ public class PumpTest {
         verify(consumer, times(2)).processRow(any(List.class));
     }
 
+    static Sink getMockedSink() {
+        Sink mock = mock(Sink.class);
+        when(mock.getName()).thenReturn("*");
+        return mock;
+    }
+
     @Test
     public void oneToOneTransformationWithIndex() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
                 with(1, t -> t.changeValue("duke").asList()).
@@ -89,7 +97,7 @@ public class PumpTest {
     public void ignoringPreprocessor() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         final ArrayList<Entry> entries = new ArrayList<>();
         Pump pump = new Pump.Engine().
                 from(source).
@@ -98,18 +106,17 @@ public class PumpTest {
                 to(consumer).
                 build();
         pump.start();
-        verify(consumer, times(2)).processRow(entries);
+        verify(consumer, never()).processRow(entries);
     }
 
     @Test
     public void postPreprocessor() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
-        final List<Entry> entries = new ArrayList<>();
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
-                endWith(l -> entries).
+                endWith(l -> l).
                 to(consumer).
                 sqlQuery("select * from Coffee").
                 build();
@@ -121,7 +128,7 @@ public class PumpTest {
     public void passThrough() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
                 to(consumer).
@@ -134,7 +141,7 @@ public class PumpTest {
     public void ignoringFilter() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 filter("false").
                 from(source).
@@ -150,7 +157,7 @@ public class PumpTest {
     public void acceptingFilter() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 filter("true").
                 filter("columns.empty === false").
@@ -167,7 +174,7 @@ public class PumpTest {
     public void scriptEntryTransformer() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 from(source).
@@ -184,7 +191,7 @@ public class PumpTest {
     public void scriptRowTransformer() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 startWith("reverse").
@@ -202,7 +209,7 @@ public class PumpTest {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Pipeline pipeline = PipelineTest.getPipeline();
-        Sink consumer = mock(Sink.class);
+        Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
                 use(pipeline).
@@ -249,6 +256,50 @@ public class PumpTest {
         funcs.add(l -> new ArrayList<>());
         List<Entry> output = Pump.applyRowTransformations(funcs, input);
         assertTrue(output.isEmpty());
+    }
+
+    @Test
+    public void groupByDefaultDestination() {
+        List<Entry> entries = getEntries();
+        Pump pump = new Pump.Engine().
+                build();
+        Map<String, List<Entry>> grouped = pump.groupByDestinations(entries);
+        assertThat(grouped.size(), is(1));
+        List<Entry> unclassified = grouped.get("*");
+        assertThat(unclassified, is(entries));
+    }
+
+    @Test
+    public void groupByCustomDestinations() {
+        List<Entry> entries = getEntries();
+        final String destination = "cuttingEdge";
+        entries.add(new Entry(3, "something", "java").changeDestination(destination));
+        entries.add(new Entry(4, "something", "jvm").changeDestination(destination));
+        Pump pump = new Pump.Engine().
+                build();
+        Map<String, List<Entry>> grouped = pump.groupByDestinations(entries);
+        assertThat(grouped.size(), is(2));
+        List<Entry> unclassified = grouped.get("*");
+        unclassified.forEach(entry -> assertThat(entry.getDestination(), is("*")));
+        List<Entry> byDestination = grouped.get(destination);
+        byDestination.forEach(entry -> assertThat(entry.getDestination(), is(destination)));
+    }
+
+    @Test
+    public void groupByCustomDestinationsWithMisconfiguredSink() {
+        List<Entry> entries = getEntries();
+        final String destination = "cuttingEdge";
+        entries.add(new Entry(3, "something", "java").changeDestination(destination));
+        entries.add(new Entry(4, "something", "jvm").changeDestination(destination));
+        Sink sink = getMockedSink();
+        Pump pump = new Pump.Engine().to(sink).
+                build();
+        Map<String, List<Entry>> grouped = pump.groupByDestinations(entries);
+        assertThat(grouped.size(), is(2));
+        List<Entry> unclassified = grouped.get("*");
+        unclassified.forEach(entry -> assertThat(entry.getDestination(), is("*")));
+        List<Entry> byDestination = grouped.get(destination);
+        byDestination.forEach(entry -> assertThat(entry.getDestination(), is(destination)));
     }
 
     List<Entry> getEntries() {
