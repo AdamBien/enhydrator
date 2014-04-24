@@ -20,9 +20,11 @@ package com.airhacks.enhydrator.in;
  * #L%
  */
 import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -34,24 +36,29 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
-public class JDBCSource extends UnmanagedConnectionProvider implements Source {
+public class JDBCSource implements Source {
 
     @XmlAttribute
     private String name;
+
+    private UnmanagedConnectionProvider connectionProvider;
 
     JDBCSource() {
         //JAXB requires a no-arg contructor
     }
 
-    JDBCSource(String driver, String url, String user, String pwd) {
-        super(driver, url, user, pwd);
+    JDBCSource(UnmanagedConnectionProvider connectionProvider) {
+        this();
+        this.connectionProvider = connectionProvider;
+        this.connectionProvider.connect();
     }
 
     @Override
     public Iterable<List<Entry>> query(String query, Object... params) {
         PreparedStatement stmt;
         try {
-            stmt = this.connection.prepareStatement(query);
+            Connection connection = this.connectionProvider.get();
+            stmt = connection.prepareStatement(query);
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot prepare SQL statement", ex);
         }
@@ -68,6 +75,32 @@ public class JDBCSource extends UnmanagedConnectionProvider implements Source {
         } catch (SQLException ex) {
             throw new IllegalStateException("Cannot execute query: " + query, ex);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 11 * hash + Objects.hashCode(this.name);
+        hash = 11 * hash + Objects.hashCode(this.connectionProvider);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final JDBCSource other = (JDBCSource) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.connectionProvider, other.connectionProvider)) {
+            return false;
+        }
+        return true;
     }
 
     public static class Configuration {
@@ -98,8 +131,7 @@ public class JDBCSource extends UnmanagedConnectionProvider implements Source {
         }
 
         public JDBCSource newSource() {
-            JDBCSource source = new JDBCSource(this.driver, this.url, this.user, this.password);
-            source.connect();
+            JDBCSource source = new JDBCSource(new UnmanagedConnectionProvider(driver, url, user, password));
             return source;
         }
     }
