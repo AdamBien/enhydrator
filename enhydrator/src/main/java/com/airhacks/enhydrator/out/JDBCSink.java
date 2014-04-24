@@ -203,6 +203,7 @@ public class JDBCSink extends Sink {
         protected String user;
         protected String password;
         protected String targetTable;
+        protected String name;
 
         public Configuration driver(String driver) {
             this.driver = driver;
@@ -229,11 +230,19 @@ public class JDBCSink extends Sink {
             return this;
         }
 
+        public Configuration name(String name) {
+            this.name = name;
+            return this;
+        }
+
         public Sink newSink() {
             JDBCSink source = new JDBCSink(new UnmanagedConnectionProvider(driver, url, user, url), this.targetTable);
-            source.init();
+            if (this.name != null) {
+                source.name = this.name;
+            }
             return source;
         }
+
     }
 
 }

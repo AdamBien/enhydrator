@@ -52,6 +52,7 @@ public class JDBCSinkTest {
                 driver("org.apache.derby.jdbc.EmbeddedDriver").
                 url("jdbc:derby:./targetDB;create=true").
                 targetTable("DEVELOPER_DRINK").
+                name("*").
                 newSink();
     }
 
