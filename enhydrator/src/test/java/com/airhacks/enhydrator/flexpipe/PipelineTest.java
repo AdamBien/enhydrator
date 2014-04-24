@@ -48,7 +48,8 @@ public class PipelineTest {
         Sink sink = JDBCSinkTest.getSink();
         EntryTransformation e1 = new EntryTransformation("name", "convert", true);
         EntryTransformation e2 = new EntryTransformation(42, "compress", true);
-        Pipeline origin = new Pipeline("tst", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source, sink);
+        Pipeline origin = new Pipeline("tst", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
+        origin.addSink(sink);
         origin.addQueryParam("arabica");
         origin.addQueryParam(2);
         origin.addEntryTransformation(e1);
@@ -58,7 +59,7 @@ public class PipelineTest {
         origin.addPostRowTransformation("compress");
         origin.addPostRowTransformation("encrypt");
         origin.addFilter("true");
-        origin.addExpression("print(current); java.util.Collections.emptyList();");
+        origin.addExpression("print(current); columns;");
         return origin;
     }
 
