@@ -19,10 +19,9 @@ package com.airhacks.enhydrator;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.JDBCSource;
-import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
+import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.List;
 import java.util.logging.Logger;
@@ -61,6 +60,7 @@ public class CopyTableTest {
         Pump pump = new Pump.Engine().
                 flowListener(l -> Logger.getLogger("plainCopy").info(l)).
                 from(this.source).
+                to(new LogSink("*")).
                 to(this.sink).
                 sqlQuery("select * from Coffee").
                 build();
