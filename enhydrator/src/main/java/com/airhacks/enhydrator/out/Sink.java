@@ -19,16 +19,19 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.flexpipe.JAXBInterfaceAdapter;
 import com.airhacks.enhydrator.in.Entry;
 import java.util.List;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author airhacks.com
  */
-@XmlJavaTypeAdapter(JAXBInterfaceAdapter.class)
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
+//@XmlJavaTypeAdapter(JAXBInterfaceAdapter.class)
 public abstract class Sink implements AutoCloseable {
 
     protected String name;
