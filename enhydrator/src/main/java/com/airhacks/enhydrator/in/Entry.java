@@ -34,6 +34,7 @@ public class Entry {
     //from java.sql.Type
     private int sqlType;
     private Object value;
+    private String destination;
 
     public Entry(int slot, String name, int sqlType, Object value) {
         this.slot = slot;
@@ -64,6 +65,12 @@ public class Entry {
 
     public Entry changeValue(Object object) {
         return new Entry(slot, name, sqlType, object);
+    }
+
+    public Entry changeDestination(String destination) {
+        Entry entry = new Entry(slot, name, sqlType, value);
+        entry.destination = destination;
+        return entry;
     }
 
     public List<Entry> asList() {
