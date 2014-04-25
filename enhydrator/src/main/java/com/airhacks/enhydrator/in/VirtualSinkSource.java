@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
+import com.airhacks.enhydrator.out.Sink;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,19 +27,19 @@ import java.util.List;
  *
  * @author airhacks.com
  */
-public class VirtualSource implements Source {
+public class VirtualSinkSource extends Sink implements Source {
 
     private List<List<Entry>> rows;
 
-    public VirtualSource() {
+    public VirtualSinkSource() {
         this(new ArrayList<>());
     }
 
-    public VirtualSource(List<List<Entry>> entries) {
+    public VirtualSinkSource(List<List<Entry>> entries) {
         this.rows = entries;
     }
 
-    public VirtualSource addRow(List<Entry> entries) {
+    public VirtualSinkSource addRow(List<Entry> entries) {
         this.rows.add(entries);
         return this;
     }
@@ -54,9 +55,24 @@ public class VirtualSource implements Source {
         return this.rows.get(index);
     }
 
+    /**
+     * @see Source
+     * @param query not applicable
+     * @param params not applicable
+     * @return the cached content
+     */
     @Override
     public Iterable<List<Entry>> query(String query, Object... params) {
         return this.rows;
+    }
+
+    /**
+     * @see Sink
+     * @param entries process row
+     */
+    @Override
+    public void processRow(List<Entry> entries) {
+        this.addRow(entries);
     }
 
     public static class Rows {
@@ -90,8 +106,8 @@ public class VirtualSource implements Source {
             return this;
         }
 
-        public VirtualSource build() {
-            return new VirtualSource(this.rows);
+        public VirtualSinkSource build() {
+            return new VirtualSinkSource(this.rows);
         }
 
     }
