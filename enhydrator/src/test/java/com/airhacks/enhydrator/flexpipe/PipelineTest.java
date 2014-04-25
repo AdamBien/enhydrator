@@ -20,7 +20,7 @@ package com.airhacks.enhydrator.flexpipe;
  * #L%
  */
 import com.airhacks.enhydrator.in.JDBCSource;
-import com.airhacks.enhydrator.in.JDBCSourceTest;
+import com.airhacks.enhydrator.in.JDBCSourceIT;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.Sink;
 import static org.junit.Assert.assertEquals;
@@ -44,7 +44,7 @@ public class PipelineTest {
     }
 
     public static Pipeline getPipeline() {
-        JDBCSource source = JDBCSourceTest.getSource();
+        JDBCSource source = JDBCSourceIT.getSource();
         Sink sink = JDBCSinkTest.getSink();
         EntryTransformation e1 = new EntryTransformation("name", "convert", true);
         EntryTransformation e2 = new EntryTransformation(42, "compress", true);

@@ -45,7 +45,7 @@ import org.junit.Test;
  *
  * @author airhacks.com
  */
-public class JDBCSourceTest {
+public class JDBCSourceIT {
 
     /**
      * <property name="javax.persistence.jdbc.url"
