@@ -36,7 +36,7 @@ import org.junit.Test;
  *
  * @author airhacks.com
  */
-public class CopyTableTest {
+public class CopyTableIT {
 
     JDBCSource source;
     Sink sink;

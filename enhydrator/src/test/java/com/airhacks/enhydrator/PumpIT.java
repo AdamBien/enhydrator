@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
  *
  * @author airhacks.com
  */
-public class PumpTest {
+public class PumpIT {
 
     JDBCSource source;
 
