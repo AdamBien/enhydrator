@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,10 +32,11 @@ public class VirtualSinkSource extends Sink implements Source {
     private List<List<Entry>> rows;
 
     public VirtualSinkSource() {
-        this(new ArrayList<>());
+        this("*", new ArrayList<>());
     }
 
-    public VirtualSinkSource(List<List<Entry>> entries) {
+    public VirtualSinkSource(String name, List<List<Entry>> entries) {
+        super(name);
         this.rows = entries;
     }
 
@@ -79,11 +80,13 @@ public class VirtualSinkSource extends Sink implements Source {
 
         private List<Entry> currentRow;
         private List<List<Entry>> rows;
+        private String name;
 
         public Rows() {
             this.rows = new ArrayList<>();
             this.currentRow = new ArrayList<>();
             this.rows.add(currentRow);
+            this.name = "*";
         }
 
         public Rows addColumn(Entry entry) {
@@ -106,8 +109,13 @@ public class VirtualSinkSource extends Sink implements Source {
             return this;
         }
 
+        public Rows sinkName(String name) {
+            this.name = name;
+            return this;
+        }
+
         public VirtualSinkSource build() {
-            return new VirtualSinkSource(this.rows);
+            return new VirtualSinkSource(this.name, this.rows);
         }
 
     }
