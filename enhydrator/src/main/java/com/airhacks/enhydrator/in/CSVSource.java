@@ -34,7 +34,6 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,6 +41,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,8 +79,13 @@ public class CSVSource implements Source {
     }
 
     final List<String> extractHeaders() {
-        Iterable<List<Entry>> firstRow = query(null);
-        List<Entry> headers = firstRow.iterator().next();
+        String headerLine = null;
+        try {
+            headerLine = Files.lines(this.file).findFirst().get();
+        } catch (IOException ex) {
+            Logger.getLogger(CSVSource.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        List<Entry> headers = parse(headerLine, this.delimiter);
         return headers.stream().
                 map(h -> String.valueOf(h.getValue())).
                 collect(Collectors.toList());
@@ -115,7 +121,7 @@ public class CSVSource implements Source {
     }
 
     String getColumnName(int slot) {
-        if (this.columnNames.contains(slot)) {
+        if (slot < this.columnNames.size()) {
             return this.columnNames.get(slot);
         } else {
             String name = String.valueOf(slot);

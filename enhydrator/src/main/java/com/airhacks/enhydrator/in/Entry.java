@@ -38,7 +38,7 @@ public class Entry {
 
     public Entry(int slot, String name, int sqlType, Object value) {
         this.slot = slot;
-        this.name = name.toLowerCase();
+        this.name = name;
         this.sqlType = sqlType;
         this.value = value;
     }

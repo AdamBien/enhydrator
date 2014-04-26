@@ -34,7 +34,6 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
 import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -70,6 +69,21 @@ public class CSVSourceTest {
         }
         //Header is included
         assertThat(counter, is(4));
+    }
+
+    @Test
+    public void columnNameIsSet() {
+        Iterable<List<Entry>> cars = this.cut.query(null);
+        int counter = 0;
+        for (List<Entry> list : cars) {
+            Entry entry = list.get(0);
+            //Year;Make;Model;Length
+            counter++;
+            assertThat(entry.getName(), is("Year"));
+        }
+        //Header is included
+        assertThat(counter, is(4));
+
     }
 
 }
