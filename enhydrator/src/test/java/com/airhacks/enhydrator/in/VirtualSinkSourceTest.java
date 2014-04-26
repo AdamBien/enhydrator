@@ -53,12 +53,35 @@ public class VirtualSinkSourceTest {
     }
 
     @Test
+    public void numberOfRows() {
+        VirtualSinkSource source = new VirtualSinkSource.Rows().
+                addColumn("age", "25").
+                addRow().
+                addColumn("age", "15").
+                addRow().
+                addColumn(new Entry(0, "age", "42")).
+                build();
+        assertThat(source.getNumberOfRows(), is(3));
+    }
+
+    @Test
+    public void numberOfColumns() {
+        VirtualSinkSource source = new VirtualSinkSource.Rows().
+                addColumn("age", "25").
+                addColumn(new Entry(0, "age", "42")).
+                addColumn("age", "15").
+                build();
+        List<Entry> row = source.getRow(0);
+        assertThat(row.size(), is(3));
+    }
+
+    @Test
     public void processRow() {
         List<Entry> entries = new ArrayList<>();
         entries.add(new Entry(0, "a", "b"));
         entries.add(new Entry(1, "c", "d"));
         VirtualSinkSource source = new VirtualSinkSource();
-        source.addRow(entries);
+        source.processRow(entries);
         assertThat(source.getNumberOfRows(), is(1));
         List<Entry> actual = source.getRow(0);
         assertThat(actual, is(entries));
