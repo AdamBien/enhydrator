@@ -73,7 +73,7 @@ public class Pump {
             List<String> filterExpressions,
             List<String> expressions,
             List<Function<List<Entry>, List<Entry>>> after,
-            List<Sink> sink,
+            List<Sink> sinks,
             Sink dlq,
             String sql,
             Consumer<String> flowListener, Object... params) {
@@ -87,7 +87,7 @@ public class Pump {
         this.indexedEntryFunctions = indexedFunctions;
         this.expressions = expressions;
         this.afterTransformations = after;
-        this.sinks = sink;
+        this.sinks = sinks;
         this.deadLetterQueue = dlq;
         this.sql = sql;
         this.params = params;
@@ -109,6 +109,7 @@ public class Pump {
     }
 
     void onNewRow(List<Entry> columns) {
+        this.flowListener.accept("Processing: " + columns.size() + " columns !");
         this.rowCount++;
         Optional<Boolean> first = this.filterExpressions.stream().
                 map(e -> this.filterExpression.execute(columns, e)).
@@ -139,12 +140,13 @@ public class Pump {
                 collect(Collectors.toList());
         this.flowListener.accept("Result collected");
         List<Entry> afterProcessed = applyRowTransformations(this.afterTransformations, transformed);
-        this.flowListener.accept("After process RowTransformer executed.");
+        this.flowListener.accept("After process RowTransformer executed. " + afterProcessed.size() + " entries");
         this.sink(afterProcessed);
-        this.flowListener.accept("Result passed to sinks");
+        this.flowListener.accept("Result processed by sinks");
     }
 
     void sink(List<Entry> afterProcessed) {
+        this.flowListener.accept("Sinking " + afterProcessed.size() + " entries: " + afterProcessed);
         Map<String, List<Entry>> groupedByDestinations = groupByDestinations(afterProcessed);
         if (groupedByDestinations != null && !groupedByDestinations.isEmpty()) {
             this.sinks.forEach(s -> sink(s, groupedByDestinations));
