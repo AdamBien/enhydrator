@@ -24,7 +24,6 @@ import com.airhacks.enhydrator.in.Entry;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -129,15 +128,11 @@ public class JDBCSink extends Sink {
                 get();
     }
 
-    static String asInsertSQL(Entry t) {
-        int sqlType = t.getSqlType();
-        switch (sqlType) {
-            case Types.LONGVARCHAR:
-            case Types.CHAR:
-            case Types.VARCHAR:
-                return escape(t.getValue());
-            default:
-                return String.valueOf(t.getValue());
+    static String asInsertSQL(Entry entry) {
+        if (entry.isString()) {
+            return escape(entry.getValue());
+        } else {
+            return String.valueOf(entry.getValue());
         }
     }
 
@@ -194,6 +189,7 @@ public class JDBCSink extends Sink {
             return false;
         }
         return true;
+
     }
 
     public static class Configuration {

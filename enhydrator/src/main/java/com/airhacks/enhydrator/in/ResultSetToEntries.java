@@ -19,11 +19,10 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
-import com.airhacks.enhydrator.in.Entry;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -44,8 +43,28 @@ public class ResultSetToEntries implements Function<ResultSet, List<Entry>> {
                 //from java.sql.Types
                 int columnType = metaData.getColumnType(i);
                 String columnName = metaData.getColumnName(i);
-                Object value = resultSet.getObject(i);
-                Entry entry = new Entry(i - 1, columnName, columnType, value);
+                Entry entry = null;
+                int slot = i - 1;
+                switch (columnType) {
+                    case Types.VARCHAR:
+                    case Types.CHAR:
+                        entry = new Entry(slot, columnName, resultSet.getString(columnType));
+                        break;
+                    case Types.INTEGER:
+                        entry = new Entry(slot, columnName, resultSet.getInt(columnType));
+                        break;
+                    case Types.DOUBLE:
+                        entry = new Entry(slot, columnName, resultSet.getDouble(columnType));
+                        break;
+                    case Types.BOOLEAN:
+                        entry = new Entry(slot, columnName, resultSet.getBoolean(columnType));
+                        break;
+                    case Types.FLOAT:
+                        entry = new Entry(slot, columnName, resultSet.getFloat(columnType));
+                        break;
+                    default:
+                        entry = new Entry(slot, columnName, String.valueOf(resultSet.getObject(columnType)));
+                }
                 entries.add(entry);
             }
         } catch (SQLException ex) {

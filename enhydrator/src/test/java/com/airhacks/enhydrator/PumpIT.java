@@ -304,8 +304,8 @@ public class PumpIT {
 
     List<Entry> getEntries() {
         List<Entry> row = new ArrayList<>();
-        row.add(new Entry(0, "a", 42, "java"));
-        row.add(new Entry(1, "b", 21, "tengah"));
+        row.add(new Entry(0, "a", "java"));
+        row.add(new Entry(1, "b", "tengah"));
         return row;
     }
 

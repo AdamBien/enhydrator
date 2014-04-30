@@ -19,9 +19,11 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 /**
  *
@@ -30,21 +32,54 @@ import java.util.List;
 public class Entry {
 
     private int slot;
-    private String name;
-    //from java.sql.Type
-    private int sqlType;
-    private Object value;
+    private JsonObject value;
     private String destination = "*";
+    private String name;
 
-    public Entry(int slot, String name, int sqlType, Object value) {
+    public Entry(int slot, String name, JsonObject value) {
         this.slot = slot;
-        this.name = name;
-        this.sqlType = sqlType;
         this.value = value;
+        this.name = name;
     }
 
     public Entry(int slot, String name, String value) {
-        this(slot, name, Types.VARCHAR, value);
+        this(slot, name, toJson(name, value));
+    }
+
+    public Entry(int slot, String name, int value) {
+        this(slot, name, toJson(name, value));
+    }
+
+    public Entry(int slot, String name, long value) {
+        this(slot, name, toJson(name, value));
+    }
+
+    public Entry(int slot, String name, double value) {
+        this(slot, name, toJson(name, value));
+    }
+
+    public Entry(int slot, String name, boolean value) {
+        this(slot, name, toJson(name, value));
+    }
+
+    public static JsonObject toJson(String name, int value) {
+        return Json.createObjectBuilder().add(name, value).build();
+    }
+
+    public static JsonObject toJson(String name, String value) {
+        return Json.createObjectBuilder().add(name, value).build();
+    }
+
+    public static JsonObject toJson(String name, double value) {
+        return Json.createObjectBuilder().add(name, value).build();
+    }
+
+    public static JsonObject toJson(String name, long value) {
+        return Json.createObjectBuilder().add(name, value).build();
+    }
+
+    public static JsonObject toJson(String name, boolean value) {
+        return Json.createObjectBuilder().add(name, value).build();
     }
 
     public int getSlot() {
@@ -52,27 +87,31 @@ public class Entry {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public int getSqlType() {
-        return sqlType;
-    }
-
-    public Object getValue() {
-        return value;
+    public String getValue() {
+        return this.value.getString(this.name);
     }
 
     public String getDestination() {
         return destination;
     }
 
-    public Entry changeValue(Object object) {
-        return new Entry(slot, name, sqlType, object);
+    public Entry changeValue(String value) {
+        return new Entry(slot, name, value);
+    }
+
+    public boolean isNumber() {
+        return JsonValue.ValueType.NUMBER == this.value.getValueType();
+    }
+
+    public boolean isString() {
+        return JsonValue.ValueType.STRING == this.value.getValueType();
     }
 
     public Entry changeDestination(String destination) {
-        Entry entry = new Entry(slot, name, sqlType, value);
+        Entry entry = new Entry(slot, name, value);
         entry.destination = destination;
         return entry;
     }
@@ -82,10 +121,4 @@ public class Entry {
         result.add(this);
         return result;
     }
-
-    @Override
-    public String toString() {
-        return "{" + "name:" + name + ", sqlType:" + sqlType + ", value:" + value + '}';
-    }
-
 }

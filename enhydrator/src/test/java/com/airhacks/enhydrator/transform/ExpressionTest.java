@@ -19,10 +19,8 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Entry;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -45,8 +43,8 @@ public class ExpressionTest {
     @Test
     public void bindingsAreWorking() {
         String expression = "print(current); print(columns);java.util.Collections.EMPTY_LIST";
-        Entry e1 = new Entry(0, "chief", 42, "duke");
-        Entry e2 = new Entry(1, "master", 21, "juggy");
+        Entry e1 = new Entry(0, "chief", "duke");
+        Entry e2 = new Entry(1, "master", "juggy");
         List<Entry> input = new ArrayList<>();
         input.add(e1);
         input.add(e2);
@@ -56,7 +54,7 @@ public class ExpressionTest {
 
     @Test
     public void emptyList() {
-        Entry e1 = new Entry(0, "chief", 42, "duke");
+        Entry e1 = new Entry(0, "chief", "duke");
         List<Entry> input = new ArrayList<>();
         List<Entry> execute = this.cut.execute(input, e1, "java.util.Collections.EMPTY_LIST");
         assertTrue(execute.isEmpty());
@@ -64,7 +62,7 @@ public class ExpressionTest {
 
     @Test
     public void emptyExpression() {
-        Entry e1 = new Entry(0, "chief", 42, "duke");
+        Entry e1 = new Entry(0, "chief", "duke");
         List<Entry> input = new ArrayList<>();
         List<Entry> result = this.cut.execute(input, e1, "");
         assertThat(result, is(e1.asList()));

@@ -19,9 +19,7 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Entry;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -46,7 +44,7 @@ public class FunctionScriptLoaderTest {
 
     @Test
     public void entryTransfomerLoadingAndExecution() throws Exception {
-        Entry entry = new Entry(0, "chief", 42, "duke");
+        Entry entry = new Entry(0, "chief", "duke");
         EntryTransformer function = this.cut.getEntryTransformer("noop");
         assertNotNull(function);
         List<Entry> transformedEntries = function.execute(entry);
@@ -55,7 +53,7 @@ public class FunctionScriptLoaderTest {
 
     @Test
     public void rowTransfomerLoadingAndExecution() throws Exception {
-        Entry entry = new Entry(0, "chief", 42, "duke");
+        Entry entry = new Entry(0, "chief", "duke");
         List<Entry> input = new ArrayList<>();
         input.add(entry);
         RowTransformer function = this.cut.getRowTransformer("noop");
