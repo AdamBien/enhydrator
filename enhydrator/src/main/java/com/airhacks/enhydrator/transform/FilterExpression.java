@@ -49,7 +49,7 @@ public class FilterExpression {
 
     public Boolean execute(Row columns, String expression) {
         Bindings bindings = this.engine.createBindings();
-        bindings.put("row", columns);
+        bindings.put("$ROW", columns);
         try {
             this.expressionListener.accept("Executing: " + expression);
             Object result = this.engine.eval(expression, bindings);
