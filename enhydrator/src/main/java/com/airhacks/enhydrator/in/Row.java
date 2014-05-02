@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,10 +20,13 @@ package com.airhacks.enhydrator.in;
  * #L%
  */
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -33,7 +36,7 @@ public class Row {
 
     private final int index;
     private final Map<String, Object> row;
-    private final Map<String, Map<String, String>> meta;
+    private final Map<String, String> destinations;
     private final String DEFAULT_DESTINATION = "*";
     private String name;
     private static final String DESTINATION = "destination";
@@ -41,7 +44,7 @@ public class Row {
     public Row(int index) {
         this.index = index;
         this.row = new ConcurrentHashMap<>();
-        this.meta = new ConcurrentHashMap<>();
+        this.destinations = new ConcurrentHashMap<>();
     }
 
     public int getIndex() {
@@ -52,8 +55,24 @@ public class Row {
         return this.row.get(column);
     }
 
+    /**
+     * Adds or overrides a column with a default destination
+     *
+     * @param name a unique name of the column.
+     * @param value
+     * @return reference for method chaining
+     */
     public Row addColumn(String name, Object value) {
+        Objects.requireNonNull(name, "Name of the column cannot be null");
+        Objects.requireNonNull(value, "Value of " + name + " cannot be null");
         this.row.put(name, value);
+        this.destinations.put(name, DEFAULT_DESTINATION);
+        return this;
+    }
+
+    public Row addColumn(String name, String destination, Object value) {
+        this.row.put(name, value);
+        this.destinations.put(name, destination);
         return this;
     }
 
@@ -90,12 +109,7 @@ public class Row {
     }
 
     public String getDestination(String columnName) {
-        return this.meta.getOrDefault(columnName, new HashMap<>()).
-                getOrDefault(DESTINATION, DEFAULT_DESTINATION);
-    }
-
-    String getMeta(String columnName, String key) {
-        return this.meta.getOrDefault(columnName, new HashMap<>()).get(key);
+        return this.destinations.getOrDefault(columnName, DEFAULT_DESTINATION);
     }
 
     public boolean isNumber(String column) {
@@ -107,20 +121,27 @@ public class Row {
     }
 
     public Row changeDestination(String column, String newDestination) {
-        getMetaForColumn(name).put(DESTINATION, newDestination);
+        this.destinations.put(column, newDestination);
         return this;
-    }
-
-    public Map<String, String> getMetaForColumn(String name) {
-        Map<String, String> columnMeta = this.meta.get(name);
-        if (columnMeta == null) {
-            columnMeta = new HashMap<>();
-            this.meta.put(name, columnMeta);
-        }
-        return columnMeta;
     }
 
     public boolean isEmpty() {
         return this.row.isEmpty();
+    }
+
+    public Map<String, Row> getColumnsGroupedByDestination() {
+        Map<String, List<Map.Entry<String, String>>> rawGrouping = this.destinations.
+                entrySet().
+                stream().
+                collect(Collectors.groupingBy(e -> e.getValue()));
+        Map<String, Row> groupedRows = new HashMap<>();
+        rawGrouping.entrySet().forEach(e -> groupedRows.put(e.getKey(), convert(e.getValue())));
+        return groupedRows;
+    }
+
+    Row convert(List<Map.Entry<String, String>> content) {
+        Row newRow = new Row(index);
+        content.forEach(e -> newRow.addColumn(e.getKey(), this.row.get(e.getKey())));
+        return newRow;
     }
 }

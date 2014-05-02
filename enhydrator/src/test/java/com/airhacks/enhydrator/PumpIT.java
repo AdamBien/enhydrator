@@ -21,14 +21,12 @@ package com.airhacks.enhydrator;
  */
 import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.flexpipe.PipelineTest;
-import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.JDBCSource;
+import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.out.Sink;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
-import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
 import static org.junit.Assert.assertThat;
@@ -65,11 +63,11 @@ public class PumpIT {
         Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
-                with("name", t -> t.asList()).
+                with("name", t -> t).
                 to(consumer).sqlQuery("select * from Coffee").
                 build();
         pump.start();
-        verify(consumer, times(2)).processRow(any(List.class));
+        verify(consumer, times(2)).processRow(any(Row.class));
     }
 
     static Sink getMockedSink() {
@@ -79,26 +77,10 @@ public class PumpIT {
     }
 
     @Test
-    public void oneToOneTransformationWithIndex() {
-        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
-        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
-        Pump pump = new Pump.Engine().
-                from(source).
-                with(1, t -> t.changeValue("duke").asList()).
-                to(consumer).
-                sqlQuery("select * from Coffee").
-                build();
-        pump.start();
-        verify(consumer, times(2)).processRow(any(List.class));
-    }
-
-    @Test
     public void ignoringPreprocessor() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
         Sink consumer = getMockedSink();
-        final ArrayList<Entry> entries = new ArrayList<>();
         Pump pump = new Pump.Engine().
                 from(source).
                 startWith(l -> null).
@@ -106,7 +88,7 @@ public class PumpIT {
                 to(consumer).
                 build();
         pump.start();
-        verify(consumer, never()).processRow(entries);
+        verify(consumer, never()).processRow(any(Row.class));
     }
 
     @Test
@@ -121,7 +103,7 @@ public class PumpIT {
                 sqlQuery("select * from Coffee").
                 build();
         pump.start();
-        verify(consumer, times(2)).processRow(any(List.class));
+        verify(consumer, times(2)).processRow(any(Row.class));
     }
 
     @Test
@@ -134,7 +116,7 @@ public class PumpIT {
                 to(consumer).
                 sqlQuery("select * from Coffee").build();
         pump.start();
-        verify(consumer, times(2)).processRow(any(List.class));
+        verify(consumer, times(2)).processRow(any(Row.class));
     }
 
     @Test
@@ -150,7 +132,7 @@ public class PumpIT {
         long rowCount = pump.start();
         //counts all rows, not processed rows
         assertThat(rowCount, is(2l));
-        verify(consumer, never()).processRow(any(List.class));
+        verify(consumer, never()).processRow(any(Row.class));
     }
 
     @Test
@@ -167,7 +149,7 @@ public class PumpIT {
                 build();
         long rowCount = pump.start();
         assertThat(rowCount, is(2l));
-        verify(consumer, times(2)).processRow(any(List.class));
+        verify(consumer, times(2)).processRow(any(Row.class));
     }
 
     @Test
@@ -178,12 +160,12 @@ public class PumpIT {
         Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 from(source).
-                with(1, "quote").
+                with("name", "quote").
                 to(consumer).
                 sqlQuery("select * from Coffee").
                 build();
         pump.start();
-        verify(consumer, times(2)).processRow(any(List.class));
+        verify(consumer, times(2)).processRow(any(Row.class));
 
     }
 
@@ -200,7 +182,7 @@ public class PumpIT {
                 sqlQuery("select * from Coffee").
                 build();
         pump.start();
-        verify(consumer, times(2)).processRow(any(List.class));
+        verify(consumer, times(2)).processRow(any(Row.class));
 
     }
 
@@ -216,7 +198,7 @@ public class PumpIT {
                 to(consumer).
                 build();
         pump.start();
-        verify(consumer).processRow(any(List.class));
+        verify(consumer).processRow(any(Row.class));
     }
 
     @Test
@@ -235,77 +217,33 @@ public class PumpIT {
     public void applyExpressionsWithoutExpressions() {
         Pump pump = new Pump.Engine().
                 build();
-        List<Entry> entries = getEntries();
-        final Entry expected = entries.get(0);
-        List<Entry> result = pump.applyExpressions(entries, expected);
-        assertThat(result, CoreMatchers.hasItem(expected));
-        assertThat(result.size(), is(1));
+        Row entries = getEntries();
+        int expected = entries.getNumberOfColumns();
+        pump.applyExpressions(entries);
+        int actual = entries.getNumberOfColumns();
+        assertThat(actual, is(expected));
     }
 
     @Test
     public void applyRowTransformationsWithoutFunctions() {
-        List<Entry> input = getEntries();
-        List<Entry> output = Pump.applyRowTransformations(new ArrayList<>(), input);
+        Row input = getEntries();
+        Row output = Pump.applyRowTransformations(new ArrayList<>(), input);
         assertThat(output, is(input));
     }
 
     @Test
     public void applyRowTransformationsWitDevNull() {
-        List<Entry> input = getEntries();
-        List<Function<List<Entry>, List<Entry>>> funcs = new ArrayList<>();
-        funcs.add(l -> new ArrayList<>());
-        List<Entry> output = Pump.applyRowTransformations(funcs, input);
+        Row input = getEntries();
+        List<Function<Row, Row>> funcs = new ArrayList<>();
+        funcs.add(l -> new Row(0));
+        Row output = Pump.applyRowTransformations(funcs, input);
         assertTrue(output.isEmpty());
     }
 
-    @Test
-    public void groupByDefaultDestination() {
-        List<Entry> entries = getEntries();
-        Pump pump = new Pump.Engine().
-                build();
-        Map<String, List<Entry>> grouped = pump.groupByDestinations(entries);
-        assertThat(grouped.size(), is(1));
-        List<Entry> unclassified = grouped.get("*");
-        assertThat(unclassified, is(entries));
-    }
-
-    @Test
-    public void groupByCustomDestinations() {
-        List<Entry> entries = getEntries();
-        final String destination = "cuttingEdge";
-        entries.add(new Entry(3, "something", "java").changeDestination(destination));
-        entries.add(new Entry(4, "something", "jvm").changeDestination(destination));
-        Pump pump = new Pump.Engine().
-                build();
-        Map<String, List<Entry>> grouped = pump.groupByDestinations(entries);
-        assertThat(grouped.size(), is(2));
-        List<Entry> unclassified = grouped.get("*");
-        unclassified.forEach(entry -> assertThat(entry.getDestination(), is("*")));
-        List<Entry> byDestination = grouped.get(destination);
-        byDestination.forEach(entry -> assertThat(entry.getDestination(), is(destination)));
-    }
-
-    @Test
-    public void groupByCustomDestinationsWithMisconfiguredSink() {
-        List<Entry> entries = getEntries();
-        final String destination = "cuttingEdge";
-        entries.add(new Entry(3, "something", "java").changeDestination(destination));
-        entries.add(new Entry(4, "something", "jvm").changeDestination(destination));
-        Sink sink = getMockedSink();
-        Pump pump = new Pump.Engine().to(sink).
-                build();
-        Map<String, List<Entry>> grouped = pump.groupByDestinations(entries);
-        assertThat(grouped.size(), is(2));
-        List<Entry> unclassified = grouped.get("*");
-        unclassified.forEach(entry -> assertThat(entry.getDestination(), is("*")));
-        List<Entry> byDestination = grouped.get(destination);
-        byDestination.forEach(entry -> assertThat(entry.getDestination(), is(destination)));
-    }
-
-    List<Entry> getEntries() {
-        List<Entry> row = new ArrayList<>();
-        row.add(new Entry(0, "a", "java"));
-        row.add(new Entry(1, "b", "tengah"));
+    Row getEntries() {
+        Row row = new Row(0);
+        row.addColumn("a", "java");
+        row.addColumn("b", "tengah");
         return row;
     }
 

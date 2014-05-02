@@ -19,8 +19,7 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.Entry;
-import java.util.List;
+import com.airhacks.enhydrator.in.Row;
 
 /**
  *
@@ -29,7 +28,7 @@ import java.util.List;
 public class CustomSink extends Sink {
 
     @Override
-    public void processRow(List<Entry> entries) {
+    public void processRow(Row entries) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

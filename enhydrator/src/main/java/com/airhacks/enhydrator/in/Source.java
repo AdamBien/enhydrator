@@ -35,7 +35,6 @@ package com.airhacks.enhydrator.in;
  * #L%
  */
 import com.airhacks.enhydrator.flexpipe.JAXBInterfaceAdapter;
-import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -46,5 +45,5 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlJavaTypeAdapter(JAXBInterfaceAdapter.class)
 public interface Source {
 
-    Iterable<List<Entry>> query(String query, Object... params);
+    Iterable<Row> query(String query, Object... params);
 }

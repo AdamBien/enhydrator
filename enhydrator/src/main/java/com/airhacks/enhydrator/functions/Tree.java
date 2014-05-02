@@ -1,4 +1,4 @@
-package com.airhacks.enhydrator.in;
+package com.airhacks.enhydrator.functions;
 
 /*
  * #%L
@@ -20,22 +20,32 @@ package com.airhacks.enhydrator.in;
  * #L%
  */
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import com.airhacks.enhydrator.in.Row;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  *
  * @author airhacks.com
  */
-public class EntryTest {
+public class Tree implements Function<Row, List<Row>> {
 
-    @Test
-    public void stringValue() {
-        String origin = "duke";
-        Entry entry = new Entry(0, "name", origin);
-        Object actual = entry.getValue();
-        assertThat(actual, is(origin));
+    private Row rootEntry;
+
+    private int slotScan;
+
+    public Tree(int slot) {
+        this.slotScan = slot;
+    }
+
+    @Override
+    public List<Row> apply(Row t) {
+        int current = t.getIndex();
+        if (current != slotScan) {
+            return Collections.EMPTY_LIST;
+        }
+        return null;
     }
 
 }

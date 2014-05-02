@@ -19,8 +19,7 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.Entry;
-import java.util.List;
+import com.airhacks.enhydrator.in.Row;
 import java.util.logging.Logger;
 
 /**
@@ -40,12 +39,15 @@ public class LogSink extends Sink {
     }
 
     @Override
-    public void processRow(List<Entry> entries) {
+    public void processRow(Row entries) {
         if (entries == null || entries.isEmpty()) {
             LOG.info("Empty list");
             return;
         }
-        String row = entries.stream().map(e -> e.toString()).reduce((String t, String u) -> t + "," + u).get();
+        String row = entries.getColumnsAsString().
+                values().
+                stream().
+                reduce((String t, String u) -> t + "," + u).get();
         LOG.info(row);
     }
 

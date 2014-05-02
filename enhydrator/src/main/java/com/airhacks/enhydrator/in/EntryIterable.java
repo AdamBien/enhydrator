@@ -34,20 +34,18 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
 import java.sql.ResultSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.Function;
 
 /**
  *
  * @author airhacks.com
  */
-public class EntryIterable implements Iterable<List<Entry>> {
+public class EntryIterable implements Iterable<Row> {
 
     private final ResultSetIterator resultSetIterator;
-    private final Function<ResultSet, List<Entry>> rowTransformer;
+    private final Function<ResultSet, Row> rowTransformer;
 
     public EntryIterable(ResultSetIterator resultSetIterator) {
         this.resultSetIterator = resultSetIterator;
@@ -55,8 +53,8 @@ public class EntryIterable implements Iterable<List<Entry>> {
     }
 
     @Override
-    public Iterator<List<Entry>> iterator() {
-        return new Iterator<List<Entry>>() {
+    public Iterator<Row> iterator() {
+        return new Iterator<Row>() {
 
             @Override
             public boolean hasNext() {
@@ -64,7 +62,7 @@ public class EntryIterable implements Iterable<List<Entry>> {
             }
 
             @Override
-            public List<Entry> next() {
+            public Row next() {
                 ResultSet rs = resultSetIterator.next();
                 return rowTransformer.apply(rs);
             }

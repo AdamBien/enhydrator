@@ -23,7 +23,6 @@ import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -54,7 +53,7 @@ public class JDBCSource implements Source {
     }
 
     @Override
-    public Iterable<List<Entry>> query(String query, Object... params) {
+    public Iterable<Row> query(String query, Object... params) {
         PreparedStatement stmt;
         try {
             Connection connection = this.connectionProvider.get();

@@ -19,9 +19,7 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
-import com.airhacks.enhydrator.in.Entry;
-import java.util.List;
+import com.airhacks.enhydrator.in.Row;
 
 /**
  *
@@ -30,6 +28,6 @@ import java.util.List;
 @FunctionalInterface
 public interface RowTransformer {
 
-    List<Entry> execute(List<Entry> input);
+    Row execute(Row input);
 
 }

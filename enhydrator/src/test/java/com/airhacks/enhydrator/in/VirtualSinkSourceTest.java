@@ -19,8 +19,6 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-import java.util.ArrayList;
-import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -36,10 +34,10 @@ public class VirtualSinkSourceTest {
     public void creation() {
         VirtualSinkSource source = getSource();
         assertThat(source.getNumberOfRows(), is(2));
-        List<Entry> first = source.getRow(0);
-        assertThat(first.size(), is(2));
-        List<Entry> second = source.getRow(1);
-        assertThat(second.size(), is(2));
+        Row first = source.getRow(0);
+        assertThat(first.getNumberOfColumns(), is(2));
+        Row second = source.getRow(1);
+        assertThat(second.getNumberOfColumns(), is(2));
     }
 
     VirtualSinkSource getSource() {
@@ -60,7 +58,7 @@ public class VirtualSinkSourceTest {
                 addRow().
                 addColumn("age", "15").
                 addRow().
-                addColumn(new Entry(0, "age", "42")).
+                addColumn("age", "42").
                 addRow().
                 build();
         assertThat(source.getNumberOfRows(), is(3));
@@ -78,35 +76,35 @@ public class VirtualSinkSourceTest {
     @Test
     public void numberOfColumns() {
         VirtualSinkSource source = new VirtualSinkSource.Rows().
-                addColumn("age", "25").
-                addColumn(new Entry(0, "age", "42")).
-                addColumn("age", "15").
+                addColumn("age1", "25").
+                addColumn("age2", "42").
+                addColumn("age3", "15").
                 addRow().
                 build();
-        List<Entry> row = source.getRow(0);
-        assertThat(row.size(), is(3));
+        Row row = source.getRow(0);
+        assertThat(row.getNumberOfColumns(), is(3));
     }
 
     @Test
     public void processRow() {
-        List<Entry> entries = new ArrayList<>();
-        entries.add(new Entry(0, "a", "b"));
-        entries.add(new Entry(1, "c", "d"));
+        Row entries = new Row(0);
+        entries.addColumn("a", "b");
+        entries.addColumn("c", "d");
         VirtualSinkSource source = new VirtualSinkSource();
         source.processRow(entries);
         assertThat(source.getNumberOfRows(), is(1));
-        List<Entry> actual = source.getRow(0);
+        Row actual = source.getRow(0);
         assertThat(actual, is(entries));
     }
 
     @Test
     public void query() {
         VirtualSinkSource source = getSource();
-        Iterable<List<Entry>> results = source.query(null);
+        Iterable<Row> results = source.query(null);
         int rowCounter = 0;
-        for (List<Entry> list : results) {
+        for (Row list : results) {
             assertNotNull(list);
-            assertThat(list.size(), is(2));
+            assertThat(list.getNumberOfColumns(), is(2));
             rowCounter++;
         }
         assertThat(rowCounter, is(2));

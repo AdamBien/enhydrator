@@ -39,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,8 +56,10 @@ public class CSVSource implements Source {
     private Stream<String> lines;
     private final boolean fileContainsHeaders;
 
+    private int counter;
+
     private List<String> columnNames;
-    private List<List<Entry>> iterable;
+    private List<Row> iterable;
 
     public CSVSource(String file, String delimiter, boolean fileContainsHeaders) {
         this.file = Paths.get(file);
@@ -85,9 +86,10 @@ public class CSVSource implements Source {
         } catch (IOException ex) {
             Logger.getLogger(CSVSource.class.getName()).log(Level.SEVERE, null, ex);
         }
-        List<Entry> headers = parse(headerLine, this.delimiter);
-        return headers.stream().
-                map(h -> String.valueOf(h.getValue())).
+        Row headers = parse(headerLine, this.delimiter);
+
+        return headers.getColumns().values().stream().
+                map(e -> ((String) e)).
                 collect(Collectors.toList());
     }
 
@@ -98,26 +100,25 @@ public class CSVSource implements Source {
      * @return
      */
     @Override
-    public Iterable<List<Entry>> query(String query, Object... params) {
+    public Iterable<Row> query(String query, Object... params) {
         if (this.iterable == null) {
             this.iterable = this.lines.map(s -> parse(s, this.delimiter)).collect(Collectors.toList());
         }
         return this.iterable;
     }
 
-    List<Entry> parse(String line, String delimiter) {
+    Row parse(String line, String delimiter) {
         String[] splitted = line.split(delimiter);
         if (splitted == null || splitted.length == 0) {
-            return Collections.emptyList();
+            return null;
         }
-        List<Entry> entries = new ArrayList<>();
+        Row row = new Row(counter++);
         for (int i = 0; i < splitted.length; i++) {
             String value = splitted[i];
             String columnName = getColumnName(i);
-            Entry entry = new Entry(i, columnName, value);
-            entries.add(entry);
+            row.addColumn(columnName, value);
         }
-        return entries;
+        return row;
     }
 
     String getColumnName(int slot) {

@@ -30,13 +30,13 @@ import java.util.Optional;
  */
 public class VirtualSinkSource extends Sink implements Source {
 
-    private List<List<Entry>> rows;
+    private List<Row> rows;
 
     public VirtualSinkSource() {
         this("*", new ArrayList<>());
     }
 
-    public VirtualSinkSource(String name, List<List<Entry>> entries) {
+    public VirtualSinkSource(String name, List<Row> entries) {
         super(name);
         this.rows = entries;
     }
@@ -45,9 +45,9 @@ public class VirtualSinkSource extends Sink implements Source {
         return rows.size();
     }
 
-    public List<Entry> getRow(int index) {
+    public Row getRow(int index) {
         if (index >= this.rows.size()) {
-            return new ArrayList<>();
+            return null;
         }
         return this.rows.get(index);
     }
@@ -59,7 +59,7 @@ public class VirtualSinkSource extends Sink implements Source {
      * @return the cached content
      */
     @Override
-    public Iterable<List<Entry>> query(String query, Object... params) {
+    public Iterable<Row> query(String query, Object... params) {
         return this.rows;
     }
 
@@ -68,7 +68,7 @@ public class VirtualSinkSource extends Sink implements Source {
      * @param entries process row
      */
     @Override
-    public void processRow(List<Entry> entries) {
+    public void processRow(Row entries) {
         this.rows.add(entries);
     }
 
@@ -82,9 +82,9 @@ public class VirtualSinkSource extends Sink implements Source {
         }
     }
 
-    public String mapToString(List<Entry> columns) {
-        Optional<String> column = columns.stream().
-                map(e -> String.valueOf(e.getValue())).
+    public String mapToString(Row columns) {
+        Optional<String> column = columns.getColumns().values().stream().
+                map(e -> String.valueOf(e.toString())).
                 reduce((l, r) -> l + "|" + r);
         if (column.isPresent()) {
             return column.get();
@@ -95,40 +95,28 @@ public class VirtualSinkSource extends Sink implements Source {
 
     public static class Rows {
 
-        private List<Entry> currentRow;
-        private List<List<Entry>> rows;
+        private Row currentRow;
+        private List<Row> rows;
         private String name;
 
         public Rows() {
             this.rows = new ArrayList<>();
-            this.currentRow = new ArrayList<>();
+            this.currentRow = new Row(0);
             this.name = "*";
         }
 
-        public Rows addColumn(Entry entry) {
-            getCurrentRow().add(entry);
-            return this;
-        }
-
-        List<Entry> getCurrentRow() {
-            if (this.currentRow == null) {
-                this.currentRow = new ArrayList<>();
-            }
+        Row getCurrentRow() {
             return this.currentRow;
         }
 
         public Rows addColumn(String name, String value) {
-            int index = getCurrentRow().size() - 1;
-            if (index == -1) {
-                //in case row is empty
-                index = 0;
-            }
-            return addColumn(new Entry(index, name, value));
+            this.currentRow.addColumn(name, value);
+            return this;
         }
 
         public Rows addRow() {
             this.rows.add(getCurrentRow());
-            this.currentRow = new ArrayList<>();
+            this.currentRow = new Row((this.rows.size() - 1));
             return this;
         }
 

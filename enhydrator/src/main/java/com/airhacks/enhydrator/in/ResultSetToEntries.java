@@ -23,54 +23,52 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 /**
  *
  * @author airhacks.com
  */
-public class ResultSetToEntries implements Function<ResultSet, List<Entry>> {
+public class ResultSetToEntries implements Function<ResultSet, Row> {
 
     @Override
-    public List<Entry> apply(ResultSet resultSet) {
-        List<Entry> entries = new ArrayList<>();
+    public Row apply(ResultSet resultSet) {
+        Row row = null;
         try {
             final ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
+            int slot;
             for (int i = 1; i <= columnCount; i++) {
                 //from java.sql.Types
                 int columnType = metaData.getColumnType(i);
                 String columnName = metaData.getColumnName(i);
-                Entry entry = null;
-                int slot = i - 1;
+                slot = i - 1;
+                row = new Row(i);
                 switch (columnType) {
                     case Types.VARCHAR:
                     case Types.CHAR:
-                        entry = new Entry(slot, columnName, resultSet.getString(columnType));
+                        row.addColumn(columnName, resultSet.getString(columnType));
                         break;
                     case Types.INTEGER:
-                        entry = new Entry(slot, columnName, resultSet.getInt(columnType));
+                        row.addColumn(columnName, resultSet.getInt(columnType));
                         break;
                     case Types.DOUBLE:
-                        entry = new Entry(slot, columnName, resultSet.getDouble(columnType));
+                        row.addColumn(columnName, resultSet.getDouble(columnType));
                         break;
                     case Types.BOOLEAN:
-                        entry = new Entry(slot, columnName, resultSet.getBoolean(columnType));
+                        row.addColumn(columnName, resultSet.getBoolean(columnType));
                         break;
                     case Types.FLOAT:
-                        entry = new Entry(slot, columnName, resultSet.getFloat(columnType));
+                        row.addColumn(columnName, resultSet.getFloat(columnType));
                         break;
                     default:
-                        entry = new Entry(slot, columnName, String.valueOf(resultSet.getObject(columnType)));
+                        row.addColumn(columnName, String.valueOf(resultSet.getObject(columnType)));
                 }
-                entries.add(entry);
             }
         } catch (SQLException ex) {
             throw new IllegalStateException("Problems accessing ResultSet", ex);
         }
-        return entries;
+        return row;
     }
 
 }

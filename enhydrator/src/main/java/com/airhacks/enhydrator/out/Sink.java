@@ -19,8 +19,7 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.Entry;
-import java.util.List;
+import com.airhacks.enhydrator.in.Row;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -52,7 +51,7 @@ public abstract class Sink implements AutoCloseable {
     public void init() {
     }
 
-    public abstract void processRow(List<Entry> entries);
+    public abstract void processRow(Row entries);
 
     public String getName() {
         if (this.name == null) {

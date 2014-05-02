@@ -19,8 +19,7 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.Entry;
-import java.util.List;
+import com.airhacks.enhydrator.in.Row;
 import java.util.function.Consumer;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -48,9 +47,9 @@ public class FilterExpression {
         this.engine = manager.getEngineByName("nashorn");
     }
 
-    public Boolean execute(List<Entry> columns, String expression) {
+    public Boolean execute(Row columns, String expression) {
         Bindings bindings = this.engine.createBindings();
-        bindings.put("columns", columns);
+        bindings.put("row", columns);
         try {
             this.expressionListener.accept("Executing: " + expression);
             Object result = this.engine.eval(expression, bindings);

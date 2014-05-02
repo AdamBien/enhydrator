@@ -19,10 +19,6 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
-import com.airhacks.enhydrator.in.Entry;
-import java.util.List;
-
 /**
  *
  * @author airhacks.com
@@ -30,6 +26,6 @@ import java.util.List;
 @FunctionalInterface
 public interface EntryTransformer {
 
-    List<Entry> execute(Entry entry);
+    Object execute(Object entry);
 
 }

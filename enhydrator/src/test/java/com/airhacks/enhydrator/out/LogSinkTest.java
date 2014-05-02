@@ -19,8 +19,7 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-
-import java.util.ArrayList;
+import com.airhacks.enhydrator.in.Row;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +38,7 @@ public class LogSinkTest {
 
     @Test
     public void logEmptyList() {
-        this.cut.processRow(new ArrayList<>());
+        this.cut.processRow(new Row(0));
     }
 
     @Test

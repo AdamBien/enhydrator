@@ -21,8 +21,8 @@ package com.airhacks.enhydrator;
  */
 import com.airhacks.enhydrator.flexpipe.EntryTransformation;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
-import com.airhacks.enhydrator.in.Entry;
 import com.airhacks.enhydrator.in.ResultSetToEntries;
+import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
@@ -36,12 +36,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import javax.json.JsonValue;
 
 /**
  *
@@ -50,10 +48,9 @@ import java.util.stream.Stream;
 public class Pump {
 
     private final Source source;
-    private final Map<String, Function<Entry, List<Entry>>> namedEntryFunctions;
-    private final Map<Integer, Function<Entry, List<Entry>>> indexedEntryFunctions;
-    private final List<Function<List<Entry>, List<Entry>>> beforeTransformations;
-    private final List<Function<List<Entry>, List<Entry>>> afterTransformations;
+    private final Map<String, Function<Object, Object>> namedEntryFunctions;
+    private final List<Function<Row, Row>> beforeTransformations;
+    private final List<Function<Row, Row>> afterTransformations;
     private final List<String> expressions;
     private final List<String> filterExpressions;
     private final List<Sink> sinks;
@@ -66,13 +63,12 @@ public class Pump {
     private final Consumer<String> flowListener;
     private long rowCount;
 
-    private Pump(Source source, Function<ResultSet, List<Entry>> rowTransformer,
-            List<Function<List<Entry>, List<Entry>>> before,
-            Map<String, Function<Entry, List<Entry>>> namedFunctions,
-            Map<Integer, Function<Entry, List<Entry>>> indexedFunctions,
+    private Pump(Source source, Function<ResultSet, Row> rowTransformer,
+            List<Function<Row, Row>> before,
+            Map<String, Function<Object, Object>> namedFunctions,
             List<String> filterExpressions,
             List<String> expressions,
-            List<Function<List<Entry>, List<Entry>>> after,
+            List<Function<Row, Row>> after,
             List<Sink> sinks,
             Sink dlq,
             String sql,
@@ -84,7 +80,6 @@ public class Pump {
         this.source = source;
         this.beforeTransformations = before;
         this.namedEntryFunctions = namedFunctions;
-        this.indexedEntryFunctions = indexedFunctions;
         this.expressions = expressions;
         this.afterTransformations = after;
         this.sinks = sinks;
@@ -96,7 +91,7 @@ public class Pump {
 
     public long start() {
         this.rowCount = 0;
-        Iterable<List<Entry>> input = this.source.query(sql, params);
+        Iterable<Row> input = this.source.query(sql, params);
         this.flowListener.accept("Query executed: " + sql);
         this.sinks.forEach(s -> s.init());
         this.flowListener.accept("Sink initialized");
@@ -108,46 +103,36 @@ public class Pump {
 
     }
 
-    void onNewRow(List<Entry> columns) {
-        this.flowListener.accept("Processing: " + columns.size() + " columns !");
+    void onNewRow(Row row) {
+        this.flowListener.accept("Processing: " + row.getNumberOfColumns() + " columns !");
         this.rowCount++;
         Optional<Boolean> first = this.filterExpressions.stream().
-                map(e -> this.filterExpression.execute(columns, e)).
+                map(e -> this.filterExpression.execute(row, e)).
                 filter(r -> r == false).findFirst();
         if (!first.isPresent()) {
-            transformRow(columns);
+            transformRow(row);
         } else {
             this.flowListener.accept("Row ignored by filtering");
         }
 
     }
 
-    void transformRow(List<Entry> convertedColumns) {
-        List<Entry> entryColumns = applyRowTransformations(this.beforeTransformations, convertedColumns);
-        final Stream<Entry> indexed = entryColumns.stream().
-                map(e -> applyOrReturnOnIndexed(e)).
-                flatMap(l -> l.stream());
-        this.flowListener.accept("Indexed functions processed");
-        final Stream<Entry> named = indexed.
-                map(e -> applyOrReturnOnNamed(e)).
-                flatMap(l -> l.stream());
+    void transformRow(Row convertedRow) {
+        Row entryColumns = applyRowTransformations(this.beforeTransformations, convertedRow);
+        applyNamedFunctions(entryColumns);
         this.flowListener.accept("Named functions processed");
-        final Stream<Entry> expressionList = named.
-                map(e -> applyExpressions(convertedColumns, e)).
-                flatMap(l -> l.stream());
+        applyExpressions(convertedRow);
         this.flowListener.accept("Expressions processed");
-        List<Entry> transformed = expressionList.
-                collect(Collectors.toList());
-        this.flowListener.accept("Result collected");
-        List<Entry> afterProcessed = applyRowTransformations(this.afterTransformations, transformed);
-        this.flowListener.accept("After process RowTransformer executed. " + afterProcessed.size() + " entries");
+        Row afterProcessed = applyRowTransformations(this.afterTransformations, entryColumns);
+        this.flowListener.accept("After process RowTransformer executed. " + afterProcessed.getNumberOfColumns() + " entries");
         this.sink(afterProcessed);
         this.flowListener.accept("Result processed by sinks");
     }
 
-    void sink(List<Entry> afterProcessed) {
-        this.flowListener.accept("Sinking " + afterProcessed.size() + " entries: " + afterProcessed);
-        Map<String, List<Entry>> groupedByDestinations = groupByDestinations(afterProcessed);
+    void sink(Row afterProcessed) {
+        this.flowListener.accept("Sinking " + afterProcessed.getNumberOfColumns() + " entries: " + afterProcessed);
+
+        Map<String, Row> groupedByDestinations = afterProcessed.getColumnsGroupedByDestination();
         if (groupedByDestinations != null && !groupedByDestinations.isEmpty()) {
             this.sinks.forEach(s -> sink(s, groupedByDestinations));
         } else {
@@ -155,13 +140,13 @@ public class Pump {
         }
     }
 
-    void sink(Sink sink, Map<String, List<Entry>> groupByDestinations) {
+    void sink(Sink sink, Map<String, Row> groupByDestinations) {
         String destination = sink.getName();
         if (destination == null) {
             this.flowListener.accept(sink + " has a null destination, skipping");
             return;
         }
-        List<Entry> entriesForSink = groupByDestinations.get(destination);
+        Row entriesForSink = groupByDestinations.get(destination);
         if (entriesForSink != null) {
             this.flowListener.accept("Processing entries " + entriesForSink + " with " + destination);
             sink.processRow(entriesForSink);
@@ -171,65 +156,44 @@ public class Pump {
         }
     }
 
-    Map<String, List<Entry>> groupByDestinations(List<Entry> transformationResult) {
-        return transformationResult.
-                stream().
-                collect(Collectors.groupingBy(e -> e.getDestination()));
-    }
-
-    List<Entry> applyExpressions(List<Entry> columns, Entry current) {
-        if (this.expressions == null || this.expressions.isEmpty()) {
-            return current.asList();
-        }
-        return this.expressions.stream().
-                map(e -> applyExpression(columns, current, e)).
-                flatMap(l -> l.stream()).
-                collect(Collectors.toList());
+    void applyExpressions(Row current) {
+        this.expressions.forEach(s -> applyExpression(current, s));
 
     }
 
-    List<Entry> applyExpression(List<Entry> columns, Entry current, String expression) {
+    void applyExpression(Row current, String expression) {
         this.flowListener.accept("Executing expression: " + expression);
         try {
-            return this.expression.
-                    execute(columns, current, expression);
+            this.expression.
+                    execute(current, expression);
         } finally {
             this.flowListener.accept("Expression executed.");
         }
     }
 
-    List<Entry> applyOrReturnOnIndexed(Entry e) {
-        final int slot = e.getSlot();
-        final Function<Entry, List<Entry>> function = this.indexedEntryFunctions.get(slot);
-        if (function != null) {
-            this.flowListener.accept("Function: " + function + " found for slot: " + slot);
-            return function.apply(e);
-        } else {
-            this.flowListener.accept("No function found for slot: " + slot);
-            return e.asList();
-        }
-    }
-
-    List<Entry> applyOrReturnOnNamed(Entry e) {
-        final String name = e.getName();
-        final Function<Entry, List<Entry>> function = this.namedEntryFunctions.get(name);
+    Object applyOrReturnOnNamed(String name, JsonValue value) {
+        final Function<Object, Object> function = this.namedEntryFunctions.get(name);
         if (function != null) {
             this.flowListener.accept("Function: " + function + " found for name: " + name);
-            return function.apply(e);
+            return function.apply(value);
         } else {
             this.flowListener.accept("No function found for name: " + name);
-            return e.asList();
+            return value;
         }
     }
 
-    static List<Entry> applyRowTransformations(List<Function<List<Entry>, List<Entry>>> trafos, List<Entry> convertedColumns) {
+    void applyNamedFunctions(Row entryColumns) {
+        this.namedEntryFunctions.forEach((k, v) -> entryColumns.transformColumn(k, v));
+    }
+
+    static Row applyRowTransformations(List<Function<Row, Row>> trafos, Row convertedColumns) {
         if (trafos == null || trafos.isEmpty()) {
             return convertedColumns;
         }
-        final Function<List<Entry>, List<Entry>> composition = trafos.stream().reduce((i, j) -> i.compose(j)).get();
-        List<Entry> result = composition.apply(convertedColumns);
+        final Function<Row, Row> composition = trafos.stream().reduce((i, j) -> i.compose(j)).get();
+        Row result = composition.apply(convertedColumns);
         if (result == null) {
-            return new ArrayList<>();
+            return null;
         } else {
             return result;
         }
@@ -240,11 +204,11 @@ public class Pump {
         private List<Sink> sinks;
         private Sink deadLetterQueue;
         private Source source;
-        private Function<ResultSet, List<Entry>> resultSetToEntries;
-        private Map<String, Function<Entry, List<Entry>>> entryFunctions;
-        private Map<Integer, Function<Entry, List<Entry>>> indexedFunctions;
-        private List<Function<List<Entry>, List<Entry>>> before;
-        private List<Function<List<Entry>, List<Entry>>> after;
+        private Function<ResultSet, Row> resultSetToEntries;
+        private Map<String, Function<Object, Object>> entryFunctions;
+        private Map<Integer, Function<Row, Row>> indexedFunctions;
+        private List<Function<Row, Row>> before;
+        private List<Function<Row, Row>> after;
         private FunctionScriptLoader loader;
         private List<String> expressions;
         private List<String> filterExpressions;
@@ -287,7 +251,7 @@ public class Pump {
             return this;
         }
 
-        public Engine startWith(Function<List<Entry>, List<Entry>> before) {
+        public Engine startWith(Function<Row, Row> before) {
             this.before.add(before);
             return this;
         }
@@ -297,32 +261,22 @@ public class Pump {
             return startWith(rowTransformer::execute);
         }
 
-        public Engine with(String entryName, Function<Entry, List<Entry>> entryFunction) {
+        public Engine with(String entryName, Function<Object, Object> entryFunction) {
             this.entryFunctions.put(entryName, entryFunction);
             return this;
         }
 
-        public Engine with(int index, Function<Entry, List<Entry>> entryFunction) {
-            this.indexedFunctions.put(index, entryFunction);
-            return this;
-        }
-
         public Engine with(String entryName, String scriptName) {
-            Function<Entry, List<Entry>> function = load(scriptName);
+            Function<Object, Object> function = load(scriptName);
             return with(entryName, function);
         }
 
-        public Engine with(int index, String scriptName) {
-            Function<Entry, List<Entry>> function = load(scriptName);
-            return with(index, function);
-        }
-
-        Function<Entry, List<Entry>> load(String scriptName) {
+        Function<Object, Object> load(String scriptName) {
             EntryTransformer entryTransformer = this.loader.getEntryTransformer(scriptName);
             return entryTransformer::execute;
         }
 
-        public Engine endWith(Function<List<Entry>, List<Entry>> after) {
+        public Engine endWith(Function<Row, Row> after) {
             this.after.add(after);
             return this;
         }
@@ -350,7 +304,7 @@ public class Pump {
 
         public Pump build() {
             return new Pump(source, this.resultSetToEntries,
-                    this.before, this.entryFunctions, this.indexedFunctions,
+                    this.before, this.entryFunctions,
                     this.filterExpressions,
                     this.expressions,
                     this.after, this.sinks,
@@ -371,10 +325,6 @@ public class Pump {
                 String name = t.getColumnName();
                 if (name != null) {
                     with(name, t.getFunction());
-                } else {
-                    Integer slot = t.getSlot();
-                    Objects.requireNonNull(slot, "Column name was null, slot has to be set");
-                    with(slot, t.getFunction());
                 }
             });
             pipeline.getPostRowTransfomers().forEach(t -> endWith(t));

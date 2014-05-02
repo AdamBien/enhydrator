@@ -1,6 +1,27 @@
 package com.airhacks.enhydrator.in;
 
+/*
+ * #%L
+ * enhydrator
+ * %%
+ * Copyright (C) 2014 Adam Bien
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -27,6 +48,7 @@ public class RowTest {
         assertThat(actual, is(expected));
     }
 
+    @Test
     public void addLong() {
         long expected = 42;
         final String column = "answer";
@@ -35,6 +57,7 @@ public class RowTest {
 
     }
 
+    @Test
     public void addAndRemoveColumn() {
         int expected = 42;
         final String column = "answer";
@@ -43,7 +66,24 @@ public class RowTest {
         this.cut.removeColumn(column);
         actual = this.cut.getColumn(column);
         assertNull(actual);
+    }
 
+    @Test
+    public void getColumnsGroupedByDefaultDestination() {
+        this.cut.addColumn("name", "duke");
+        this.cut.addColumn("city", "SFO");
+        this.cut.changeDestination("name", "LA");
+        Map<String, Row> grouped = this.cut.getColumnsGroupedByDestination();
+        assertFalse(grouped.isEmpty());
+    }
+
+    @Test
+    public void getColumnsGroupedByDestination() {
+        this.cut.addColumn("name", "duke");
+        this.cut.addColumn("city", "SFO");
+        this.cut.changeDestination("name", "LA");
+        Map<String, Row> grouped = this.cut.getColumnsGroupedByDestination();
+        assertThat(grouped.keySet().size(), is(2));
     }
 
 }

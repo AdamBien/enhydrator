@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.stream.StreamSupport;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -78,9 +77,9 @@ public class JDBCSourceIT {
 
     @Test
     public void queryExecutionWithEmptyTable() {
-        Iterable<List<Entry>> result = getSource().query("select * from Coffee");
+        Iterable<Row> result = getSource().query("select * from Coffee");
         boolean iterated = false;
-        for (List<Entry> resultSet : result) {
+        for (Row resultSet : result) {
             fail("There should be no data");
         }
         assertNotNull(result);
@@ -90,13 +89,12 @@ public class JDBCSourceIT {
     @Test
     public void queryExecution() throws SQLException {
         CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
-        Iterable<List<Entry>> result = getSource().query("select * from Coffee");
+        Iterable<Row> result = getSource().query("select * from Coffee");
         boolean iterated = false;
-        for (List<Entry> resultSet : result) {
+        for (Row resultSet : result) {
             iterated = true;
-            Entry object = resultSet.get(1);
+            Object object = resultSet.getColumn("name");
             assertNotNull(object);
-            System.out.println("First row: " + object);
         }
         assertNotNull(result);
         assertTrue(iterated);
@@ -106,12 +104,12 @@ public class JDBCSourceIT {
     public void queryExecutionWithParameters() throws SQLException {
         CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
         CoffeeTestFixture.insertCoffee("espresso", 42, "tengah", Roast.DARK, "good", "whole");
-        Iterable<List<Entry>> result = getSource().query("select * from Coffee where name like ?", "java");
+        Iterable<Row> result = getSource().query("select * from Coffee where name like ?", "java");
         boolean iterated = false;
         int counter = 0;
-        for (List<Entry> resultSet : result) {
+        for (Row resultSet : result) {
             iterated = true;
-            Object object = resultSet.get(1);
+            Object object = resultSet.getColumn("name");
             assertNotNull(object);
             counter++;
         }
@@ -125,7 +123,7 @@ public class JDBCSourceIT {
         CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
         StreamSupport.stream(getSource().query("select * from Coffee").spliterator(), false).
                 forEach(t -> {
-                    System.out.println(t.get(1));
+                    System.out.println(t.getColumn("name"));
                 });
     }
 
