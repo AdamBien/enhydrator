@@ -124,6 +124,9 @@ public class Pump {
         applyExpressions(convertedRow);
         this.flowListener.accept("Expressions processed");
         Row afterProcessed = applyRowTransformations(this.afterTransformations, entryColumns);
+        if (afterProcessed == null) {
+            return;
+        }
         this.flowListener.accept("After process RowTransformer executed. " + afterProcessed.getNumberOfColumns() + " entries");
         this.sink(afterProcessed);
         this.flowListener.accept("Result processed by sinks");
@@ -266,9 +269,9 @@ public class Pump {
             return this;
         }
 
-        public Engine with(String entryName, String scriptName) {
+        public Engine with(String columnName, String scriptName) {
             Function<Object, Object> function = load(scriptName);
-            return with(entryName, function);
+            return with(columnName, function);
         }
 
         Function<Object, Object> load(String scriptName) {
