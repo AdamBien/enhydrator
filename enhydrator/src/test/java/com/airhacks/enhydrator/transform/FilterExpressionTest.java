@@ -24,9 +24,9 @@ package com.airhacks.enhydrator.transform;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,12 +34,11 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
-import com.airhacks.enhydrator.in.Entry;
-import java.util.ArrayList;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import com.airhacks.enhydrator.in.Row;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
@@ -56,20 +55,20 @@ public class FilterExpressionTest {
 
     @Test
     public void accept() {
-        Boolean result = this.fe.execute(new ArrayList<>(), "true");
+        Boolean result = this.fe.execute(new Row(0), "true");
         assertTrue(result);
 
     }
 
     @Test
     public void drop() {
-        Boolean result = this.fe.execute(new ArrayList<>(), "false");
+        Boolean result = this.fe.execute(new Row(0), "false");
         assertFalse(result);
     }
 
     @Test
     public void wrongReturnTypeIsFalse() {
-        Boolean result = this.fe.execute(new ArrayList<>(), "'hey'");
+        Boolean result = this.fe.execute(new Row(0), "'hey'");
         assertFalse(result);
     }
 
