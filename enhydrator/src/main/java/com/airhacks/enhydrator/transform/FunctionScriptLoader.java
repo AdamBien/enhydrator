@@ -19,8 +19,7 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
-import java.io.File;
+import com.airhacks.enhydrator.in.Row;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
@@ -62,6 +61,7 @@ public class FunctionScriptLoader {
     }
 
     public RowTransformer getRowTransformer(String scriptName) {
+
         String content = load("row", scriptName);
         Invocable invocable = (Invocable) engine;
         try {
@@ -69,7 +69,15 @@ public class FunctionScriptLoader {
         } catch (ScriptException ex) {
             throw new IllegalStateException("Cannot evaluate script", ex);
         }
-        return invocable.getInterface(RowTransformer.class);
+        RowTransformer scriptedTransformer = invocable.getInterface(RowTransformer.class);
+
+        return (Row input) -> {
+            try {
+                return scriptedTransformer.execute(input);
+            } catch (RuntimeException e) {
+                throw new IllegalStateException("Cannot execute: " + scriptName, e);
+            }
+        };
     }
 
     public String load(String scriptFolder, String name) {
