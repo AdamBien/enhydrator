@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.transform;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,10 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.Entry;
-import java.util.ArrayList;
-import java.util.List;
-import static org.hamcrest.CoreMatchers.hasItem;
+import com.airhacks.enhydrator.in.Row;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,21 +42,20 @@ public class FunctionScriptLoaderTest {
 
     @Test
     public void entryTransfomerLoadingAndExecution() throws Exception {
-        Entry entry = new Entry(0, "chief", "duke");
         EntryTransformer function = this.cut.getEntryTransformer("noop");
         assertNotNull(function);
-        List<Entry> transformedEntries = function.execute(entry);
-        assertThat(transformedEntries, hasItem(entry));
+        final String input = "chief";
+        Object result = function.execute(input);
+        assertThat(result, is(input));
     }
 
     @Test
     public void rowTransfomerLoadingAndExecution() throws Exception {
-        Entry entry = new Entry(0, "chief", "duke");
-        List<Entry> input = new ArrayList<>();
-        input.add(entry);
+        Row input = new Row(0);
+        input.addColumn("chief", "duke");
         RowTransformer function = this.cut.getRowTransformer("noop");
         assertNotNull(function);
-        List<Entry> transformedEntries = function.execute(input);
+        Row transformedEntries = function.execute(input);
         assertThat(transformedEntries, is(input));
     }
 
