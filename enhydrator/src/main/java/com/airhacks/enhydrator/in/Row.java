@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,21 +35,17 @@ import java.util.stream.Collectors;
  */
 public class Row {
 
-    private final int index;
     private final Map<String, Object> row;
     private final Map<String, String> destinations;
     private final String DEFAULT_DESTINATION = "*";
     private String name;
     private static final String DESTINATION = "destination";
+    private final List<Row> children;
 
-    public Row(int index) {
-        this.index = index;
+    public Row() {
         this.row = new ConcurrentHashMap<>();
         this.destinations = new ConcurrentHashMap<>();
-    }
-
-    public int getIndex() {
-        return index;
+        this.children = new CopyOnWriteArrayList<>();
     }
 
     public Object getColumn(String column) {
@@ -140,8 +137,21 @@ public class Row {
     }
 
     Row convert(List<Map.Entry<String, String>> content) {
-        Row newRow = new Row(index);
+        Row newRow = new Row();
         content.forEach(e -> newRow.addColumn(e.getKey(), this.row.get(e.getKey())));
         return newRow;
+    }
+
+    public boolean isColumnEmpty(String name) {
+        return !this.row.containsKey(name);
+    }
+
+    public Row add(Row input) {
+        this.children.add(input);
+        return this;
+    }
+
+    public List<Row> getChildren() {
+        return this.children;
     }
 }

@@ -51,7 +51,7 @@ public class FunctionScriptLoaderTest {
 
     @Test
     public void rowTransfomerLoadingAndExecution() throws Exception {
-        Row input = new Row(0);
+        Row input = new Row();
         input.addColumn("chief", "duke");
         RowTransformer function = this.cut.getRowTransformer("noop");
         assertNotNull(function);

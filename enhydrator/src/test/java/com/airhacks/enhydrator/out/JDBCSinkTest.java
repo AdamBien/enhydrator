@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,7 +63,7 @@ public class JDBCSinkTest {
     }
 
     Row getEntries() {
-        Row row = new Row(0);
+        Row row = new Row();
         row.addColumn("a", "java");
         row.addColumn("b", "tengah");
         return row;
@@ -78,7 +78,7 @@ public class JDBCSinkTest {
 
     @Test
     public void emptyColumnList() {
-        String columns = JDBCSink.columnList(new Row(0));
+        String columns = JDBCSink.columnList(new Row());
         assertNull(columns);
     }
 
@@ -91,7 +91,7 @@ public class JDBCSinkTest {
 
     public void numberValueList() {
         String expected = "1,2";
-        Row row = new Row(0);
+        Row row = new Row();
         row.addColumn("a", 1);
         row.addColumn("b", 2);
         String columns = JDBCSink.valueList(row);
@@ -100,14 +100,14 @@ public class JDBCSinkTest {
 
     @Test
     public void emptyValueList() {
-        String columns = JDBCSink.valueList(new Row(0));
+        String columns = JDBCSink.valueList(new Row());
         assertNull(columns);
     }
 
     @Test
     public void processEmptyRow() {
         this.cut.processRow(null);
-        this.cut.processRow(new Row(0));
+        this.cut.processRow(new Row());
     }
 
 }
