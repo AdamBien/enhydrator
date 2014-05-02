@@ -142,7 +142,7 @@ public class PumpIT {
         Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 filter("true").
-                filter("columns.empty === false").
+                filter("$ROW.empty === false").
                 from(source).
                 to(consumer).
                 sqlQuery("select * from Coffee").
@@ -160,7 +160,7 @@ public class PumpIT {
         Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 from(source).
-                with("name", "quote").
+                with("Name", "quote").
                 to(consumer).
                 sqlQuery("select * from Coffee").
                 build();
@@ -176,7 +176,7 @@ public class PumpIT {
         Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
-                startWith("reverse").
+                startWith("validate").
                 from(source).
                 to(consumer).
                 sqlQuery("select * from Coffee").

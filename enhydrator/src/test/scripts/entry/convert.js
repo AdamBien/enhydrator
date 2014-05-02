@@ -18,9 +18,7 @@
  * #L%
  */
 function execute(entry) {
-    var list = new java.util.ArrayList();
-    list.add(entry);
-    print(entry);
-    return list;
+    print("Converted" + entry);
+    return entry;
 }
 
