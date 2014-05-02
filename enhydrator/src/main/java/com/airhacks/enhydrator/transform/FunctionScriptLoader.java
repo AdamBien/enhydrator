@@ -37,6 +37,8 @@ public class FunctionScriptLoader {
     private final ScriptEngineManager manager;
     private final ScriptEngine engine;
     private String baseFolder;
+    public static final String COLUMN_SCRIPT_FOLDER = "column";
+    public static final String ROW_SCRIPT_FOLDER = "row";
 
     public FunctionScriptLoader(String baseFolder) {
         this();
@@ -50,7 +52,7 @@ public class FunctionScriptLoader {
     }
 
     public EntryTransformer getEntryTransformer(String scriptName) {
-        String content = load("entry", scriptName);
+        String content = load(COLUMN_SCRIPT_FOLDER, scriptName);
         Invocable invocable = (Invocable) engine;
         try {
             engine.eval(content);
@@ -62,7 +64,7 @@ public class FunctionScriptLoader {
 
     public RowTransformer getRowTransformer(String scriptName) {
 
-        String content = load("row", scriptName);
+        String content = load(ROW_SCRIPT_FOLDER, scriptName);
         Invocable invocable = (Invocable) engine;
         try {
             engine.eval(content);
