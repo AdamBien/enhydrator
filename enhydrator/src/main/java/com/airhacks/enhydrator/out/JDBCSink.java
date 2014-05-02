@@ -20,11 +20,10 @@ package com.airhacks.enhydrator.out;
  * #L%
  */
 import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
-import com.airhacks.enhydrator.in.Entry;
+import com.airhacks.enhydrator.in.Row;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -88,13 +87,13 @@ public class JDBCSink extends Sink {
     }
 
     @Override
-    public void processRow(List<Entry> entries) {
-        if (entries == null || entries.isEmpty()) {
+    public void processRow(Row columns) {
+        if (columns == null || columns.isEmpty()) {
             this.LOG.accept("Nothing to do -> empty entry list");
             return;
         }
         try {
-            final String insertSQL = generateInsertStatement(entries);
+            final String insertSQL = generateInsertStatement(columns);
             LOG.accept("#processRow(): " + insertSQL);
             this.statement.execute(insertSQL);
             LOG.accept("#processRow() executed!");
@@ -103,36 +102,37 @@ public class JDBCSink extends Sink {
         }
     }
 
-    String generateInsertStatement(List<Entry> entries) {
+    String generateInsertStatement(Row entries) {
         return "INSERT INTO " + this.targetTable + " (" + columnList(entries)
                 + ") VALUES (" + valueList(entries) + ")";
     }
 
-    static String valueList(List<Entry> entries) {
-        if (entries == null || entries.isEmpty()) {
+    static String valueList(Row row) {
+        if (row == null || row.isEmpty()) {
             return null;
         }
-        return (String) entries.stream().
-                map(e -> asInsertSQL(e)).
+        return (String) row.getColumnNames().
+                stream().
+                map(e -> asInsertSQL(row, e)).
                 reduce((t, u) -> t + "," + u).
                 get();
     }
 
-    static String columnList(List<Entry> entries) {
+    static String columnList(Row entries) {
         if (entries == null || entries.isEmpty()) {
             return null;
         }
-        return (String) entries.stream().
-                map(e -> e.getName()).
+        return (String) entries.getColumnNames().
+                stream().
                 reduce((t, u) -> t + "," + u).
                 get();
     }
 
-    static String asInsertSQL(Entry entry) {
-        if (entry.isString()) {
-            return escape(entry.getValue());
+    static String asInsertSQL(Row row, String columnName) {
+        if (row.isString(columnName)) {
+            return escape(row.getColumn(columnName));
         } else {
-            return String.valueOf(entry.getValue());
+            return String.valueOf(row.getColumn(columnName));
         }
     }
 

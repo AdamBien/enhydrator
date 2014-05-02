@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,9 +20,7 @@ package com.airhacks.enhydrator.out;
  * #L%
  */
 import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
-import com.airhacks.enhydrator.in.Entry;
-import java.util.ArrayList;
-import java.util.List;
+import com.airhacks.enhydrator.in.Row;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -58,16 +56,16 @@ public class JDBCSinkTest {
 
     @Test
     public void generateInsertStatement() {
-        String expected = "INSERT INTO TARGET_TABLE (a,b) VALUES (java,tengah)";
-        List<Entry> row = getEntries();
+        String expected = "INSERT INTO TARGET_TABLE (a,b) VALUES ('java','tengah')";
+        Row row = getEntries();
         String actual = this.cut.generateInsertStatement(row);
         assertThat(actual, is(expected));
     }
 
-    List<Entry> getEntries() {
-        List<Entry> row = new ArrayList<>();
-        row.add(new Entry(0, "a", "java"));
-        row.add(new Entry(1, "b", "tengah"));
+    Row getEntries() {
+        Row row = new Row(0);
+        row.addColumn("a", "java");
+        row.addColumn("b", "tengah");
         return row;
     }
 
@@ -80,27 +78,36 @@ public class JDBCSinkTest {
 
     @Test
     public void emptyColumnList() {
-        String columns = JDBCSink.columnList(new ArrayList<>());
+        String columns = JDBCSink.columnList(new Row(0));
         assertNull(columns);
     }
 
     @Test
-    public void valueList() {
-        String expected = "java,tengah";
+    public void stringValueList() {
+        String expected = "'java','tengah'";
         String columns = JDBCSink.valueList(getEntries());
+        assertThat(columns, is(expected));
+    }
+
+    public void numberValueList() {
+        String expected = "1,2";
+        Row row = new Row(0);
+        row.addColumn("a", 1);
+        row.addColumn("b", 2);
+        String columns = JDBCSink.valueList(row);
         assertThat(columns, is(expected));
     }
 
     @Test
     public void emptyValueList() {
-        String columns = JDBCSink.valueList(new ArrayList<>());
+        String columns = JDBCSink.valueList(new Row(0));
         assertNull(columns);
     }
 
     @Test
     public void processEmptyRow() {
         this.cut.processRow(null);
-        this.cut.processRow(new ArrayList<>());
+        this.cut.processRow(new Row(0));
     }
 
 }
