@@ -26,6 +26,7 @@ import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.LogSink;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -88,6 +89,7 @@ public class CSVImportTest {
             assertThat(list.getNumberOfColumns(), is(++counter));
             columnName = String.valueOf(1);
             assertThat(list.getColumn(columnName), is(columnName));
+            assertNull(list.getColumn(String.valueOf(42)));
         }
 
     }
