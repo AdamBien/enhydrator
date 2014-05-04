@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.scenarios;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,6 +61,35 @@ public class CSVImportTest {
             }
         }
         assertTrue(foundFord);
+    }
+
+    @Test
+    public void pyramid() {
+        Source source = new CSVSource("./src/test/files/pyramid.csv", ";", true);
+        VirtualSinkSource vss = new VirtualSinkSource();
+        Pump pump = new Pump.Engine().
+                from(source).
+                to(vss).
+                to(new LogSink()).
+                build();
+        pump.start();
+
+        int numberOfRows = vss.getNumberOfRows();
+        assertThat(numberOfRows, is(4));
+        Iterable<Row> query = vss.query(null);
+        int counter = 0;
+        boolean readHeader = false;
+        String columnName;
+        for (Row list : query) {
+            if (!readHeader) {
+                readHeader = true;
+                continue;
+            }
+            assertThat(list.getNumberOfColumns(), is(++counter));
+            columnName = String.valueOf(1);
+            assertThat(list.getColumn(columnName), is(columnName));
+        }
+
     }
 
 }
