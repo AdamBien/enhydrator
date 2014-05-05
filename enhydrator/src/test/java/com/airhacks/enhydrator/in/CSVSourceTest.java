@@ -24,9 +24,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -130,11 +130,11 @@ public class CSVSourceTest {
         }
     }
 
-    //@Test
+    @Test
     public void pyramid() {
         Source vss = getSource("./src/test/files/pyramid.csv");
         Iterable<Row> query = vss.query(null);
-        int counter = 0;
+        int counter = 1;
         boolean readHeader = false;
         String columnName;
         for (Row list : query) {
@@ -142,8 +142,8 @@ public class CSVSourceTest {
                 readHeader = true;
                 continue;
             }
-            assertThat(list.getNumberOfColumns(), is(++counter));
-            columnName = String.valueOf(1);
+            assertThat(list.getNumberOfColumns(), is(counter++));
+            columnName = String.valueOf(counter - 1);
             assertThat(list.getColumn(columnName), is(columnName));
             assertNull(list.getColumn(String.valueOf(42)));
         }
