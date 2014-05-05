@@ -1,7 +1,7 @@
 Name;Size;Folder
-java;1;
-main;1;java
-src;1;main
+java;1;java
 Pump.java;16;
 Another.java;24;
-
+test;1;test
+PumpTest.java;42;
+AnotherTest.java;24;

@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -64,6 +64,11 @@ public class Row {
         Objects.requireNonNull(value, "Value of " + name + " cannot be null");
         this.row.put(name, value);
         this.destinations.put(name, DEFAULT_DESTINATION);
+        return this;
+    }
+
+    public Row addNullColumn(String name) {
+        this.addColumn(name, new EmptyColumn());
         return this;
     }
 
@@ -154,4 +159,5 @@ public class Row {
     public List<Row> getChildren() {
         return this.children;
     }
+
 }

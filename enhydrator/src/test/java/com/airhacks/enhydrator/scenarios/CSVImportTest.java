@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.scenarios;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,7 @@ import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.LogSink;
+import java.util.Iterator;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -42,14 +43,7 @@ public class CSVImportTest {
      */
     @Test
     public void copy() {
-        Source source = new CSVSource("./src/test/files/cars.csv", ";", true);
-        VirtualSinkSource vss = new VirtualSinkSource();
-        Pump pump = new Pump.Engine().
-                from(source).
-                to(vss).
-                to(new LogSink()).
-                build();
-        pump.start();
+        VirtualSinkSource vss = getSource("./src/test/files/cars.csv");
 
         int numberOfRows = vss.getNumberOfRows();
         assertTrue(numberOfRows > 0);
@@ -65,8 +59,30 @@ public class CSVImportTest {
     }
 
     @Test
-    public void pyramid() {
-        Source source = new CSVSource("./src/test/files/pyramid.csv", ";", true);
+    public void nullHandling() {
+        VirtualSinkSource vss = getSource("./src/test/files/nullcolumns.csv");
+        int numberOfRows = vss.getNumberOfRows();
+        assertThat(numberOfRows, is(3));
+        Iterable<Row> query = vss.query(null);
+        Iterator<Row> iterator = query.iterator();
+        iterator.next(); //skipping header
+        Row first = iterator.next();
+        assertNull(first.getColumn("1"));
+        assertNull(first.getColumn("2"));
+        assertNull(first.getColumn("3"));
+        assertNull(first.getColumn("4"));
+
+        Row second = iterator.next();
+        String emptyString = " ";
+        assertThat(second.getColumn("1"), is(emptyString));
+        assertThat(second.getColumn("2"), is(emptyString));
+        assertThat(second.getColumn("3"), is(emptyString));
+        assertNull(second.getColumn("4"));
+
+    }
+
+    VirtualSinkSource getSource(final String fileName) {
+        Source source = new CSVSource(fileName, ";", true);
         VirtualSinkSource vss = new VirtualSinkSource();
         Pump pump = new Pump.Engine().
                 from(source).
@@ -74,24 +90,6 @@ public class CSVImportTest {
                 to(new LogSink()).
                 build();
         pump.start();
-
-        int numberOfRows = vss.getNumberOfRows();
-        assertThat(numberOfRows, is(4));
-        Iterable<Row> query = vss.query(null);
-        int counter = 0;
-        boolean readHeader = false;
-        String columnName;
-        for (Row list : query) {
-            if (!readHeader) {
-                readHeader = true;
-                continue;
-            }
-            assertThat(list.getNumberOfColumns(), is(++counter));
-            columnName = String.valueOf(1);
-            assertThat(list.getColumn(columnName), is(columnName));
-            assertNull(list.getColumn(String.valueOf(42)));
-        }
-
+        return vss;
     }
-
 }

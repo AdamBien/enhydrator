@@ -34,9 +34,12 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
+import java.util.Iterator;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -84,7 +87,70 @@ public class CSVSourceTest {
         }
         //Header is included
         assertThat(counter, is(4));
+    }
 
+    @Test
+    public void nullHandling() {
+        Source vss = getSource("./src/test/files/nullcolumns.csv");
+        Iterable<Row> query = vss.query(null);
+        Iterator<Row> iterator = query.iterator();
+        iterator.next(); //skipping header
+        Row first = iterator.next();
+        assertNotNull(first);
+        assertNull(first.getColumn("1"));
+        assertNull(first.getColumn("2"));
+        assertNull(first.getColumn("3"));
+        assertNull(first.getColumn("4"));
+
+        Row second = iterator.next();
+        String emptyString = " ";
+        assertThat(second.getColumn("1"), is(emptyString));
+        assertThat(second.getColumn("2"), is(emptyString));
+        assertThat(second.getColumn("3"), is(emptyString));
+        assertNull(second.getColumn("4"));
+    }
+
+    @Test
+    public void splitEmtpyRows() {
+        String[] split = CSVSource.split(";;", ";");
+        assertNotNull(split);
+        assertThat(split.length, is(3));
+        for (String column : split) {
+            assertTrue(column.isEmpty());
+        }
+    }
+
+    @Test
+    public void splitEmptyStrings() {
+        String[] split = CSVSource.split(" ; ; ", ";");
+        assertNotNull(split);
+        assertThat(split.length, is(3));
+        for (String column : split) {
+            assertThat(column, is(" "));
+        }
+    }
+
+    //@Test
+    public void pyramid() {
+        Source vss = getSource("./src/test/files/pyramid.csv");
+        Iterable<Row> query = vss.query(null);
+        int counter = 0;
+        boolean readHeader = false;
+        String columnName;
+        for (Row list : query) {
+            if (!readHeader) {
+                readHeader = true;
+                continue;
+            }
+            assertThat(list.getNumberOfColumns(), is(++counter));
+            columnName = String.valueOf(1);
+            assertThat(list.getColumn(columnName), is(columnName));
+            assertNull(list.getColumn(String.valueOf(42)));
+        }
+    }
+
+    Source getSource(final String fileName) {
+        return new CSVSource(fileName, ";", true);
     }
 
 }
