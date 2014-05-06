@@ -89,7 +89,7 @@ public class CSVSource implements Source {
         }
         Row headers = parse(headerLine, this.delimiter);
 
-        return headers.getColumns().values().stream().
+        return headers.getColumnValues().values().stream().
                 map(e -> ((String) e)).
                 collect(Collectors.toList());
     }

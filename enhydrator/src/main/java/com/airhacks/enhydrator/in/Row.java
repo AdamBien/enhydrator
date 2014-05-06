@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -141,10 +141,9 @@ public class Row {
     }
 
     public Map<String, Row> getColumnsGroupedByDestination() {
-        return this.row.entrySet().stream().collect(Collectors.groupingBy(e -> e.getValue().getDestination())).
-                entrySet().stream().
+        Map<String, List<Map.Entry<String, Column>>> grouped = this.row.entrySet().stream().collect(Collectors.groupingBy(e -> e.getValue().getDestination()));
+        return grouped.entrySet().stream().
                 collect(Collectors.toMap(k -> k.getKey(), v -> convert(v.getValue())));
-
     }
 
     public Row convert(List<Map.Entry<String, Column>> content) {

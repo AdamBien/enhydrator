@@ -93,7 +93,7 @@ public class JDBCSourceIT {
         boolean iterated = false;
         for (Row resultSet : result) {
             iterated = true;
-            Object object = resultSet.getColumn("NAME");
+            Object object = resultSet.getColumnValue("NAME");
             assertNotNull(object);
         }
         assertNotNull(result);
@@ -109,7 +109,7 @@ public class JDBCSourceIT {
         int counter = 0;
         for (Row resultSet : result) {
             iterated = true;
-            Object object = resultSet.getColumn("NAME");
+            Object object = resultSet.getColumnValue("NAME");
             assertNotNull(object);
             counter++;
         }
@@ -123,7 +123,7 @@ public class JDBCSourceIT {
         CoffeeTestFixture.insertCoffee("java", 42, "tengah", Roast.DARK, "good", "whole");
         StreamSupport.stream(getSource().query("select * from Coffee").spliterator(), false).
                 forEach(t -> {
-                    System.out.println(t.getColumn("name"));
+                    System.out.println(t.getColumnValue("name"));
                 });
     }
 

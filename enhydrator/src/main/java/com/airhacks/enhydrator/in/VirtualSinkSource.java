@@ -87,7 +87,7 @@ public class VirtualSinkSource extends Sink implements Source {
     }
 
     public String mapToString(Row columns) {
-        Optional<String> column = columns.getColumns().values().stream().
+        Optional<String> column = columns.getColumnValues().values().stream().
                 map(e -> String.valueOf(e.toString())).
                 reduce((l, r) -> l + "|" + r);
         if (column.isPresent()) {

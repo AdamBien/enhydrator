@@ -130,9 +130,9 @@ public class JDBCSink extends Sink {
 
     static String asInsertSQL(Row row, String columnName) {
         if (row.isString(columnName)) {
-            return escape(row.getColumn(columnName));
+            return escape(row.getColumnValue(columnName));
         } else {
-            return String.valueOf(row.getColumn(columnName));
+            return String.valueOf(row.getColumnValue(columnName));
         }
     }
 

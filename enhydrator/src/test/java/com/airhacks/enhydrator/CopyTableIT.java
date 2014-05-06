@@ -90,10 +90,10 @@ public class CopyTableIT {
         assertThat(numberOfRows, is(2));
         System.out.println(vss.toString());
         Row first = vss.getRow(0);
-        Object name = first.getColumn("NAME");
+        Object name = first.getColumnValue("NAME");
         assertThat(firstName, is(name));
         Row last = vss.getRow(1);
-        name = last.getColumn("NAME");
+        name = last.getColumnValue("NAME");
         assertThat(secondName, is(name));
 
     }

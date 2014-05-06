@@ -24,9 +24,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,7 +79,7 @@ public class CSVSourceTest {
         Iterable<Row> cars = this.cut.query(null);
         int counter = 0;
         for (Row list : cars) {
-            Object entry = list.getColumn("Year");
+            Object entry = list.getColumnValue("Year");
             //Year;Make;Model;Length
             counter++;
             assertNotNull(entry);
@@ -97,17 +97,17 @@ public class CSVSourceTest {
         iterator.next(); //skipping header
         Row first = iterator.next();
         assertNotNull(first);
-        assertNull(first.getColumn("1"));
-        assertNull(first.getColumn("2"));
-        assertNull(first.getColumn("3"));
-        assertNull(first.getColumn("4"));
+        assertNull(first.getColumnValue("1"));
+        assertNull(first.getColumnValue("2"));
+        assertNull(first.getColumnValue("3"));
+        assertNull(first.getColumnValue("4"));
 
         Row second = iterator.next();
         String emptyString = " ";
-        assertThat(second.getColumn("1"), is(emptyString));
-        assertThat(second.getColumn("2"), is(emptyString));
-        assertThat(second.getColumn("3"), is(emptyString));
-        assertNull(second.getColumn("4"));
+        assertThat(second.getColumnValue("1"), is(emptyString));
+        assertThat(second.getColumnValue("2"), is(emptyString));
+        assertThat(second.getColumnValue("3"), is(emptyString));
+        assertNull(second.getColumnValue("4"));
     }
 
     @Test
@@ -144,8 +144,8 @@ public class CSVSourceTest {
             }
             assertThat(list.getNumberOfColumns(), is(counter++));
             columnName = String.valueOf(counter - 1);
-            assertThat(list.getColumn(columnName), is(columnName));
-            assertNull(list.getColumn(String.valueOf(42)));
+            assertThat(list.getColumnValue(columnName), is(columnName));
+            assertNull(list.getColumnValue(String.valueOf(42)));
         }
     }
 
