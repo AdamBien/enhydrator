@@ -51,7 +51,7 @@ public class CSVImportTest {
         boolean foundFord = false;
         for (Row list : query) {
             assertThat(list.getNumberOfColumns(), is(4));
-            if ("Ford".equals(list.getColumn("Make"))) {
+            if ("Ford".equals(list.getColumnValue("Make"))) {
                 foundFord = true;
             }
         }
@@ -67,17 +67,17 @@ public class CSVImportTest {
         Iterator<Row> iterator = query.iterator();
         iterator.next(); //skipping header
         Row first = iterator.next();
-        assertNull(first.getColumn("1"));
-        assertNull(first.getColumn("2"));
-        assertNull(first.getColumn("3"));
-        assertNull(first.getColumn("4"));
+        assertNull(first.getColumnValue("1"));
+        assertNull(first.getColumnValue("2"));
+        assertNull(first.getColumnValue("3"));
+        assertNull(first.getColumnValue("4"));
 
         Row second = iterator.next();
         String emptyString = " ";
-        assertThat(second.getColumn("1"), is(emptyString));
-        assertThat(second.getColumn("2"), is(emptyString));
-        assertThat(second.getColumn("3"), is(emptyString));
-        assertNull(second.getColumn("4"));
+        assertThat(second.getColumnValue("1"), is(emptyString));
+        assertThat(second.getColumnValue("2"), is(emptyString));
+        assertThat(second.getColumnValue("3"), is(emptyString));
+        assertNull(second.getColumnValue("4"));
 
     }
 

@@ -20,8 +20,8 @@ package com.airhacks.enhydrator.scenarios;
  * #L%
  */
 import com.airhacks.enhydrator.Pump;
+import com.airhacks.enhydrator.functions.NonRecursiveTree;
 import com.airhacks.enhydrator.functions.SkipFirstRow;
-import com.airhacks.enhydrator.functions.Tree;
 import com.airhacks.enhydrator.in.CSVSource;
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
@@ -31,6 +31,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 /**
  *
@@ -41,28 +42,28 @@ public class ParentTest {
     /**
      * Name;Size;Folder
      */
-    //@Test
+    @Test
     public void copy() {
         Source source = new CSVSource("./src/test/files/files.csv", ";", true);
         VirtualSinkSource vss = new VirtualSinkSource();
         Pump pump = new Pump.Engine().
                 from(source).
                 startWith(new SkipFirstRow()).
-                startWith(new Tree("Folder")).
+                startWith(new NonRecursiveTree("Name", "Folder")).
                 to(vss).
                 to(new LogSink()).
                 build();
         pump.start();
-
+        System.out.println(vss.getRows());
         int numberOfRows = vss.getNumberOfRows();
         assertThat(numberOfRows, is(2));
         Row parentWithChildren = vss.getRow(0);
+        assertNotNull(parentWithChildren);
         assertThat(parentWithChildren.getNumberOfColumns(), is(3));
 
-        assertNotNull(parentWithChildren);
         List<Row> children = parentWithChildren.getChildren();
-        children.forEach(e -> assertThat(e.getNumberOfColumns(), is(2)));
         assertThat(children.size(), is(2));
+        children.forEach(e -> assertThat(e.getNumberOfColumns(), is(2)));
     }
 
 }
