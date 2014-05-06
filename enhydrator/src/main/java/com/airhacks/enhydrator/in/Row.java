@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,20 +35,23 @@ import java.util.stream.Collectors;
  */
 public class Row {
 
-    private final Map<String, Object> row;
-    private final Map<String, String> destinations;
-    private final String DEFAULT_DESTINATION = "*";
-    private String name;
-    private static final String DESTINATION = "destination";
-    private final List<Row> children;
+    private final Map<String, Column> row;
+    private List<Row> children;
 
     public Row() {
         this.row = new ConcurrentHashMap<>();
-        this.destinations = new ConcurrentHashMap<>();
         this.children = new CopyOnWriteArrayList<>();
     }
 
-    public Object getColumn(String column) {
+    public Object getColumnValue(String columnName) {
+        final Column column = this.row.get(columnName);
+        if (column == null) {
+            return null;
+        }
+        return column.getValue();
+    }
+
+    public Column getColumn(String column) {
         return this.row.get(column);
     }
 
@@ -62,37 +65,43 @@ public class Row {
     public Row addColumn(String name, Object value) {
         Objects.requireNonNull(name, "Name of the column cannot be null");
         Objects.requireNonNull(value, "Value of " + name + " cannot be null");
-        this.row.put(name, value);
-        this.destinations.put(name, DEFAULT_DESTINATION);
+        this.row.put(name, new Column(name, value));
         return this;
     }
 
     public Row addNullColumn(String name) {
-        this.addColumn(name, new EmptyColumn());
+        this.addColumn(name, new Column(name));
         return this;
     }
 
-    public Row addColumn(String name, String destination, Object value) {
-        this.row.put(name, value);
-        this.destinations.put(name, destination);
+    public Row createColumn(String name, String destination, Object value) {
+        this.row.put(name, new Column(name, destination, value));
+        return this;
+    }
+
+    public Row addColumn(String name, Column column) {
+        this.row.put(name, column);
         return this;
     }
 
     public void transformColumn(String name, Function<Object, Object> transformer) {
-        Object input = getColumn(name);
-        if (input == null) {
+        Column input = getColumn(name);
+        if (input == null || input.isNullValue()) {
             return;
         }
-        Object output = transformer.apply(input);
-        this.row.put(name, output);
+        Object output = transformer.apply(input.getValue());
+        input.setValue(output);
     }
 
     public int getNumberOfColumns() {
         return this.row.size();
     }
 
-    public Map<String, Object> getColumns() {
-        return this.row;
+    public Map<String, Object> getColumnValues() {
+        return this.row.entrySet().
+                stream().
+                collect(Collectors.toMap(k -> k.getKey(), v -> v.getValue().
+                                getValue()));
     }
 
     public Set<String> getColumnNames() {
@@ -111,19 +120,19 @@ public class Row {
     }
 
     public String getDestination(String columnName) {
-        return this.destinations.getOrDefault(columnName, DEFAULT_DESTINATION);
+        return this.row.get(columnName).getDestination();
     }
 
     public boolean isNumber(String column) {
-        return (this.row.get(column) instanceof Number);
+        return (this.row.get(column).isNumber());
     }
 
     public boolean isString(String column) {
-        return (this.row.get(column) instanceof String);
+        return (this.row.get(column).isString());
     }
 
     public Row changeDestination(String column, String newDestination) {
-        this.destinations.put(column, newDestination);
+        getColumn(column).setDestination(newDestination);
         return this;
     }
 
@@ -132,19 +141,17 @@ public class Row {
     }
 
     public Map<String, Row> getColumnsGroupedByDestination() {
-        Map<String, List<Map.Entry<String, String>>> rawGrouping = this.destinations.
-                entrySet().
-                stream().
-                collect(Collectors.groupingBy(e -> e.getValue()));
-        Map<String, Row> groupedRows = new HashMap<>();
-        rawGrouping.entrySet().forEach(e -> groupedRows.put(e.getKey(), convert(e.getValue())));
-        return groupedRows;
+        return this.row.entrySet().stream().collect(Collectors.groupingBy(e -> e.getValue().getDestination())).
+                entrySet().stream().
+                collect(Collectors.toMap(k -> k.getKey(), v -> convert(v.getValue())));
+
     }
 
-    Row convert(List<Map.Entry<String, String>> content) {
-        Row newRow = new Row();
-        content.forEach(e -> newRow.addColumn(e.getKey(), this.row.get(e.getKey())));
-        return newRow;
+    public Row convert(List<Map.Entry<String, Column>> content) {
+        Row copy = new Row();
+        copy.children = this.children;
+        content.forEach(c -> copy.addColumn(c.getKey(), c.getValue()));
+        return copy;
     }
 
     public boolean isColumnEmpty(String name) {

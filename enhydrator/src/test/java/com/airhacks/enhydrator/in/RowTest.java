@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,7 +44,7 @@ public class RowTest {
     @Test
     public void addString() {
         String expected = "duke";
-        Object actual = this.cut.addColumn("name", expected).getColumn("name");
+        Object actual = this.cut.addColumn("name", expected).getColumnValue("name");
         assertThat(actual, is(expected));
     }
 
@@ -52,7 +52,7 @@ public class RowTest {
     public void addLong() {
         long expected = 42;
         final String column = "answer";
-        Object actual = this.cut.addColumn(column, expected).getColumn(column);
+        Object actual = this.cut.addColumn(column, expected).getColumnValue(column);
         assertThat(actual, is(expected));
 
     }
@@ -61,10 +61,10 @@ public class RowTest {
     public void addAndRemoveColumn() {
         int expected = 42;
         final String column = "answer";
-        Object actual = this.cut.addColumn(column, expected).getColumn(column);
+        Object actual = this.cut.addColumn(column, expected).getColumnValue(column);
         assertNotNull(actual);
         this.cut.removeColumn(column);
-        actual = this.cut.getColumn(column);
+        actual = this.cut.getColumnValue(column);
         assertNull(actual);
     }
 
@@ -75,6 +75,13 @@ public class RowTest {
         this.cut.changeDestination("name", "LA");
         Map<String, Row> grouped = this.cut.getColumnsGroupedByDestination();
         assertFalse(grouped.isEmpty());
+        Row defaultDestination = grouped.get("*");
+        assertNotNull(defaultDestination);
+        assertThat(defaultDestination.getColumnValue("city"), is("SFO"));
+
+        Row laDestination = grouped.get("LA");
+        assertNotNull(laDestination);
+        assertThat(laDestination.getColumnValue("name"), is("duke"));
     }
 
     @Test
