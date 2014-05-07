@@ -19,10 +19,11 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Row;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -90,6 +91,14 @@ public class PojoSinkTest {
         Row row = new Row();
         row.addColumn("SHOULD-NOT-EXIST", expected);
         this.cut.processRow(row);
+    }
+
+    @Test
+    public void getChildType() {
+        Class<? extends Object> childType = this.cut.getChildType(Developer.class);
+        assertNotNull(childType);
+        System.out.println("Childtype: " + childType);
+        assertTrue(ProgrammingLanguage.class.isAssignableFrom(childType));
     }
 
     private Developer getDeveloper() {

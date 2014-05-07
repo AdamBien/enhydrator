@@ -1,7 +1,5 @@
 package com.airhacks.enhydrator.out;
 
-import java.util.Collection;
-
 /*
  * #%L
  * enhydrator
@@ -21,32 +19,22 @@ import java.util.Collection;
  * limitations under the License.
  * #L%
  */
+
 /**
  *
  * @author airhacks.com
  */
-public class Developer {
+public class ProgrammingLanguage {
 
     private String name;
-    private int age;
-    private double weight;
-
-    private Collection<ProgrammingLanguage> languages;
+    private int ranking;
 
     public String getName() {
         return name;
     }
 
-    public int getAge() {
-        return age;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public Collection<ProgrammingLanguage> getLanguages() {
-        return languages;
+    public int getRanking() {
+        return ranking;
     }
 
 }
