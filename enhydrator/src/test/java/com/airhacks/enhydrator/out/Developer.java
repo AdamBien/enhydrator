@@ -8,6 +8,7 @@ public class Developer {
 
     private String name;
     private int age;
+    private double weight;
 
     public String getName() {
         return name;
@@ -15,6 +16,10 @@ public class Developer {
 
     public int getAge() {
         return age;
+    }
+
+    public double getWeight() {
+        return weight;
     }
 
 }

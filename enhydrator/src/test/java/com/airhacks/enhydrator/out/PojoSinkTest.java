@@ -44,6 +44,17 @@ public class PojoSinkTest {
         assertThat(actual, is(expected));
     }
 
+    @Test
+    public void doubleMapping() {
+        final double expected = 1.5;
+        Row row = new Row();
+        row.addColumn("weight", expected);
+        this.cut.processRow(row);
+        Developer dev = getDeveloper();
+        double actual = dev.getWeight();
+        assertThat(actual, is(expected));
+    }
+
     private Developer getDeveloper() {
         return (Developer) this.cachingConsumer.getObject();
     }
