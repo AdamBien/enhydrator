@@ -117,6 +117,11 @@ public class PojoSinkTest {
         assertThat(language.getRanking(), is(expectedRanking));
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void pojoWithTooManyRelations() {
+        new PojoSink(DeveloperWithTooManyRelations.class, this.cachingConsumer);
+    }
+
     @Test
     public void getChildInfo() {
         Class<? extends Object> childType = PojoSink.getChildInfo(Developer.class).getValue();

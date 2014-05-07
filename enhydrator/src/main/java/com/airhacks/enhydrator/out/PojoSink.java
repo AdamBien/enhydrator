@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
@@ -53,6 +54,23 @@ public class PojoSink extends Sink {
         final Pair<String, Class<? extends Object>> childInfo = getChildInfo(target);
         this.childrenFieldName = childInfo.getKey();
         this.childrenType = childInfo.getValue();
+        checkConventions(this.target);
+    }
+
+    static void checkConventions(Class parent) {
+        Field[] declaredFields = parent.getDeclaredFields();
+        int counter = 0;
+        StringJoiner joiner = new StringJoiner(",");
+        for (Field field : declaredFields) {
+            final Class<?> type = field.getType();
+            if (type.isAssignableFrom(Collection.class)) {
+                joiner.add(field.getName());
+                counter++;
+            }
+        }
+        if (counter > 1) {
+            throw new IllegalStateException("Multiple (" + counter + ") collection fields with names " + joiner.toString() + "");
+        }
     }
 
     @Override
