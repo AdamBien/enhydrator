@@ -24,13 +24,24 @@ public class PojoSinkTest {
 
     @Test
     public void stringMapping() {
-        final String origin = "duke";
+        final String expected = "duke";
         Row row = new Row();
-        row.addColumn("name", origin);
+        row.addColumn("name", expected);
         this.cut.processRow(row);
         Developer dev = getDeveloper();
-        String name = dev.getName();
-        assertThat(origin, is(name));
+        String actual = dev.getName();
+        assertThat(actual, is(expected));
+    }
+
+    @Test
+    public void intMapping() {
+        final int expected = 42;
+        Row row = new Row();
+        row.addColumn("age", expected);
+        this.cut.processRow(row);
+        Developer dev = getDeveloper();
+        int actual = dev.getAge();
+        assertThat(actual, is(expected));
     }
 
     private Developer getDeveloper() {
