@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Row;
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -46,6 +45,18 @@ public class PojoSink extends Sink {
         this.target = target;
     }
 
+    @Override
+    public void processRow(Row entry) {
+        Object targetObject;
+        try {
+            targetObject = this.target.newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            throw new IllegalStateException("Cannot instantiate: " + this.target.getName(), ex);
+        }
+        entry.getColumnValues().forEach((k, v) -> setField(targetObject, k, v));
+        this.consumer.accept(targetObject);
+    }
+
     public static void setField(Object target, String name, Object value) {
         Objects.requireNonNull(target, "Object cannot be null");
         Class<? extends Object> targetClass = target.getClass();
@@ -65,18 +76,6 @@ public class PojoSink extends Sink {
         } finally {
             field.setAccessible(false);
         }
-    }
-
-    @Override
-    public void processRow(Row entry) {
-        Object targetObject;
-        try {
-            targetObject = this.target.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
-            throw new IllegalStateException("Cannot instantiate: " + this.target.getName(), ex);
-        }
-        entry.getColumnValues().forEach((k, v) -> setField(targetObject, k, v));
-        this.consumer.accept(targetObject);
     }
 
 }
