@@ -55,6 +55,23 @@ public class PojoSinkTest {
         assertThat(actual, is(expected));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void typeMismatch() {
+        final double expected = 1.5;
+        Row row = new Row();
+        //name is String
+        row.addColumn("name", expected);
+        this.cut.processRow(row);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void notExistingField() {
+        final double expected = 1.5;
+        Row row = new Row();
+        row.addColumn("SHOULD-NOT-EXIST", expected);
+        this.cut.processRow(row);
+    }
+
     private Developer getDeveloper() {
         return (Developer) this.cachingConsumer.getObject();
     }
