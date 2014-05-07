@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -94,8 +94,32 @@ public class PojoSinkTest {
     }
 
     @Test
-    public void getChildType() {
-        Class<? extends Object> childType = this.cut.getChildType(Developer.class);
+    public void pojoWithRelation() {
+        final String expected = "duke";
+        Row parent = new Row();
+        parent.addColumn("name", expected);
+
+        final int expectedRanking = 2;
+        final String expectedLanguageName = "java";
+
+        Row programming = new Row();
+        programming.addColumn("name", expectedLanguageName);
+        programming.addColumn("ranking", expectedRanking);
+        parent.add(programming);
+        this.cut.processRow(parent);
+
+        Developer developer = getDeveloper();
+        assertNotNull(developer);
+        assertThat(developer.getLanguages().size(), is(1));
+
+        ProgrammingLanguage language = developer.getLanguages().iterator().next();
+        assertThat(language.getName(), is(expectedLanguageName));
+        assertThat(language.getRanking(), is(expectedRanking));
+    }
+
+    @Test
+    public void getChildInfo() {
+        Class<? extends Object> childType = PojoSink.getChildInfo(Developer.class).getValue();
         assertNotNull(childType);
         System.out.println("Childtype: " + childType);
         assertTrue(ProgrammingLanguage.class.isAssignableFrom(childType));
