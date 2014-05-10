@@ -88,8 +88,8 @@ public class VirtualSinkSourceTest {
     @Test
     public void processRow() {
         Row entries = new Row();
-        entries.addColumn("a", "b");
-        entries.addColumn("c", "d");
+        entries.addColumn(-1, "a", "b");
+        entries.addColumn(-1, "c", "d");
         VirtualSinkSource source = new VirtualSinkSource();
         source.processRow(entries);
         assertThat(source.getNumberOfRows(), is(1));

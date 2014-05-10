@@ -64,8 +64,8 @@ public class JDBCSinkTest {
 
     Row getEntries() {
         Row row = new Row();
-        row.addColumn("a", "java");
-        row.addColumn("b", "tengah");
+        row.addColumn(-1, "a", "java");
+        row.addColumn(-1, "b", "tengah");
         return row;
     }
 
@@ -92,8 +92,8 @@ public class JDBCSinkTest {
     public void numberValueList() {
         String expected = "1,2";
         Row row = new Row();
-        row.addColumn("a", 1);
-        row.addColumn("b", 2);
+        row.addColumn(-1, "a", 1);
+        row.addColumn(-1, "b", 2);
         String columns = JDBCSink.valueList(row);
         assertThat(columns, is(expected));
     }

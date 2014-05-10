@@ -47,7 +47,7 @@ public class PojoSinkTest {
     public void stringMapping() {
         final String expected = "duke";
         Row row = new Row();
-        row.addColumn("name", expected);
+        row.addColumn(-1, "name", expected);
         this.cut.processRow(row);
         Developer dev = getDeveloper();
         String actual = dev.getName();
@@ -58,7 +58,7 @@ public class PojoSinkTest {
     public void intMapping() {
         final int expected = 42;
         Row row = new Row();
-        row.addColumn("age", expected);
+        row.addColumn(-1, "age", expected);
         this.cut.processRow(row);
         Developer dev = getDeveloper();
         int actual = dev.getAge();
@@ -69,7 +69,7 @@ public class PojoSinkTest {
     public void doubleMapping() {
         final double expected = 1.5;
         Row row = new Row();
-        row.addColumn("weight", expected);
+        row.addColumn(-1, "weight", expected);
         this.cut.processRow(row);
         Developer dev = getDeveloper();
         double actual = dev.getWeight();
@@ -81,7 +81,7 @@ public class PojoSinkTest {
         final double expected = 1.5;
         Row row = new Row();
         //name is String
-        row.addColumn("name", expected);
+        row.addColumn(-1, "name", expected);
         this.cut.processRow(row);
     }
 
@@ -89,7 +89,7 @@ public class PojoSinkTest {
     public void notExistingField() {
         final double expected = 1.5;
         Row row = new Row();
-        row.addColumn("SHOULD-NOT-EXIST", expected);
+        row.addColumn(-1, "SHOULD-NOT-EXIST", expected);
         this.cut.processRow(row);
     }
 
@@ -97,14 +97,14 @@ public class PojoSinkTest {
     public void pojoWithRelation() {
         final String expected = "duke";
         Row parent = new Row();
-        parent.addColumn("name", expected);
+        parent.addColumn(-1, "name", expected);
 
         final int expectedRanking = 2;
         final String expectedLanguageName = "java";
 
         Row programming = new Row();
-        programming.addColumn("name", expectedLanguageName);
-        programming.addColumn("ranking", expectedRanking);
+        programming.addColumn(-1, "name", expectedLanguageName);
+        programming.addColumn(-1, "ranking", expectedRanking);
         parent.add(programming);
         this.cut.processRow(parent);
 

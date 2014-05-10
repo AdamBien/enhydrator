@@ -242,8 +242,8 @@ public class PumpIT {
 
     Row getEntries() {
         Row row = new Row();
-        row.addColumn("a", "java");
-        row.addColumn("b", "tengah");
+        row.addColumn(0, "a", "java");
+        row.addColumn(1, "b", "tengah");
         return row;
     }
 

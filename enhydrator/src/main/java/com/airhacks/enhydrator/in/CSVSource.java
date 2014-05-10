@@ -118,9 +118,9 @@ public class CSVSource implements Source {
             String value = splitted[i];
             String columnName = getColumnName(i);
             if (value.isEmpty()) {
-                row.addNullColumn(value);
+                row.addNullColumn(i, columnName);
             } else {
-                row.addColumn(columnName, value);
+                row.addColumn(i, columnName, value);
             }
         }
         return row;

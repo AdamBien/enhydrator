@@ -44,8 +44,8 @@ public class ExpressionTest {
     public void bindingsAreWorking() {
         String expression = "print($ROW); print($ROW.numberOfColumns);$ROW";
         Row row = new Row();
-        row.addColumn("chief", "duke");
-        row.addColumn("master", "juggy");
+        row.addColumn(-1, "chief", "duke");
+        row.addColumn(-1, "master", "juggy");
         Row execute = this.cut.execute(row, expression);
         assertFalse(execute.isEmpty());
     }
@@ -53,7 +53,7 @@ public class ExpressionTest {
     @Test
     public void emptyList() {
         Row row = new Row();
-        row.addColumn("chief", "duke");
+        row.addColumn(-1, "chief", "duke");
         Row execute = this.cut.execute(row, "$EMPTY");
         assertTrue(execute.isEmpty());
     }
@@ -61,7 +61,7 @@ public class ExpressionTest {
     @Test
     public void emptyExpression() {
         Row row = new Row();
-        row.addColumn("chief", "duke");
+        row.addColumn(-1, "chief", "duke");
         Row result = this.cut.execute(row, "");
         assertThat(result, is(row));
     }

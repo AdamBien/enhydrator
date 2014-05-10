@@ -25,25 +25,28 @@ package com.airhacks.enhydrator.in;
  */
 public class Column {
 
+    private int index;
     private String name;
-    private String destination;
+    private String targetSink;
+    private String targetObject;
     private Object value;
     private boolean nullValue;
 
     private final static String DEFAULT_DESTINATION = "*";
 
-    public Column(String name, Object value) {
-        this(name, DEFAULT_DESTINATION, value);
+    public Column(int index, String name, Object value) {
+        this(index, name, DEFAULT_DESTINATION, value);
     }
 
-    public Column(String name, String destination, Object value) {
+    public Column(int index, String name, String destination, Object value) {
+        this.index = index;
         this.name = name;
-        this.destination = destination;
+        this.targetSink = destination;
         this.value = value;
     }
 
-    public Column(String name) {
-        this(name, null);
+    public Column(int index, String name) {
+        this(index, name, null);
     }
 
     public boolean isNullValue() {
@@ -58,16 +61,28 @@ public class Column {
         return value;
     }
 
-    public String getDestination() {
-        return destination;
+    public int getIndex() {
+        return index;
+    }
+
+    public String getTargetSink() {
+        return targetSink;
+    }
+
+    public String getTargetObject() {
+        return targetObject;
     }
 
     void setName(String name) {
         this.name = name;
     }
 
-    void setDestination(String destination) {
-        this.destination = destination;
+    void setTargetSink(String targetSink) {
+        this.targetSink = targetSink;
+    }
+
+    public void setTargetObject(String targetObject) {
+        this.targetObject = targetObject;
     }
 
     void setValue(Object value) {

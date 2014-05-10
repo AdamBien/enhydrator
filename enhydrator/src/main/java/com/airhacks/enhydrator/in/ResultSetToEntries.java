@@ -37,29 +37,31 @@ public class ResultSetToEntries implements Function<ResultSet, Row> {
         try {
             final ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
+            int columnIndex = 0;
             for (int i = 1; i <= columnCount; i++) {
+                columnIndex++;
                 //from java.sql.Types
                 int columnType = metaData.getColumnType(i);
                 String columnName = metaData.getColumnName(i);
                 switch (columnType) {
                     case Types.VARCHAR:
                     case Types.CHAR:
-                        row.addColumn(columnName, resultSet.getString(i));
+                        row.addColumn(columnIndex, columnName, resultSet.getString(i));
                         break;
                     case Types.INTEGER:
-                        row.addColumn(columnName, resultSet.getInt(i));
+                        row.addColumn(columnIndex, columnName, resultSet.getInt(i));
                         break;
                     case Types.DOUBLE:
-                        row.addColumn(columnName, resultSet.getDouble(i));
+                        row.addColumn(columnIndex, columnName, resultSet.getDouble(i));
                         break;
                     case Types.BOOLEAN:
-                        row.addColumn(columnName, resultSet.getBoolean(i));
+                        row.addColumn(columnIndex, columnName, resultSet.getBoolean(i));
                         break;
                     case Types.FLOAT:
-                        row.addColumn(columnName, resultSet.getFloat(i));
+                        row.addColumn(columnIndex, columnName, resultSet.getFloat(i));
                         break;
                     default:
-                        row.addColumn(columnName, resultSet.getObject(i));
+                        row.addColumn(columnIndex, columnName, resultSet.getObject(i));
                 }
             }
         } catch (SQLException ex) {

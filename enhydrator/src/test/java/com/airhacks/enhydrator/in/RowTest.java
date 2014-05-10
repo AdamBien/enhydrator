@@ -44,7 +44,7 @@ public class RowTest {
     @Test
     public void addString() {
         String expected = "duke";
-        Object actual = this.cut.addColumn("name", expected).getColumnValue("name");
+        Object actual = this.cut.addColumn(0, "name", expected).getColumnValue("name");
         assertThat(actual, is(expected));
     }
 
@@ -52,7 +52,7 @@ public class RowTest {
     public void addLong() {
         long expected = 42;
         final String column = "answer";
-        Object actual = this.cut.addColumn(column, expected).getColumnValue(column);
+        Object actual = this.cut.addColumn(0, column, expected).getColumnValue(column);
         assertThat(actual, is(expected));
 
     }
@@ -61,7 +61,7 @@ public class RowTest {
     public void addAndRemoveColumn() {
         int expected = 42;
         final String column = "answer";
-        Object actual = this.cut.addColumn(column, expected).getColumnValue(column);
+        Object actual = this.cut.addColumn(0, column, expected).getColumnValue(column);
         assertNotNull(actual);
         this.cut.removeColumn(column);
         actual = this.cut.getColumnValue(column);
@@ -70,8 +70,8 @@ public class RowTest {
 
     @Test
     public void getColumnsGroupedByDefaultDestination() {
-        this.cut.addColumn("name", "duke");
-        this.cut.addColumn("city", "SFO");
+        this.cut.addColumn(0, "name", "duke");
+        this.cut.addColumn(0, "city", "SFO");
         this.cut.changeDestination("name", "LA");
         Map<String, Row> grouped = this.cut.getColumnsGroupedByDestination();
         assertFalse(grouped.isEmpty());
@@ -86,8 +86,8 @@ public class RowTest {
 
     @Test
     public void getColumnsGroupedByDestination() {
-        this.cut.addColumn("name", "duke");
-        this.cut.addColumn("city", "SFO");
+        this.cut.addColumn(0, "name", "duke");
+        this.cut.addColumn(0, "city", "SFO");
         this.cut.changeDestination("name", "LA");
         Map<String, Row> grouped = this.cut.getColumnsGroupedByDestination();
         assertThat(grouped.keySet().size(), is(2));

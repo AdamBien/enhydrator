@@ -58,24 +58,25 @@ public class Row {
     /**
      * Adds or overrides a column with a default destination
      *
+     * @param index the origin index
      * @param name a unique name of the column.
      * @param value
      * @return reference for method chaining
      */
-    public Row addColumn(String name, Object value) {
+    public Row addColumn(int index, String name, Object value) {
         Objects.requireNonNull(name, "Name of the column cannot be null");
         Objects.requireNonNull(value, "Value of " + name + " cannot be null");
-        this.row.put(name, new Column(name, value));
+        this.row.put(name, new Column(index, name, value));
         return this;
     }
 
-    public Row addNullColumn(String name) {
-        this.addColumn(name, new Column(name));
+    public Row addNullColumn(int index, String name) {
+        this.addColumn(name, new Column(index, name));
         return this;
     }
 
-    public Row createColumn(String name, String destination, Object value) {
-        this.row.put(name, new Column(name, destination, value));
+    public Row createColumn(int index, String name, String destination, Object value) {
+        this.row.put(name, new Column(index, name, destination, value));
         return this;
     }
 
@@ -120,7 +121,7 @@ public class Row {
     }
 
     public String getDestination(String columnName) {
-        return this.row.get(columnName).getDestination();
+        return this.row.get(columnName).getTargetSink();
     }
 
     public boolean isNumber(String column) {
@@ -132,7 +133,7 @@ public class Row {
     }
 
     public Row changeDestination(String column, String newDestination) {
-        getColumn(column).setDestination(newDestination);
+        getColumn(column).setTargetSink(newDestination);
         return this;
     }
 
@@ -141,7 +142,7 @@ public class Row {
     }
 
     public Map<String, Row> getColumnsGroupedByDestination() {
-        Map<String, List<Map.Entry<String, Column>>> grouped = this.row.entrySet().stream().collect(Collectors.groupingBy(e -> e.getValue().getDestination()));
+        Map<String, List<Map.Entry<String, Column>>> grouped = this.row.entrySet().stream().collect(Collectors.groupingBy(e -> e.getValue().getTargetSink()));
         return grouped.entrySet().stream().
                 collect(Collectors.toMap(k -> k.getKey(), v -> convert(v.getValue())));
     }

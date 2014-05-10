@@ -113,9 +113,13 @@ public class VirtualSinkSource extends Sink implements Source {
             return this.currentRow;
         }
 
-        public Rows addColumn(String name, String value) {
-            this.currentRow.addColumn(name, value);
+        public Rows addColumn(int index, String name, String value) {
+            this.currentRow.addColumn(index, name, value);
             return this;
+        }
+
+        public Rows addColumn(String name, String value) {
+            return addColumn(-1, name, value);
         }
 
         public Rows addRow() {
