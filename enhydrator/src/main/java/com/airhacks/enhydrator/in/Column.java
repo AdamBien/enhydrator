@@ -30,7 +30,6 @@ public class Column {
     private String targetSink;
     private String targetObject;
     private Object value;
-    private boolean nullValue;
 
     private final static String DEFAULT_DESTINATION = "*";
 
@@ -50,7 +49,7 @@ public class Column {
     }
 
     public boolean isNullValue() {
-        return nullValue;
+        return this.value == null;
     }
 
     public String getName() {
@@ -89,16 +88,17 @@ public class Column {
         this.value = value;
     }
 
-    void setNullValue(boolean nullValue) {
-        this.nullValue = nullValue;
-    }
-
     boolean isNumber() {
         return this.value instanceof Number;
     }
 
     boolean isString() {
         return this.value instanceof String;
+    }
+
+    @Override
+    public String toString() {
+        return "Column{" + "index=" + index + ", name=" + name + ", targetSink=" + targetSink + ", targetObject=" + targetObject + ", value=" + value + '}';
     }
 
 }
