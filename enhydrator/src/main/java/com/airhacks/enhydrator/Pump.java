@@ -19,7 +19,8 @@ package com.airhacks.enhydrator;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.flexpipe.EntryTransformation;
+
+import com.airhacks.enhydrator.flexpipe.ColumnTranformation;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.ResultSetToEntries;
 import com.airhacks.enhydrator.in.Row;
@@ -323,7 +324,7 @@ public class Pump {
             this.sinks = pipeline.getSinks();
             this.resultSetToEntries = new ResultSetToEntries();
             pipeline.getPreRowTransformers().forEach(t -> startWith(t));
-            List<EntryTransformation> trafos = pipeline.getEntryTransformations();
+            List<ColumnTranformation> trafos = pipeline.getColumnTransformations();
             trafos.forEach(t -> {
                 String name = t.getColumnName();
                 if (name != null) {

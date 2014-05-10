@@ -64,7 +64,7 @@ public class Plumber {
             Files.createDirectories(Paths.get(baseFolder, configurationFolder));
             this.context = JAXBContext.newInstance(JDBCSource.class,
                     Pipeline.class, JDBCSink.class,
-                    UnmanagedConnectionProvider.class, EntryTransformation.class);
+                    UnmanagedConnectionProvider.class, ColumnTranformation.class);
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             this.unmarshaller = context.createUnmarshaller();

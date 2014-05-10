@@ -46,8 +46,8 @@ public class PipelineTest {
     public static Pipeline getPipeline() {
         JDBCSource source = JDBCSourceIT.getSource();
         Sink sink = JDBCSinkTest.getSink();
-        EntryTransformation e1 = new EntryTransformation("name", "convert", true);
-        EntryTransformation e2 = new EntryTransformation(42, "compress", true);
+        ColumnTranformation e1 = new ColumnTranformation("name", "convert", true);
+        ColumnTranformation e2 = new ColumnTranformation(42, "compress", true);
         Pipeline origin = new Pipeline("tst", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
         origin.addSink(sink);
         origin.addQueryParam("arabica");

@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
-
 import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -30,24 +29,24 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author airhacks.com
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "entry-transformation")
-public class EntryTransformation {
+@XmlRootElement(name = "column-transformation")
+public class ColumnTranformation {
 
     private String columnName;
     private Integer slot;
     private String function;
     private boolean script;
 
-    public EntryTransformation() {
+    public ColumnTranformation() {
     }
 
-    public EntryTransformation(String columnName, String function, boolean script) {
+    public ColumnTranformation(String columnName, String function, boolean script) {
         this.columnName = columnName;
         this.function = function;
         this.script = script;
     }
 
-    public EntryTransformation(int slot, String function, boolean script) {
+    public ColumnTranformation(int slot, String function, boolean script) {
         this.slot = slot;
         this.function = function;
     }
@@ -86,7 +85,7 @@ public class EntryTransformation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final EntryTransformation other = (EntryTransformation) obj;
+        final ColumnTranformation other = (ColumnTranformation) obj;
         if (!Objects.equals(this.columnName, other.columnName)) {
             return false;
         }
