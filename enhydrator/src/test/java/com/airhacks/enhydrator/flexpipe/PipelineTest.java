@@ -22,6 +22,7 @@ package com.airhacks.enhydrator.flexpipe;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.JDBCSourceIT;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
+import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -45,11 +46,13 @@ public class PipelineTest {
 
     public static Pipeline getPipeline() {
         JDBCSource source = JDBCSourceIT.getSource();
-        Sink sink = JDBCSinkTest.getSink();
+        Sink logSink = new LogSink();
+        Sink jdbcSink = JDBCSinkTest.getSink();
         ColumnTranformation e1 = new ColumnTranformation("name", "convert", true);
         ColumnTranformation e2 = new ColumnTranformation(42, "compress", true);
         Pipeline origin = new Pipeline("tst", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
-        origin.addSink(sink);
+        origin.addSink(logSink);
+        origin.addSink(jdbcSink);
         origin.addQueryParam("arabica");
         origin.addQueryParam(2);
         origin.addEntryTransformation(e1);

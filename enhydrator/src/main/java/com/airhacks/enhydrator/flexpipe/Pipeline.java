@@ -49,6 +49,7 @@ public class Pipeline {
     @XmlElement(name = "query-param")
     private List<Object> queryParams;
 
+    @XmlElement(name = "sink")
     private List<Sink> sinks;
 
     @XmlElement(name = "pre-row-transformation")

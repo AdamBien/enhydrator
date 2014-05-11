@@ -37,7 +37,6 @@ import javafx.util.Pair;
 public class PojoSink extends Sink {
 
     private static final String DEFAULT_NAME = "pojo";
-
     private Class target;
     private Class childrenType;
     private Consumer<Object> consumer;

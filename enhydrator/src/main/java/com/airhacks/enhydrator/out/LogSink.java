@@ -21,11 +21,16 @@ package com.airhacks.enhydrator.out;
  */
 import com.airhacks.enhydrator.in.Row;
 import java.util.logging.Logger;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author airhacks.com
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "log-sink")
 public class LogSink extends Sink {
 
     private static final Logger LOG = Logger.getLogger(LogSink.class.getName());

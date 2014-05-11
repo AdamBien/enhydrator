@@ -19,12 +19,10 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
-
-
-
 import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.JDBCSink;
+import com.airhacks.enhydrator.out.LogSink;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -63,7 +61,7 @@ public class Plumber {
         try {
             Files.createDirectories(Paths.get(baseFolder, configurationFolder));
             this.context = JAXBContext.newInstance(JDBCSource.class,
-                    Pipeline.class, JDBCSink.class,
+                    Pipeline.class, JDBCSink.class, LogSink.class,
                     UnmanagedConnectionProvider.class, ColumnTranformation.class);
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
