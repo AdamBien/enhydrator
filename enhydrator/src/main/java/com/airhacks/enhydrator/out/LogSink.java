@@ -56,4 +56,15 @@ public class LogSink extends Sink {
         LOG.info(row);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof LogSink;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
 }

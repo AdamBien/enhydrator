@@ -19,7 +19,6 @@ package com.airhacks.enhydrator;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.flexpipe.ColumnTranformation;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.ResultSetToEntries;
@@ -27,7 +26,7 @@ import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
-import com.airhacks.enhydrator.transform.EntryTransformer;
+import com.airhacks.enhydrator.transform.ColumnTransformer;
 import com.airhacks.enhydrator.transform.Expression;
 import com.airhacks.enhydrator.transform.FilterExpression;
 import com.airhacks.enhydrator.transform.FunctionScriptLoader;
@@ -276,7 +275,7 @@ public class Pump {
         }
 
         Function<Object, Object> load(String scriptName) {
-            EntryTransformer entryTransformer = this.loader.getEntryTransformer(scriptName);
+            ColumnTransformer entryTransformer = this.loader.getEntryTransformer(scriptName);
             return entryTransformer::execute;
         }
 

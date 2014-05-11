@@ -24,7 +24,7 @@ package com.airhacks.enhydrator.transform;
  * @author airhacks.com
  */
 @FunctionalInterface
-public interface EntryTransformer {
+public interface ColumnTransformer {
 
     Object execute(Object entry);
 

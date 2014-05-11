@@ -51,7 +51,7 @@ public class FunctionScriptLoader {
         this.baseFolder = ".";
     }
 
-    public EntryTransformer getEntryTransformer(String scriptName) {
+    public ColumnTransformer getEntryTransformer(String scriptName) {
         String content = load(COLUMN_SCRIPT_FOLDER, scriptName);
         Invocable invocable = (Invocable) engine;
         try {
@@ -59,7 +59,7 @@ public class FunctionScriptLoader {
         } catch (ScriptException ex) {
             throw new IllegalStateException("Cannot evaluate script", ex);
         }
-        return invocable.getInterface(EntryTransformer.class);
+        return invocable.getInterface(ColumnTransformer.class);
     }
 
     public RowTransformer getRowTransformer(String scriptName) {
