@@ -42,7 +42,7 @@ public class FunctionScriptLoaderTest {
 
     @Test
     public void entryTransfomerLoadingAndExecution() throws Exception {
-        ColumnTransformer function = this.cut.getEntryTransformer("noop");
+        ColumnTransformer function = this.cut.getColumnTransformer("noop");
         assertNotNull(function);
         final String input = "chief";
         Object result = function.execute(input);

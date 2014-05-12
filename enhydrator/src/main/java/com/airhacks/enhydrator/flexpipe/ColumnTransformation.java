@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.flexpipe;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,23 +30,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "column-transformation")
-public class ColumnTranformation {
+public class ColumnTransformation {
 
     private String columnName;
     private Integer slot;
     private String function;
     private boolean script;
 
-    public ColumnTranformation() {
+    public ColumnTransformation() {
     }
 
-    public ColumnTranformation(String columnName, String function, boolean script) {
+    public ColumnTransformation(String columnName, String function, boolean script) {
         this.columnName = columnName;
         this.function = function;
         this.script = script;
     }
 
-    public ColumnTranformation(int slot, String function, boolean script) {
+    public ColumnTransformation(int slot, String function, boolean script) {
         this.slot = slot;
         this.function = function;
     }
@@ -85,7 +85,7 @@ public class ColumnTranformation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ColumnTranformation other = (ColumnTranformation) obj;
+        final ColumnTransformation other = (ColumnTransformation) obj;
         if (!Objects.equals(this.columnName, other.columnName)) {
             return false;
         }

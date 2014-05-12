@@ -9,9 +9,9 @@ package com.airhacks.enhydrator;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@ package com.airhacks.enhydrator;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.flexpipe.ColumnTranformation;
+import com.airhacks.enhydrator.flexpipe.ColumnTransformation;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.ResultSetToEntries;
 import com.airhacks.enhydrator.in.Row;
@@ -275,7 +275,7 @@ public class Pump {
         }
 
         Function<Object, Object> load(String scriptName) {
-            ColumnTransformer entryTransformer = this.loader.getEntryTransformer(scriptName);
+            ColumnTransformer entryTransformer = this.loader.getColumnTransformer(scriptName);
             return entryTransformer::execute;
         }
 
@@ -322,15 +322,15 @@ public class Pump {
             this.source = pipeline.getSource();
             this.sinks = pipeline.getSinks();
             this.resultSetToEntries = new ResultSetToEntries();
-            pipeline.getPreRowTransformers().forEach(t -> startWith(t));
-            List<ColumnTranformation> trafos = pipeline.getColumnTransformations();
+            pipeline.getPreRowTransformers().forEach(t -> startWith(t::execute));
+            List<ColumnTransformation> trafos = pipeline.getColumnTransformations();
             trafos.forEach(t -> {
                 String name = t.getColumnName();
                 if (name != null) {
                     with(name, t.getFunction());
                 }
             });
-            pipeline.getPostRowTransfomers().forEach(t -> endWith(t));
+            pipeline.getPostRowTransfomers().forEach(t -> endWith(t::execute));
             this.expressions = pipeline.getExpressions();
             List<Object> queryParams = pipeline.getQueryParams();
             if (queryParams == null || queryParams.isEmpty()) {

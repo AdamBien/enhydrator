@@ -51,7 +51,7 @@ public class FunctionScriptLoader {
         this.baseFolder = ".";
     }
 
-    public ColumnTransformer getEntryTransformer(String scriptName) {
+    public ColumnTransformer getColumnTransformer(String scriptName) {
         String content = load(COLUMN_SCRIPT_FOLDER, scriptName);
         Invocable invocable = (Invocable) engine;
         try {

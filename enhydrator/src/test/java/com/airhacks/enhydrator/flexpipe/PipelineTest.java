@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.flexpipe;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import com.airhacks.enhydrator.in.JDBCSourceIT;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
+import com.airhacks.enhydrator.transform.NashornRowTransformer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import org.junit.Test;
@@ -48,8 +49,8 @@ public class PipelineTest {
         JDBCSource source = JDBCSourceIT.getSource();
         Sink logSink = new LogSink();
         Sink jdbcSink = JDBCSinkTest.getSink();
-        ColumnTranformation e1 = new ColumnTranformation("name", "convert", true);
-        ColumnTranformation e2 = new ColumnTranformation(42, "compress", true);
+        ColumnTransformation e1 = new ColumnTransformation("name", "convert", true);
+        ColumnTransformation e2 = new ColumnTransformation(42, "compress", true);
         Pipeline origin = new Pipeline("tst", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
         origin.addSink(logSink);
         origin.addSink(jdbcSink);
@@ -57,9 +58,8 @@ public class PipelineTest {
         origin.addQueryParam(2);
         origin.addEntryTransformation(e1);
         origin.addEntryTransformation(e2);
-        origin.addPreRowTransformation("validate");
-        origin.addPostRowTransformation("compress");
-        origin.addPostRowTransformation("encrypt");
+        origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));
+        origin.addPostRowTransformation(new NashornRowTransformer("src/test/scripts", "compress"));
         origin.addFilter("true");
         origin.addExpression("print($ROW); $ROW");
         return origin;

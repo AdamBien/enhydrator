@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.flexpipe;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,23 +49,23 @@ public class Pipeline {
     @XmlElement(name = "query-param")
     private List<Object> queryParams;
 
-    @XmlElement(name = "sink")
-    private List<Sink> sinks;
-
-    @XmlElement(name = "pre-row-transformation")
-    private List<String> preRowTransformers;
-
-    @XmlElement(name = "column-transformation")
-    private List<ColumnTranformation> columnTransformations;
-
-    @XmlElement(name = "post-row-transformation")
-    private List<String> postRowTransfomers;
-
     @XmlElement(name = "filter")
     private List<String> filters;
 
+    @XmlElement(name = "pre-row-transformation")
+    private List<RowTransformation> preRowTransformers;
+
+    @XmlElement(name = "column-transformation")
+    private List<ColumnTransformation> columnTransformations;
+
     @XmlElement(name = "expression")
     private List<String> expressions;
+
+    @XmlElement(name = "post-row-transformation")
+    private List<RowTransformation> postRowTransfomers;
+
+    @XmlElement(name = "sink")
+    private List<Sink> sinks;
 
     Pipeline() {
         this.preRowTransformers = new ArrayList<>();
@@ -90,15 +90,15 @@ public class Pipeline {
         return name;
     }
 
-    public void addPreRowTransformation(String transformer) {
+    public void addPreRowTransformation(RowTransformation transformer) {
         this.preRowTransformers.add(transformer);
     }
 
-    public void addEntryTransformation(ColumnTranformation et) {
+    public void addEntryTransformation(ColumnTransformation et) {
         this.columnTransformations.add(et);
     }
 
-    public void addPostRowTransformation(String transformer) {
+    public void addPostRowTransformation(RowTransformation transformer) {
         this.postRowTransfomers.add(transformer);
     }
 
@@ -134,15 +134,15 @@ public class Pipeline {
         return sinks;
     }
 
-    public List<String> getPreRowTransformers() {
+    public List<RowTransformation> getPreRowTransformers() {
         return preRowTransformers;
     }
 
-    public List<ColumnTranformation> getColumnTransformations() {
+    public List<ColumnTransformation> getColumnTransformations() {
         return columnTransformations;
     }
 
-    public List<String> getPostRowTransfomers() {
+    public List<RowTransformation> getPostRowTransfomers() {
         return postRowTransfomers;
     }
 
