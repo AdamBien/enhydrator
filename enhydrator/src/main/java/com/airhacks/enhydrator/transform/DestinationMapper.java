@@ -50,6 +50,9 @@ public class DestinationMapper extends RowTransformation {
     }
 
     void changeDestination(Column column, Mapping mapping) {
+        if (column == null) {
+            return;
+        }
         column.setTargetObject(mapping.getTargetObject());
         column.setTargetSink(mapping.getTargetSink());
     }
