@@ -24,6 +24,8 @@ import com.airhacks.enhydrator.in.JDBCSourceIT;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
+import com.airhacks.enhydrator.transform.DestinationMapper;
+import com.airhacks.enhydrator.transform.Mapping;
 import com.airhacks.enhydrator.transform.NashornRowTransformer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -46,6 +48,8 @@ public class PipelineTest {
     }
 
     public static Pipeline getPipeline() {
+        DestinationMapper mapper = new DestinationMapper();
+        mapper.addMapping(0, new Mapping("*", "*"));
         JDBCSource source = JDBCSourceIT.getSource();
         Sink logSink = new LogSink();
         Sink jdbcSink = JDBCSinkTest.getSink();
@@ -58,6 +62,7 @@ public class PipelineTest {
         origin.addQueryParam(2);
         origin.addEntryTransformation(e1);
         origin.addEntryTransformation(e2);
+        origin.addPreRowTransformation(mapper);
         origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));
         origin.addPostRowTransformation(new NashornRowTransformer("src/test/scripts", "compress"));
         origin.addFilter("true");

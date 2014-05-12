@@ -39,7 +39,7 @@ public class NashornRowTransformer extends RowTransformation {
     }
 
     void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
-        System.out.println("afterUnmarschal called");
+        System.out.println("afterUnmarschal called: " + toString());
         this.initialize();
     }
 
@@ -72,6 +72,11 @@ public class NashornRowTransformer extends RowTransformation {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "NashornRowTransformer{" + "scriptName=" + scriptName + ", baseScriptFolder=" + baseScriptFolder + ", loader=" + loader + ", rowTransformer=" + rowTransformer + '}';
     }
 
 }
