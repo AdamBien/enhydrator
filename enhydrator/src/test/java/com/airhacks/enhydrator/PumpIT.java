@@ -205,7 +205,7 @@ public class PumpIT {
     public void usePipelineWithSink() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Pipeline pipeline = PipelineTgetJDBCPipelineline();
+        Pipeline pipeline = PipelineTest.getJDBCPipeline();
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
                 use(pipeline).
