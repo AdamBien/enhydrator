@@ -24,9 +24,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,42 +40,70 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author airhacks.com
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "csv-source")
 public class CSVSource implements Source {
 
     private String delimiter;
-    private Path file;
-    private Stream<String> lines;
-    private final boolean fileContainsHeaders;
+    private String fileName;
+    private boolean fileContainsHeaders;
+
     static final String REGEX_SPLIT_EXPRESSION = "(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
 
+    @XmlTransient
+    private Path file;
+    @XmlTransient
+    private Stream<String> lines;
+
+    @XmlTransient
     private int counter;
 
+    @XmlTransient
     private List<String> columnNames;
+    @XmlTransient
     private List<Row> iterable;
 
     public CSVSource(String file, String delimiter, boolean fileContainsHeaders) {
-        this.file = Paths.get(file);
-        if (!Files.exists(this.file)) {
-            throw new IllegalArgumentException(file + " does not exist !");
-        }
+        this.fileName = file;
         this.delimiter = delimiter;
         this.fileContainsHeaders = fileContainsHeaders;
+        init();
+    }
+
+    public CSVSource() {
+    }
+
+    void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
+        this.init();
+    }
+
+    void init() throws IllegalStateException, IllegalArgumentException {
+        this.file = Paths.get(this.fileName);
+        if (!Files.exists(this.file)) {
+            throw new IllegalArgumentException(this.fileName + " does not exist !");
+        }
         this.columnNames = new ArrayList<>();
         try {
             this.lines = Files.lines(this.file);
         } catch (IOException ex) {
             throw new IllegalStateException("Cannot parse lines");
         }
-        if (fileContainsHeaders) {
+        if (this.fileContainsHeaders) {
             this.columnNames = this.extractHeaders();
         }
     }
@@ -142,6 +170,36 @@ public class CSVSource implements Source {
             }
             return name;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + Objects.hashCode(this.delimiter);
+        hash = 59 * hash + Objects.hashCode(this.fileName);
+        hash = 59 * hash + (this.fileContainsHeaders ? 1 : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CSVSource other = (CSVSource) obj;
+        if (!Objects.equals(this.delimiter, other.delimiter)) {
+            return false;
+        }
+        if (!Objects.equals(this.fileName, other.fileName)) {
+            return false;
+        }
+        if (this.fileContainsHeaders != other.fileContainsHeaders) {
+            return false;
+        }
+        return true;
     }
 
 }
