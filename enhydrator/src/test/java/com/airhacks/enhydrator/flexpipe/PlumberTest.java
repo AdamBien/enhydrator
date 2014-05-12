@@ -33,7 +33,7 @@ public class PlumberTest {
     @Test
     public void writeAndReadConfiguration() {
         Plumber plumber = new Plumber();
-        Pipeline origin = PipelineTest.getPipeline();
+        Pipeline origin = PipelineTest.getJDBCPipeline();
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
         assertNotSame(deserialized, origin);

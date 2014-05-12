@@ -20,6 +20,7 @@ package com.airhacks.enhydrator.flexpipe;
  * #L%
  */
 import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
+import com.airhacks.enhydrator.in.CSVSource;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.LogSink;
@@ -63,7 +64,7 @@ public class Plumber {
         this.configurationFolder = configurationFolder;
         try {
             Files.createDirectories(Paths.get(baseFolder, configurationFolder));
-            this.context = JAXBContext.newInstance(JDBCSource.class,
+            this.context = JAXBContext.newInstance(JDBCSource.class, CSVSource.class,
                     Pipeline.class, JDBCSink.class, LogSink.class,
                     UnmanagedConnectionProvider.class, ColumnTransformation.class,
                     NashornRowTransformer.class, DestinationMapper.class, Mapping.class);

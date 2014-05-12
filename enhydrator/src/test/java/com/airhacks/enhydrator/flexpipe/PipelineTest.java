@@ -19,8 +19,11 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
+import com.airhacks.enhydrator.in.CSVSource;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.JDBCSourceIT;
+import com.airhacks.enhydrator.in.Source;
+import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
@@ -38,8 +41,8 @@ import org.junit.Test;
 public class PipelineTest {
 
     @Test
-    public void jaxbSerialization() {
-        Pipeline origin = getPipeline();
+    public void jaxbJDBCPipelineSerialization() {
+        Pipeline origin = getJDBCPipeline();
         Plumber plumber = new Plumber(".", "config");
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
@@ -47,7 +50,17 @@ public class PipelineTest {
         assertEquals(deserialized, origin);
     }
 
-    public static Pipeline getPipeline() {
+    @Test
+    public void jaxbCSVPipelineSerialization() {
+        Pipeline origin = getCSVPipeline();
+        Plumber plumber = new Plumber(".", "config");
+        plumber.intoConfiguration(origin);
+        Pipeline deserialized = plumber.fromConfiguration(origin.getName());
+        assertNotSame(deserialized, origin);
+        assertEquals(deserialized, origin);
+    }
+
+    public static Pipeline getJDBCPipeline() {
         DestinationMapper mapper = new DestinationMapper();
         mapper.addMapping(0, new Mapping("*", "*"));
         JDBCSource source = JDBCSourceIT.getSource();
@@ -55,7 +68,30 @@ public class PipelineTest {
         Sink jdbcSink = JDBCSinkTest.getSink();
         ColumnTransformation e1 = new ColumnTransformation("name", "convert", true);
         ColumnTransformation e2 = new ColumnTransformation(42, "compress", true);
-        Pipeline origin = new Pipeline("tst", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
+        Pipeline origin = new Pipeline("jdbc", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
+        origin.addSink(logSink);
+        origin.addSink(jdbcSink);
+        origin.addQueryParam("arabica");
+        origin.addQueryParam(2);
+        origin.addEntryTransformation(e1);
+        origin.addEntryTransformation(e2);
+        origin.addPreRowTransformation(mapper);
+        origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));
+        origin.addPostRowTransformation(new NashornRowTransformer("src/test/scripts", "compress"));
+        origin.addFilter("true");
+        origin.addExpression("print($ROW); $ROW");
+        return origin;
+    }
+
+    public static Pipeline getCSVPipeline() {
+        DestinationMapper mapper = new DestinationMapper();
+        mapper.addMapping(0, new Mapping("*", "*"));
+        Source source = new CSVSource("./src/test/files/pyramid.csv", ";", true);
+        Sink logSink = new LogSink();
+        Sink jdbcSink = new VirtualSinkSource();
+        ColumnTransformation e1 = new ColumnTransformation("name", "convert", true);
+        ColumnTransformation e2 = new ColumnTransformation(42, "compress", true);
+        Pipeline origin = new Pipeline("csv", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
         origin.addSink(logSink);
         origin.addSink(jdbcSink);
         origin.addQueryParam("arabica");

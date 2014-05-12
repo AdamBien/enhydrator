@@ -190,7 +190,7 @@ public class PumpIT {
     public void usePipeline() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Pipeline pipeline = PipelineTest.getPipeline();
+        Pipeline pipeline = PipelineTest.getJDBCPipeline();
         Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
@@ -205,7 +205,7 @@ public class PumpIT {
     public void usePipelineWithSink() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Pipeline pipeline = PipelineTest.getPipeline();
+        Pipeline pipeline = PipelineTgetJDBCPipelineline();
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
                 use(pipeline).
