@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,7 @@ public class PojoSink extends Sink {
     private Class target;
     private Class childrenType;
     private Consumer<Object> consumer;
-    private final String childrenFieldName;
+    private String childrenFieldName = null;
 
     public PojoSink(Class target, Consumer<Object> consumer) {
         this(DEFAULT_NAME, target, consumer);
@@ -51,8 +51,10 @@ public class PojoSink extends Sink {
         this.consumer = consumer;
         this.target = target;
         final Pair<String, Class<? extends Object>> childInfo = getChildInfo(target);
-        this.childrenFieldName = childInfo.getKey();
-        this.childrenType = childInfo.getValue();
+        if (childInfo != null) {
+            this.childrenFieldName = childInfo.getKey();
+            this.childrenType = childInfo.getValue();
+        }
         checkConventions(this.target);
     }
 
@@ -75,7 +77,7 @@ public class PojoSink extends Sink {
     @Override
     public void processRow(Row currentRow) {
         Object targetObject = convert(this.target, currentRow);
-        if (currentRow.hasChildren()) {
+        if (currentRow.hasChildren() && this.childrenType != null) {
             mapChildren(targetObject, currentRow.getChildren());
         }
         this.consumer.accept(targetObject);

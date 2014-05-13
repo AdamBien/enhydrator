@@ -117,6 +117,26 @@ public class PojoSinkTest {
         assertThat(language.getRanking(), is(expectedRanking));
     }
 
+    @Test
+    public void pojoWithoutRelation() {
+        CachingConsumer consumer = new CachingConsumer();
+        PojoSink sink = new PojoSink(DeveloperWithoutKids.class, consumer);
+        final String expected = "duke";
+        Row parent = new Row();
+        parent.addColumn(-1, "name", expected);
+
+        final int expectedRanking = 2;
+        final String expectedLanguageName = "java";
+
+        Row programming = new Row();
+        programming.addColumn(-1, "name", expectedLanguageName);
+        programming.addColumn(-1, "ranking", expectedRanking);
+        parent.add(programming);
+        sink.processRow(parent);
+        DeveloperWithoutKids kidless = (DeveloperWithoutKids) consumer.getObject();
+        assertNotNull(kidless);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void pojoWithTooManyRelations() {
         new PojoSink(DeveloperWithTooManyRelations.class, this.cachingConsumer);
