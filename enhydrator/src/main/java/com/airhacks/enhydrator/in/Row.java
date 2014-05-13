@@ -22,6 +22,7 @@ package com.airhacks.enhydrator.in;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -108,9 +109,19 @@ public class Row {
 
     public Map<String, Object> getColumnValues() {
         return this.rowByName.entrySet().
-                stream().
-                collect(Collectors.toMap(k -> k.getKey(), v -> v.getValue().
-                                getValue()));
+                stream().filter(e -> e.getValue().getValue() != null).
+                collect(Collectors.toMap(k -> k.getKey(), v -> value(v)));
+    }
+
+    Object value(Entry<String, Column> entry) {
+        Objects.requireNonNull(entry, "Entry cannot be null");
+        String columnName = entry.getKey();
+        Column column = entry.getValue();
+        Objects.requireNonNull(columnName, "Column name cannot be null");
+        Objects.requireNonNull(column, "Column with name " + columnName + " is null");
+        Object value = column.getValue();
+        Objects.requireNonNull(value, "Column with name " + columnName + " has null value");
+        return value;
     }
 
     public Set<String> getColumnNames() {
