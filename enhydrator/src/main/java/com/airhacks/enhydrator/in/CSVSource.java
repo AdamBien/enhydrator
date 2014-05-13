@@ -35,6 +35,7 @@ package com.airhacks.enhydrator.in;
  * #L%
  */
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,9 +60,13 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "csv-source")
 public class CSVSource implements Source {
 
-    private String delimiter;
     private String fileName;
+    private String charsetName;
+    private String delimiter;
     private boolean fileContainsHeaders;
+
+    @XmlTransient
+    private Charset charset;
 
     static final String REGEX_SPLIT_EXPRESSION = "(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
 
@@ -78,10 +83,11 @@ public class CSVSource implements Source {
     @XmlTransient
     private List<Row> iterable;
 
-    public CSVSource(String file, String delimiter, boolean fileContainsHeaders) {
+    public CSVSource(String file, String delimiter, String charset, boolean fileContainsHeaders) {
         this.fileName = file;
         this.delimiter = delimiter;
         this.fileContainsHeaders = fileContainsHeaders;
+        this.charsetName = charset;
         init();
     }
 
@@ -93,13 +99,14 @@ public class CSVSource implements Source {
     }
 
     void init() throws IllegalStateException, IllegalArgumentException {
+        this.charset = Charset.forName(charsetName);
         this.file = Paths.get(this.fileName);
         if (!Files.exists(this.file)) {
             throw new IllegalArgumentException(this.fileName + " does not exist !");
         }
         this.columnNames = new ArrayList<>();
         try {
-            this.lines = Files.lines(this.file);
+            this.lines = Files.lines(this.file, this.charset);
         } catch (IOException ex) {
             throw new IllegalStateException("Cannot parse lines");
         }
@@ -111,7 +118,7 @@ public class CSVSource implements Source {
     final List<String> extractHeaders() {
         String headerLine = null;
         try {
-            headerLine = Files.lines(this.file).findFirst().get();
+            headerLine = Files.lines(this.file, this.charset).findFirst().get();
         } catch (IOException ex) {
             Logger.getLogger(CSVSource.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -175,9 +182,10 @@ public class CSVSource implements Source {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 59 * hash + Objects.hashCode(this.delimiter);
-        hash = 59 * hash + Objects.hashCode(this.fileName);
-        hash = 59 * hash + (this.fileContainsHeaders ? 1 : 0);
+        hash = 23 * hash + Objects.hashCode(this.fileName);
+        hash = 23 * hash + Objects.hashCode(this.charsetName);
+        hash = 23 * hash + Objects.hashCode(this.delimiter);
+        hash = 23 * hash + (this.fileContainsHeaders ? 1 : 0);
         return hash;
     }
 
@@ -190,10 +198,13 @@ public class CSVSource implements Source {
             return false;
         }
         final CSVSource other = (CSVSource) obj;
-        if (!Objects.equals(this.delimiter, other.delimiter)) {
+        if (!Objects.equals(this.fileName, other.fileName)) {
             return false;
         }
-        if (!Objects.equals(this.fileName, other.fileName)) {
+        if (!Objects.equals(this.charsetName, other.charsetName)) {
+            return false;
+        }
+        if (!Objects.equals(this.delimiter, other.delimiter)) {
             return false;
         }
         if (this.fileContainsHeaders != other.fileContainsHeaders) {

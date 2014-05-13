@@ -86,7 +86,7 @@ public class PipelineTest {
     public static Pipeline getCSVPipeline() {
         DestinationMapper mapper = new DestinationMapper();
         mapper.addMapping(0, new Mapping("*", "*"));
-        Source source = new CSVSource("./src/test/files/pyramid.csv", ";", true);
+        Source source = new CSVSource("./src/test/files/pyramid.csv", ";", "UTF-8", true);
         Sink logSink = new LogSink();
         Sink jdbcSink = new VirtualSinkSource();
         ColumnTransformation e1 = new ColumnTransformation("name", "convert", true);

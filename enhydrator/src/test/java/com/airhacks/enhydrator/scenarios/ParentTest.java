@@ -44,7 +44,7 @@ public class ParentTest {
      */
     @Test
     public void copy() {
-        Source source = new CSVSource("./src/test/files/files.csv", ";", true);
+        Source source = new CSVSource("./src/test/files/files.csv", ";", "UTF-8", true);
         VirtualSinkSource vss = new VirtualSinkSource();
         Pump pump = new Pump.Engine().
                 from(source).

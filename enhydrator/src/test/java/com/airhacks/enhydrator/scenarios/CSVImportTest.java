@@ -82,7 +82,7 @@ public class CSVImportTest {
     }
 
     VirtualSinkSource getSource(final String fileName) {
-        Source source = new CSVSource(fileName, ";", true);
+        Source source = new CSVSource(fileName, ";", "UTF-8", true);
         VirtualSinkSource vss = new VirtualSinkSource();
         Pump pump = new Pump.Engine().
                 from(source).

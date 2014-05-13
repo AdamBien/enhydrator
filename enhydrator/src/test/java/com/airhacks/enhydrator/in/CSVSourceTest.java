@@ -53,12 +53,12 @@ public class CSVSourceTest {
 
     @Before
     public void init() {
-        this.cut = new CSVSource("./src/test/files/cars.csv", ";", true);
+        this.cut = new CSVSource("./src/test/files/cars.csv", ";", "UTF-8", true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void fileDoesNotExist() {
-        new CSVSource("does/NOT/exist", ";", true);
+        new CSVSource("does/NOT/exist", ";", "UTF-8", true);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class CSVSourceTest {
     }
 
     public static Source getSource(final String fileName) {
-        return new CSVSource(fileName, ";", true);
+        return new CSVSource(fileName, ";", "UTF-8", true);
     }
 
 }
