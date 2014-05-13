@@ -137,6 +137,22 @@ public class PojoSinkTest {
         assertNotNull(kidless);
     }
 
+    @Test
+    public void pojoWithAnnotatedField() {
+        CachingConsumer consumer = new CachingConsumer();
+        PojoSink sink = new PojoSink(DeveloperWithAnnotatedField.class, consumer);
+
+        final String expectedName = "duke";
+        final int expectedAge = 42;
+
+        Row programming = new Row();
+        programming.addColumn(-1, "name", expectedName);
+        programming.addColumn(-1, "age", expectedAge);
+        sink.processRow(programming);
+        DeveloperWithAnnotatedField kidless = (DeveloperWithAnnotatedField) consumer.getObject();
+        assertNotNull(kidless);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void pojoWithTooManyRelations() {
         new PojoSink(DeveloperWithTooManyRelations.class, this.cachingConsumer);

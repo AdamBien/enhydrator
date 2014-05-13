@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -112,19 +112,36 @@ public class PojoSink extends Sink {
         Field field;
         try {
             field = targetClass.getDeclaredField(name);
-            field.setAccessible(true);
         } catch (NoSuchFieldException ex) {
-            throw new IllegalArgumentException(target.getClass() + " does not have a field with the name " + name, ex);
+            field = getFieldAnnotatedWith(targetClass, name);
+            if (field == null) {
+                throw new IllegalArgumentException(target.getClass() + " does not have a field with the name " + name, ex);
+            }
         } catch (SecurityException ex) {
             throw new IllegalStateException("Cannot access private field", ex);
         }
         try {
+            field.setAccessible(true);
             field.set(target, value);
         } catch (IllegalAccessException ex) {
             throw new IllegalStateException("Cannot set field: " + name + " with " + value, ex);
         } finally {
             field.setAccessible(false);
         }
+    }
+
+    public static Field getFieldAnnotatedWith(Class clazz, String name) {
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            ColumnName columnName = field.getAnnotation(ColumnName.class);
+            if (columnName != null) {
+                String customName = columnName.value();
+                if (customName.equals(name)) {
+                    return field;
+                }
+            }
+        }
+        return null;
     }
 
     static Pair<String, Class<? extends Object>> getChildInfo(Class target) {
