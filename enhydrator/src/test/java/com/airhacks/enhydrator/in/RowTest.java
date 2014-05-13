@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -82,6 +82,22 @@ public class RowTest {
         Row laDestination = grouped.get("LA");
         assertNotNull(laDestination);
         assertThat(laDestination.getColumnValue("name"), is("duke"));
+    }
+
+    @Test
+    public void changeColumnName() {
+        final String oldName = "duke";
+        this.cut.addColumn(0, oldName, "--any value--");
+        assertThat(this.cut.getNumberOfColumns(), is(1));
+        final String newName = "juggy";
+        this.cut.changeColumnName(oldName, newName);
+        assertThat(this.cut.getNumberOfColumns(), is(1));
+        Column columnByName = this.cut.getColumnByName(newName);
+        assertThat(columnByName.getName(), is(newName));
+
+        Column originColumn = this.cut.getColumnByName(oldName);
+        assertNull(originColumn);
+
     }
 
     @Test

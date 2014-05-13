@@ -36,19 +36,19 @@ import java.util.stream.Collectors;
  */
 public class Row {
 
-    private final Map<String, Column> rowByName;
-    private final Map<Integer, Column> rowByIndex;
+    private final Map<String, Column> columnByName;
+    private final Map<Integer, Column> columnByIndex;
 
     private List<Row> children;
 
     public Row() {
-        this.rowByName = new ConcurrentHashMap<>();
-        this.rowByIndex = new ConcurrentHashMap<>();
+        this.columnByName = new ConcurrentHashMap<>();
+        this.columnByIndex = new ConcurrentHashMap<>();
         this.children = new CopyOnWriteArrayList<>();
     }
 
     public Object getColumnValue(String columnName) {
-        final Column column = this.rowByName.get(columnName);
+        final Column column = this.columnByName.get(columnName);
         if (column == null || column.isNullValue()) {
             return null;
         }
@@ -56,11 +56,20 @@ public class Row {
     }
 
     public Column getColumnByName(String column) {
-        return this.rowByName.get(column);
+        return this.columnByName.get(column);
     }
 
     public Column getColumnByIndex(int index) {
-        return this.rowByIndex.get(index);
+        return this.columnByIndex.get(index);
+    }
+
+    public void changeColumnName(String oldName, String newName) {
+        Column column = this.columnByName.remove(oldName);
+        if (column == null) {
+            return;
+        }
+        column.setName(newName);
+        this.columnByName.put(newName, column);
     }
 
     /**
@@ -75,22 +84,22 @@ public class Row {
         Objects.requireNonNull(name, "Name of the column cannot be null");
         Objects.requireNonNull(value, "Value of " + name + " cannot be null");
         final Column column = new Column(index, name, value);
-        this.rowByName.put(name, column);
-        this.rowByIndex.put(index, column);
+        this.columnByName.put(name, column);
+        this.columnByIndex.put(index, column);
         return this;
     }
 
     public Row addColumn(Column column) {
         Objects.requireNonNull(column, "Column cannot be null");
-        this.rowByName.put(column.getName(), column);
-        this.rowByIndex.put(column.getIndex(), column);
+        this.columnByName.put(column.getName(), column);
+        this.columnByIndex.put(column.getIndex(), column);
         return this;
     }
 
     public Row addNullColumn(int index, String name) {
         final Column column = new Column(index, name);
-        this.rowByName.put(name, column);
-        this.rowByIndex.put(index, column);
+        this.columnByName.put(name, column);
+        this.columnByIndex.put(index, column);
         return this;
     }
 
@@ -104,11 +113,11 @@ public class Row {
     }
 
     public int getNumberOfColumns() {
-        return this.rowByName.size();
+        return this.columnByName.size();
     }
 
     public Map<String, Object> getColumnValues() {
-        return this.rowByName.entrySet().
+        return this.columnByName.entrySet().
                 stream().filter(e -> e.getValue().getValue() != null).
                 collect(Collectors.toMap(k -> k.getKey(), v -> value(v)));
     }
@@ -125,30 +134,30 @@ public class Row {
     }
 
     public Set<String> getColumnNames() {
-        return this.rowByName.keySet();
+        return this.columnByName.keySet();
     }
 
     public Map<String, String> getColumnsAsString() {
         Map<String, String> retVal = new HashMap<>();
-        this.rowByName.keySet().forEach(e -> retVal.put(e, String.valueOf(this.rowByName.get(e))));
+        this.columnByName.keySet().forEach(e -> retVal.put(e, String.valueOf(this.columnByName.get(e))));
         return retVal;
     }
 
     public Row removeColumn(String name) {
-        this.rowByName.remove(name);
+        this.columnByName.remove(name);
         return this;
     }
 
     public String getDestination(String columnName) {
-        return this.rowByName.get(columnName).getTargetSink();
+        return this.columnByName.get(columnName).getTargetSink();
     }
 
     public boolean isNumber(String column) {
-        return (this.rowByName.get(column).isNumber());
+        return (this.columnByName.get(column).isNumber());
     }
 
     public boolean isString(String column) {
-        return (this.rowByName.get(column).isString());
+        return (this.columnByName.get(column).isString());
     }
 
     public Row changeDestination(String column, String newDestination) {
@@ -157,11 +166,11 @@ public class Row {
     }
 
     public boolean isEmpty() {
-        return this.rowByName.isEmpty();
+        return this.columnByName.isEmpty();
     }
 
     public Map<String, Row> getColumnsGroupedByDestination() {
-        Map<String, List<Map.Entry<String, Column>>> grouped = this.rowByName.entrySet().stream().collect(Collectors.groupingBy(e -> e.getValue().getTargetSink()));
+        Map<String, List<Map.Entry<String, Column>>> grouped = this.columnByName.entrySet().stream().collect(Collectors.groupingBy(e -> e.getValue().getTargetSink()));
         return grouped.entrySet().stream().
                 collect(Collectors.toMap(k -> k.getKey(), v -> convert(v.getValue())));
     }
@@ -174,7 +183,7 @@ public class Row {
     }
 
     public boolean isColumnEmpty(String name) {
-        return !this.rowByName.containsKey(name);
+        return !this.columnByName.containsKey(name);
     }
 
     public Row add(Row input) {
