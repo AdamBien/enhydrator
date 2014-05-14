@@ -19,6 +19,7 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,10 @@ public class Row {
 
     public Column getColumnByIndex(int index) {
         return this.columnByIndex.get(index);
+    }
+
+    public Collection<Column> getColumns() {
+        return this.columnByName.values();
     }
 
     public void changeColumnName(String oldName, String newName) {

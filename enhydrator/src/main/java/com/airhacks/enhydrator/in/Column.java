@@ -76,6 +76,10 @@ public class Column {
 
     }
 
+    public void fillWithEmptyString() {
+        this.value = " ";
+    }
+
     public void convertToString() {
         if (value == null) {
             return;
