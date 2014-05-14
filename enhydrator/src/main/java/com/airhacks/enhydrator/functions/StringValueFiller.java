@@ -20,32 +20,31 @@ package com.airhacks.enhydrator.functions;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import com.airhacks.enhydrator.transform.RowTransformer;
 
 /**
  *
  * @author airhacks.com
  */
-public class EmptyStringFillerTest {
+public class StringValueFiller implements RowTransformer {
 
-    @Test
-    public void fill() {
-        EmptyStringFiller filler = new EmptyStringFiller();
-        Row input = new Row();
-        input.addNullColumn(0, "name");
-        assertTrue(input.getColumnByIndex(0).isNullValue());
-        Row output = filler.execute(input);
-        assertFalse(output.getColumnByIndex(0).isNullValue());
+    private String fillValue;
+
+    public StringValueFiller(String value) {
+        this.fillValue = value;
     }
 
-    @Test
-    public void nullRow() {
-        EmptyStringFiller filler = new EmptyStringFiller();
-        Row output = filler.execute(null);
-        assertNull(output);
+    public StringValueFiller() {
+        this.fillValue = " ";
+    }
+
+    @Override
+    public Row execute(Row input) {
+        if (input == null) {
+            return null;
+        }
+        input.getColumns().forEach(e -> e.fillWithValue(this.fillValue));
+        return input;
     }
 
 }

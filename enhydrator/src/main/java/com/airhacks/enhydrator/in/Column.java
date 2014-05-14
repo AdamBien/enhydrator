@@ -76,8 +76,8 @@ public class Column {
 
     }
 
-    public void fillWithEmptyString() {
-        this.value = " ";
+    public void fillWithValue(String value) {
+        this.value = value;
     }
 
     public void convertToString() {
