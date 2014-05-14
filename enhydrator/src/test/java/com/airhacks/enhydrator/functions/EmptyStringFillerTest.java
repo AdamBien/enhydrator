@@ -19,9 +19,9 @@ package com.airhacks.enhydrator.functions;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Row;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
@@ -39,6 +39,13 @@ public class EmptyStringFillerTest {
         assertTrue(input.getColumnByIndex(0).isNullValue());
         Row output = filler.execute(input);
         assertFalse(output.getColumnByIndex(0).isNullValue());
+    }
+
+    @Test
+    public void nullRow() {
+        EmptyStringFiller filler = new EmptyStringFiller();
+        Row output = filler.execute(null);
+        assertNull(output);
     }
 
 }

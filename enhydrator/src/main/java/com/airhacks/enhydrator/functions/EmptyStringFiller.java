@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.functions;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.transform.RowTransformer;
 
@@ -31,6 +30,9 @@ public class EmptyStringFiller implements RowTransformer {
 
     @Override
     public Row execute(Row input) {
+        if (input == null) {
+            return null;
+        }
         input.getColumns().forEach(e -> e.fillWithEmptyString());
         return input;
     }
