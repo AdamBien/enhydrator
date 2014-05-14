@@ -53,7 +53,12 @@ public class Column {
             return;
         }
         String asString = String.valueOf(value);
-        this.value = Integer.parseInt(asString);
+        try {
+            this.value = Integer.parseInt(asString);
+        } catch (NumberFormatException ex) {
+            throw new NumberFormatException("Cannot convert column: "
+                    + this.name + " with index " + this.index + " and value " + this.value + " to integer");
+        }
     }
 
     public void convertToDouble() {
@@ -61,7 +66,14 @@ public class Column {
             return;
         }
         String asString = String.valueOf(value);
-        this.value = Double.parseDouble(asString);
+        try {
+            this.value = Double.parseDouble(asString);
+        } catch (NumberFormatException ex) {
+            throw new NumberFormatException("Cannot convert column: "
+                    + this.name + " with index " + this.index + " and value " + this.value + " to double");
+
+        }
+
     }
 
     public void convertToString() {
