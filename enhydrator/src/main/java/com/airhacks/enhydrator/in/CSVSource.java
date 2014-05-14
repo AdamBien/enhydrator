@@ -123,10 +123,12 @@ public class CSVSource implements Source {
             Logger.getLogger(CSVSource.class.getName()).log(Level.SEVERE, null, ex);
         }
         Row headers = parse(headerLine, this.delimiter);
-
-        return headers.getColumnValues().values().stream().
-                map(e -> ((String) e)).
-                collect(Collectors.toList());
+        List<String> sortedNames = new ArrayList<>();
+        for (int i = 0; i < headers.getNumberOfColumns(); i++) {
+            Column columnByIndex = headers.getColumnByIndex(i);
+            sortedNames.add(String.valueOf(columnByIndex.getValue()));
+        }
+        return sortedNames;
     }
 
     /**
