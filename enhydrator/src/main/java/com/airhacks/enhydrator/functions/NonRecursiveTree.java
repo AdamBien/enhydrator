@@ -20,14 +20,14 @@ package com.airhacks.enhydrator.functions;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
+import com.airhacks.enhydrator.transform.RowTransformer;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  *
  * @author airhacks.com
  */
-public class NonRecursiveTree implements Function<Row, Row> {
+public class NonRecursiveTree implements RowTransformer {
 
     private Row root;
 
@@ -42,7 +42,7 @@ public class NonRecursiveTree implements Function<Row, Row> {
     }
 
     @Override
-    public Row apply(Row input) {
+    public Row execute(Row input) {
         if (input == null) {
             return null;
         }

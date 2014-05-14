@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.functions;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Row;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -34,9 +33,9 @@ public class SkipFirstRowTest {
     @Test
     public void skipFirstRow() {
         SkipFirstRow cut = new SkipFirstRow();
-        Row actual = cut.apply(new Row());
+        Row actual = cut.execute(new Row());
         assertNull(actual);
-        actual = cut.apply(new Row());
+        actual = cut.execute(new Row());
         assertNotNull(actual);
     }
 

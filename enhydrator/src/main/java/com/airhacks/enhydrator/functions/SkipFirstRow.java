@@ -19,20 +19,19 @@ package com.airhacks.enhydrator.functions;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Row;
-import java.util.function.Function;
+import com.airhacks.enhydrator.transform.RowTransformer;
 
 /**
  *
  * @author airhacks.com
  */
-public class SkipFirstRow implements Function<Row, Row> {
+public class SkipFirstRow implements RowTransformer {
 
     private boolean skipped = false;
 
     @Override
-    public Row apply(Row input) {
+    public Row execute(Row input) {
         if (skipped) {
             return input;
         } else {

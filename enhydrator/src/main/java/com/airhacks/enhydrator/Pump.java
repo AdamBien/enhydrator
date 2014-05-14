@@ -254,14 +254,13 @@ public class Pump {
             return this;
         }
 
-        public Engine startWith(Function<Row, Row> before) {
-            this.before.add(before);
+        public Engine startWith(RowTransformer transformer) {
+            this.before.add(transformer::execute);
             return this;
         }
 
         public Engine startWith(String scriptName) {
-            RowTransformer rowTransformer = this.loader.getRowTransformer(scriptName);
-            return startWith(rowTransformer::execute);
+            return startWith(this.loader.getRowTransformer(scriptName));
         }
 
         public Engine with(String entryName, Function<Object, Object> entryFunction) {
