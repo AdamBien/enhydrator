@@ -45,6 +45,9 @@ public class DatatypeMapper extends RowTransformation {
 
     @Override
     public Row execute(Row input) {
+        if (input == null) {
+            return null;
+        }
         this.mappings.entrySet().forEach(e -> changeDataType(input.getColumnByIndex(e.getKey()), e.getValue()));
         return input;
     }
