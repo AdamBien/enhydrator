@@ -48,6 +48,29 @@ public class Column {
         this(index, name, null);
     }
 
+    public void convertToInteger() {
+        if (value == null) {
+            return;
+        }
+        String asString = String.valueOf(value);
+        this.value = Integer.parseInt(asString);
+    }
+
+    public void convertToDouble() {
+        if (value == null) {
+            return;
+        }
+        String asString = String.valueOf(value);
+        this.value = Double.parseDouble(asString);
+    }
+
+    public void convertToString() {
+        if (value == null) {
+            return;
+        }
+        this.value = String.valueOf(value);
+    }
+
     public boolean isNullValue() {
         return this.value == null;
     }
