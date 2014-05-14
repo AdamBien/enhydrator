@@ -47,7 +47,7 @@ public class DestinationMapperTest {
         input.addColumn(INDEX, "name", "duke");
         final String expectedSink = "customSink";
         final String expectedObject = "targetObject";
-        this.cut.addMapping(INDEX, new Mapping(expectedSink, expectedObject));
+        this.cut.addMapping(INDEX, new TargetMapping(expectedSink, expectedObject));
         Row output = this.cut.execute(input);
         Column column = output.getColumnByIndex(INDEX);
         assertThat(column.getTargetObject(), is(expectedObject));
@@ -62,7 +62,7 @@ public class DestinationMapperTest {
         input.addColumn(INDEX, "name", "duke");
         final String expectedSink = "customSink";
         final String expectedObject = "targetObject";
-        this.cut.addMapping(DOES_NOT_EXIST, new Mapping(expectedSink, expectedObject));
+        this.cut.addMapping(DOES_NOT_EXIST, new TargetMapping(expectedSink, expectedObject));
         Row output = this.cut.execute(input);
         assertNotNull(output);
     }

@@ -31,17 +31,17 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "target-mapping")
-public class Mapping {
+public class TargetMapping {
 
     private String targetSink;
     private String targetObject;
 
-    public Mapping(String targetSink, String targetObject) {
+    public TargetMapping(String targetSink, String targetObject) {
         this.targetSink = targetSink;
         this.targetObject = targetObject;
     }
 
-    public Mapping() {
+    public TargetMapping() {
     }
 
     public String getTargetSink() {
@@ -68,7 +68,7 @@ public class Mapping {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Mapping other = (Mapping) obj;
+        final TargetMapping other = (TargetMapping) obj;
         if (!Objects.equals(this.targetSink, other.targetSink)) {
             return false;
         }

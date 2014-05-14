@@ -25,9 +25,11 @@ import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.LogSink;
+import com.airhacks.enhydrator.transform.DatatypeMapper;
+import com.airhacks.enhydrator.transform.Datatype;
 import com.airhacks.enhydrator.transform.DestinationMapper;
-import com.airhacks.enhydrator.transform.Mapping;
 import com.airhacks.enhydrator.transform.NashornRowTransformer;
+import com.airhacks.enhydrator.transform.TargetMapping;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -65,10 +67,12 @@ public class Plumber {
         this.configurationFolder = configurationFolder;
         try {
             Files.createDirectories(Paths.get(baseFolder, configurationFolder));
-            this.context = JAXBContext.newInstance(JDBCSource.class, CSVSource.class, VirtualSinkSource.class,
+            this.context = JAXBContext.newInstance(JDBCSource.class,
+                    CSVSource.class, VirtualSinkSource.class,
                     Pipeline.class, JDBCSink.class, LogSink.class,
                     UnmanagedConnectionProvider.class, ColumnTransformation.class,
-                    NashornRowTransformer.class, DestinationMapper.class, Mapping.class);
+                    NashornRowTransformer.class, DestinationMapper.class,
+                    TargetMapping.class, DatatypeMapper.class, Datatype.class);
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             this.unmarshaller = context.createUnmarshaller();

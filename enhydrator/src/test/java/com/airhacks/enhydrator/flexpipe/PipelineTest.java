@@ -27,9 +27,11 @@ import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
+import com.airhacks.enhydrator.transform.Datatype;
+import com.airhacks.enhydrator.transform.DatatypeMapper;
 import com.airhacks.enhydrator.transform.DestinationMapper;
-import com.airhacks.enhydrator.transform.Mapping;
 import com.airhacks.enhydrator.transform.NashornRowTransformer;
+import com.airhacks.enhydrator.transform.TargetMapping;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import org.junit.Test;
@@ -62,7 +64,7 @@ public class PipelineTest {
 
     public static Pipeline getJDBCPipeline() {
         DestinationMapper mapper = new DestinationMapper();
-        mapper.addMapping(0, new Mapping("*", "*"));
+        mapper.addMapping(0, new TargetMapping("*", "*"));
         JDBCSource source = JDBCSourceIT.getSource();
         Sink logSink = new LogSink();
         Sink jdbcSink = JDBCSinkTest.getSink();
@@ -84,8 +86,10 @@ public class PipelineTest {
     }
 
     public static Pipeline getCSVPipeline() {
-        DestinationMapper mapper = new DestinationMapper();
-        mapper.addMapping(0, new Mapping("*", "*"));
+        DestinationMapper targetMapper = new DestinationMapper();
+        targetMapper.addMapping(0, new TargetMapping("*", "*"));
+        DatatypeMapper datatypeMapper = new DatatypeMapper();
+        datatypeMapper.addMapping(0, Datatype.DOUBLE);
         Source source = new CSVSource("./src/test/files/pyramid.csv", ";", "UTF-8", true);
         Sink logSink = new LogSink();
         Sink jdbcSink = new VirtualSinkSource();
@@ -98,7 +102,8 @@ public class PipelineTest {
         origin.addQueryParam(2);
         origin.addEntryTransformation(e1);
         origin.addEntryTransformation(e2);
-        origin.addPreRowTransformation(mapper);
+        origin.addPreRowTransformation(targetMapper);
+        origin.addPreRowTransformation(datatypeMapper);
         origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));
         origin.addPostRowTransformation(new NashornRowTransformer("src/test/scripts", "compress"));
         origin.addFilter("true");

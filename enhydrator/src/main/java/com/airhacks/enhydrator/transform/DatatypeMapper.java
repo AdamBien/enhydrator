@@ -35,29 +35,35 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "destination-mapper")
-public class DestinationMapper extends RowTransformation {
+public class DatatypeMapper extends RowTransformation {
 
-    private Map<Integer, TargetMapping> mappings;
+    private Map<Integer, Datatype> mappings;
 
-    public DestinationMapper() {
+    public DatatypeMapper() {
         this.mappings = new HashMap<>();
     }
 
     @Override
     public Row execute(Row input) {
-        this.mappings.entrySet().forEach(e -> changeDestination(input.getColumnByIndex(e.getKey()), e.getValue()));
+        this.mappings.entrySet().forEach(e -> changeDataType(input.getColumnByIndex(e.getKey()), e.getValue()));
         return input;
     }
 
-    void changeDestination(Column column, TargetMapping mapping) {
+    void changeDataType(Column column, Datatype mapping) {
         if (column == null) {
             return;
         }
-        column.setTargetObject(mapping.getTargetObject());
-        column.setTargetSink(mapping.getTargetSink());
+        switch (mapping) {
+            case DOUBLE:
+                column.convertToDouble();
+                break;
+            case INTEGER:
+                column.convertToInteger();
+                break;
+        }
     }
 
-    public DestinationMapper addMapping(int index, TargetMapping mapping) {
+    public DatatypeMapper addMapping(int index, Datatype mapping) {
         this.mappings.put(index, mapping);
         return this;
     }
@@ -77,7 +83,7 @@ public class DestinationMapper extends RowTransformation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DestinationMapper other = (DestinationMapper) obj;
+        final DatatypeMapper other = (DatatypeMapper) obj;
         if (!Objects.equals(this.mappings, other.mappings)) {
             return false;
         }
