@@ -24,9 +24,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -87,6 +87,22 @@ public class CSVSourceTest {
         }
         //Header is included
         assertThat(counter, is(4));
+    }
+
+    @Test
+    public void columnIndexIsSet() {
+        Source source = getSource("./src/test/files/index.csv");
+        Iterable<Row> pyramid = source.query(null);
+
+        Iterator<Row> iterator = pyramid.iterator();
+        iterator.next(); //skip header
+        Row contentRow = iterator.next();
+        for (int i = 0; i < 5; i++) {
+            Column entry = contentRow.getColumnByIndex(i);
+            assertNotNull(entry);
+            assertThat(entry.getName(), is("h" + String.valueOf(i)));
+            assertThat(entry.getValue(), is(String.valueOf(i)));
+        }
     }
 
     @Test
