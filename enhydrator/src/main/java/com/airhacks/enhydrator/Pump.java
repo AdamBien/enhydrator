@@ -202,6 +202,10 @@ public class Pump {
         }
     }
 
+    public List<Sink> getSinks() {
+        return sinks;
+    }
+
     public static class Engine {
 
         private List<Sink> sinks;

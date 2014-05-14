@@ -29,17 +29,28 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author airhacks.com
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "pojo-sink")
 public class PojoSink extends Sink {
 
     private static final String DEFAULT_NAME = "pojo";
+    @XmlTransient
     private Class target;
+    @XmlTransient
     private Class childrenType;
+    @XmlTransient
     private Consumer<Object> consumer;
+
+    @XmlTransient
     private String childrenFieldName = null;
 
     public PojoSink(Class target, Consumer<Object> consumer) {
@@ -50,7 +61,11 @@ public class PojoSink extends Sink {
         super(sinkName);
         this.consumer = consumer;
         this.target = target;
-        final Pair<String, Class<? extends Object>> childInfo = getChildInfo(target);
+        initializeChildren();
+    }
+
+    void initializeChildren() {
+        final Pair<String, Class<? extends Object>> childInfo = getChildInfo(this.target);
         if (childInfo != null) {
             this.childrenFieldName = childInfo.getKey();
             this.childrenType = childInfo.getValue();
