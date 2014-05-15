@@ -63,6 +63,9 @@ public class DatatypeMapper extends RowTransformation {
             case INTEGER:
                 column.convertToInteger();
                 break;
+            case BOOLEAN:
+                column.convertToBoolean();
+                break;
         }
     }
 

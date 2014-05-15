@@ -28,6 +28,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "datatype")
 public enum Datatype {
 
-    DOUBLE, INTEGER;
+    DOUBLE, INTEGER, BOOLEAN;
 
 }

@@ -19,7 +19,7 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
@@ -49,5 +49,23 @@ public class ColumnTest {
         Column column = new Column(0, "name", "42.0");
         column.convertToDouble();
         assertTrue(column.getValue() instanceof Double);
+    }
+
+    @Test
+    public void convertToTrueBoolean() {
+        Column column = new Column(0, "flag", "true");
+        column.convertToBoolean();
+        assertTrue(column.getValue() instanceof Boolean);
+        Boolean booleanValue = (Boolean) column.getValue();
+        assertTrue(booleanValue);
+    }
+
+    @Test
+    public void convertToFalseBoolean() {
+        Column column = new Column(0, "flag", "false");
+        column.convertToBoolean();
+        assertTrue(column.getValue() instanceof Boolean);
+        Boolean booleanValue = (Boolean) column.getValue();
+        assertFalse(booleanValue);
     }
 }

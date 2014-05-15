@@ -76,6 +76,14 @@ public class Column {
 
     }
 
+    public void convertToBoolean() {
+        if (value == null) {
+            return;
+        }
+        String asString = String.valueOf(value);
+        this.value = Boolean.parseBoolean(asString);
+    }
+
     public void fillWithValue(String value) {
         this.value = value;
     }
