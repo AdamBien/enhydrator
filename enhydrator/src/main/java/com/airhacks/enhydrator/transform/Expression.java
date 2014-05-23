@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.transform;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,6 +51,7 @@ public class Expression {
         Bindings bindings = this.engine.createBindings();
         bindings.put("$ROW", input);
         bindings.put("$EMPTY", new Row());
+        input.getColumns().forEach(c -> bindings.put(c.getName(), c));
         try {
             this.expressionListener.accept("Executing: " + expression);
             Object result = this.engine.eval(expression, bindings);
