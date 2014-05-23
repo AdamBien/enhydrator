@@ -17,8 +17,6 @@
  * limitations under the License.
  * #L%
  */
-function execute(list) {
-    print("Heavy row compression");
-    return list;
-}
 
+print("Heavy row compression");
+return $ROW;

@@ -17,8 +17,6 @@
  * limitations under the License.
  * #L%
  */
-function execute(list) {
-    print("Encrypting...");
-    return list;
-}
+print("Encrypting...");
+$ROW;
 

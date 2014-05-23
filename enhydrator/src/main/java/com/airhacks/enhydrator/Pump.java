@@ -267,6 +267,11 @@ public class Pump {
             return startWith(this.loader.getRowTransformer(scriptName));
         }
 
+        public Engine startWithExpression(String scriptName) {
+            this.expressions.add(scriptName);
+            return this;
+        }
+
         public Engine with(String entryName, Function<Object, Object> entryFunction) {
             this.entryFunctions.put(entryName, entryFunction);
             return this;

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import javax.script.Bindings;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -63,21 +64,18 @@ public class FunctionScriptLoader {
     }
 
     public RowTransformer getRowTransformer(String scriptName) {
-
-        String content = load(ROW_SCRIPT_FOLDER, scriptName);
-        Invocable invocable = (Invocable) engine;
-        try {
-            engine.eval(content);
-        } catch (ScriptException ex) {
-            throw new IllegalStateException("Cannot evaluate script", ex);
-        }
-        RowTransformer scriptedTransformer = invocable.getInterface(RowTransformer.class);
-
         return (Row input) -> {
+            String content = load(ROW_SCRIPT_FOLDER, scriptName);
             try {
-                return scriptedTransformer.execute(input);
-            } catch (RuntimeException e) {
-                throw new IllegalStateException("Cannot execute: " + scriptName, e);
+                Bindings bindings = engine.createBindings();
+                bindings.put("$EMPTY", new Row());
+                if (input != null) {
+                    input.getColumns().forEach(c -> bindings.put(c.getName(), c));
+                    bindings.put("$ROW", input);
+                }
+                return (Row) engine.eval(content, bindings);
+            } catch (ScriptException ex) {
+                throw new IllegalStateException("Cannot evaluate script", ex);
             }
         };
     }

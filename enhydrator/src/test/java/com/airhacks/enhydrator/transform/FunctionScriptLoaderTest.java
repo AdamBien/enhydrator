@@ -19,6 +19,7 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
+import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -63,6 +64,19 @@ public class FunctionScriptLoaderTest {
     public void load() {
         String content = this.cut.load("column", "noop");
         assertNotNull(content);
+    }
+
+    @Test
+    public void bindingsAvailable() {
+        Row input = new Row();
+        final String inputValue = "duke";
+        input.addColumn(-1, "name", inputValue);
+        RowTransformer function = this.cut.getRowTransformer("bindings");
+        Row output = function.execute(input);
+        assertNotNull(output);
+        final Column outputColumn = output.getColumnByName("synthetic");
+        assertNotNull(outputColumn);
+        assertThat(outputColumn.getValue(), is(inputValue));
     }
 
 }

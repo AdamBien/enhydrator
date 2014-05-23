@@ -17,7 +17,6 @@
  * limitations under the License.
  * #L%
  */
-function execute(list) {
-    return list;
-}
+print("No op")
+$ROW;
 

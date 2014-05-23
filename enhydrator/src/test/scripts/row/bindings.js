@@ -17,5 +17,8 @@
  * limitations under the License.
  * #L%
  */
-print("validation test");
-$ROW;
+print("Name: " + name);
+print("Empty: " + $EMPTY);
+$EMPTY.addColumn(-1, 'synthetic', name.value);
+$EMPTY;
+
