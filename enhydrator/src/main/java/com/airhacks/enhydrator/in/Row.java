@@ -19,6 +19,7 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
+import com.airhacks.enhydrator.transform.Memory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,10 +44,13 @@ public class Row {
 
     private List<Row> children;
 
+    private final Memory memory;
+
     public Row() {
         this.columnByName = new ConcurrentHashMap<>();
         this.columnByIndex = new ConcurrentHashMap<>();
         this.children = new CopyOnWriteArrayList<>();
+        this.memory = new Memory();
     }
 
     public Object getColumnValue(String columnName) {
@@ -216,6 +220,10 @@ public class Row {
 
     public boolean hasChildren() {
         return !this.children.isEmpty();
+    }
+
+    public Memory getMemory() {
+        return memory;
     }
 
     @Override

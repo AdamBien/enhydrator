@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.transform;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -85,6 +85,30 @@ public class FunctionScriptLoaderTest {
         final Column outputColumn = output.getColumnByName("synthetic");
         assertNotNull(outputColumn);
         assertThat(outputColumn.getValue(), is(inputValue));
+    }
+
+    @Test
+    public void memoryAvailable() {
+        Row input = new Row();
+        final String inputValue = "duke";
+        input.addColumn(-1, "name", inputValue);
+        RowTransformer function = this.cut.getRowTransformer("bindings");
+        Row output = function.execute(input);
+        assertNotNull(output);
+        Memory memory = output.getMemory();
+    }
+
+    @Test
+    public void counterIsWorking() {
+        Row input = new Row();
+        final String inputValue = "duke";
+        input.addColumn(-1, "name", inputValue);
+        RowTransformer function = this.cut.getRowTransformer("count");
+        Row output = function.execute(input);
+        assertNotNull(output);
+        Memory memory = output.getMemory();
+        assertNotNull(memory);
+        assertThat(memory.counterValue(), is(1l));
     }
 
 }

@@ -30,6 +30,7 @@ import com.airhacks.enhydrator.transform.ColumnTransformer;
 import com.airhacks.enhydrator.transform.Expression;
 import com.airhacks.enhydrator.transform.FilterExpression;
 import com.airhacks.enhydrator.transform.FunctionScriptLoader;
+import com.airhacks.enhydrator.transform.Memory;
 import com.airhacks.enhydrator.transform.RowTransformer;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -90,6 +91,7 @@ public class Pump {
     }
 
     public long start() {
+        Memory memory = new Memory();
         this.rowCount = 0;
         Iterable<Row> input = this.source.query(sql, params);
         this.flowListener.accept("Query executed: " + sql);
