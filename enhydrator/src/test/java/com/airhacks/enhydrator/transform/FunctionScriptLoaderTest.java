@@ -111,4 +111,15 @@ public class FunctionScriptLoaderTest {
         assertThat(memory.counterValue(), is(1l));
     }
 
+    @Test
+    public void propertyIsStoredInMemory() {
+        Row input = new Row();
+        final String inputValue = "duke";
+        input.addColumn(-1, "name", inputValue);
+        RowTransformer function = this.cut.getRowTransformer("store");
+        Row output = function.execute(input);
+        Memory memory = output.getMemory();
+        assertThat(memory.get("from"), is("script"));
+    }
+
 }
