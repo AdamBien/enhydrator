@@ -48,10 +48,7 @@ public class Expression {
     }
 
     public Row execute(Row input, String expression) {
-        Bindings bindings = this.engine.createBindings();
-        bindings.put("$ROW", input);
-        bindings.put("$EMPTY", new Row());
-        input.getColumns().forEach(c -> bindings.put(c.getName(), c));
+        Bindings bindings = ScriptingEnvironmentProvider.create(manager, input);
         try {
             this.expressionListener.accept("Executing: " + expression);
             Object result = this.engine.eval(expression, bindings);

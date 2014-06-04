@@ -70,11 +70,7 @@ public class FunctionScriptLoader {
             }
             String content = load(ROW_SCRIPT_FOLDER, scriptName);
             try {
-                Bindings bindings = engine.createBindings();
-                bindings.put("$EMPTY", new Row());
-                bindings.put("$MEMORY", input.getMemory());
-                input.getColumns().forEach(c -> bindings.put(c.getName(), c));
-                bindings.put("$ROW", input);
+                Bindings bindings = ScriptingEnvironmentProvider.create(manager, input);
                 return (Row) engine.eval(content, bindings);
             } catch (ScriptException ex) {
                 throw new IllegalStateException("Cannot evaluate script", ex);
