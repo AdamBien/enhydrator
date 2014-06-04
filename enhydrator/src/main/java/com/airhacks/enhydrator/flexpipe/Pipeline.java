@@ -158,6 +158,10 @@ public class Pipeline {
         return scriptsHome;
     }
 
+    public void setScriptsHome(String scriptsHome) {
+        this.scriptsHome = scriptsHome;
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;
