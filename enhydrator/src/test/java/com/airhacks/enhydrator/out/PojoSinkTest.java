@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,12 +20,17 @@ package com.airhacks.enhydrator.out;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
+import java.util.Map;
+import java.util.function.Consumer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.verify;
 
 /**
  *
@@ -40,7 +45,7 @@ public class PojoSinkTest {
     @Before
     public void init() {
         this.cachingConsumer = new CachingConsumer();
-        this.cut = new PojoSink(Developer.class, this.cachingConsumer);
+        this.cut = new PojoSink(Developer.class, this.cachingConsumer, null);
     }
 
     @Test
@@ -94,6 +99,17 @@ public class PojoSinkTest {
     }
 
     @Test
+    public void notExistingFieldWithDevNull() {
+        Consumer<Map<String, Object>> devNull = Mockito.mock(Consumer.class);
+        PojoSink pojoSink = new PojoSink(Developer.class, this.cachingConsumer, devNull);
+        final double expected = 1.5;
+        Row row = new Row();
+        row.addColumn(-1, "SHOULD-NOT-EXIST", expected);
+        pojoSink.processRow(row);
+        verify(devNull).accept(Matchers.anyObject());
+    }
+
+    @Test
     public void pojoWithRelation() {
         final String expected = "duke";
         Row parent = new Row();
@@ -120,7 +136,7 @@ public class PojoSinkTest {
     @Test
     public void pojoWithoutRelation() {
         CachingConsumer consumer = new CachingConsumer();
-        PojoSink sink = new PojoSink(DeveloperWithoutKids.class, consumer);
+        PojoSink sink = new PojoSink(DeveloperWithoutKids.class, consumer, null);
         final String expected = "duke";
         Row parent = new Row();
         parent.addColumn(-1, "name", expected);
@@ -140,7 +156,7 @@ public class PojoSinkTest {
     @Test
     public void pojoWithAnnotatedField() {
         CachingConsumer consumer = new CachingConsumer();
-        PojoSink sink = new PojoSink(DeveloperWithAnnotatedField.class, consumer);
+        PojoSink sink = new PojoSink(DeveloperWithAnnotatedField.class, consumer, null);
 
         final String expectedName = "duke";
         final int expectedAge = 42;
@@ -155,7 +171,7 @@ public class PojoSinkTest {
 
     @Test(expected = IllegalStateException.class)
     public void pojoWithTooManyRelations() {
-        new PojoSink(DeveloperWithTooManyRelations.class, this.cachingConsumer);
+        new PojoSink(DeveloperWithTooManyRelations.class, this.cachingConsumer, null);
     }
 
     @Test
@@ -168,6 +184,10 @@ public class PojoSinkTest {
 
     private Developer getDeveloper() {
         return (Developer) this.cachingConsumer.getObject();
+    }
+
+    private void PojoSink(Class<Developer> aClass, CachingConsumer cachingConsumer, Consumer<Map<String, Object>> devNull) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

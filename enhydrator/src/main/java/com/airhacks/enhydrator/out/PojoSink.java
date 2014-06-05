@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,9 @@ import com.airhacks.enhydrator.in.Row;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
@@ -53,14 +55,22 @@ public class PojoSink extends Sink {
     @XmlTransient
     private String childrenFieldName = null;
 
-    public PojoSink(Class target, Consumer<Object> consumer) {
-        this(DEFAULT_NAME, target, consumer);
+    @XmlTransient
+    private final Consumer<Map<String, Object>> devNullConsumer;
+
+    @XmlTransient
+    private Map<String, Object> unmappedFields;
+
+    public PojoSink(Class target, Consumer<Object> consumer, Consumer<Map<String, Object>> devNull) {
+        this(DEFAULT_NAME, target, consumer, devNull);
     }
 
-    public PojoSink(String sinkName, Class target, Consumer<Object> consumer) {
+    public PojoSink(String sinkName, Class target, Consumer<Object> consumer, Consumer<Map<String, Object>> devNull) {
         super(sinkName);
         this.consumer = consumer;
         this.target = target;
+        this.devNullConsumer = devNull;
+        this.unmappedFields = new HashMap<>();
         initializeChildren();
     }
 
@@ -96,6 +106,9 @@ public class PojoSink extends Sink {
             mapChildren(targetObject, currentRow.getChildren());
         }
         this.consumer.accept(targetObject);
+        if (!this.unmappedFields.isEmpty() && this.devNullConsumer != null) {
+            this.devNullConsumer.accept(unmappedFields);
+        }
     }
 
     Object convert(Class pojoType, Row currentRow) {
@@ -121,7 +134,7 @@ public class PojoSink extends Sink {
         return targetObject;
     }
 
-    public static void setField(Object target, String name, Object value) {
+    public void setField(Object target, String name, Object value) {
         Objects.requireNonNull(target, "Object cannot be null");
         Class<? extends Object> targetClass = target.getClass();
         Field field;
@@ -130,7 +143,12 @@ public class PojoSink extends Sink {
         } catch (NoSuchFieldException ex) {
             field = getFieldAnnotatedWith(targetClass, name);
             if (field == null) {
-                throw new IllegalArgumentException(target.getClass() + " does not have a field with the name " + name, ex);
+                if (this.devNullConsumer != null) {
+                    unmappedFields.put(name, value);
+                    return;
+                } else {
+                    throw new IllegalArgumentException(target.getClass() + " does not have a field with the name " + name, ex);
+                }
             }
         } catch (SecurityException ex) {
             throw new IllegalStateException("Cannot access private field", ex);
