@@ -31,6 +31,7 @@ import com.airhacks.enhydrator.transform.Datatype;
 import com.airhacks.enhydrator.transform.DatatypeMapper;
 import com.airhacks.enhydrator.transform.DestinationMapper;
 import com.airhacks.enhydrator.transform.NashornRowTransformer;
+import com.airhacks.enhydrator.transform.SkipFirstRow;
 import com.airhacks.enhydrator.transform.TargetMapping;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -78,6 +79,7 @@ public class PipelineTest {
         origin.addEntryTransformation(e1);
         origin.addEntryTransformation(e2);
         origin.addPreRowTransformation(mapper);
+        origin.addPostRowTransformation(new SkipFirstRow());
         origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));
         origin.addPostRowTransformation(new NashornRowTransformer("src/test/scripts", "compress"));
         origin.addFilter("true");

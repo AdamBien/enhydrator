@@ -94,9 +94,7 @@ public class Row {
         Objects.requireNonNull(name, "Name of the column cannot be null");
         Objects.requireNonNull(value, "Value of " + name + " cannot be null");
         final Column column = new Column(index, name, value);
-        this.columnByName.put(name, column);
-        this.columnByIndex.put(index, column);
-        return this;
+        return this.addColumn(column);
     }
 
     public Row addColumn(Column column) {

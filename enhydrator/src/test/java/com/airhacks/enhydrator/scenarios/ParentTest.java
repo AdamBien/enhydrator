@@ -21,7 +21,7 @@ package com.airhacks.enhydrator.scenarios;
  */
 import com.airhacks.enhydrator.Pump;
 import com.airhacks.enhydrator.functions.NonRecursiveTree;
-import com.airhacks.enhydrator.functions.SkipFirstRow;
+import com.airhacks.enhydrator.transform.SkipFirstRow;
 import com.airhacks.enhydrator.in.CSVSource;
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;

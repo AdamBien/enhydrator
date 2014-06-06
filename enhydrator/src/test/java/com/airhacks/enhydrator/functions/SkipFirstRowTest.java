@@ -19,6 +19,7 @@ package com.airhacks.enhydrator.functions;
  * limitations under the License.
  * #L%
  */
+import com.airhacks.enhydrator.transform.SkipFirstRow;
 import com.airhacks.enhydrator.in.Row;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
