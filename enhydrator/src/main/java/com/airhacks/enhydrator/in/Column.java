@@ -66,11 +66,15 @@ public class Column {
             return;
         }
         String asString = String.valueOf(value);
+        if (asString.isEmpty()) {
+            this.value = (double) 0;
+            return;
+        }
         try {
             this.value = Double.parseDouble(asString);
         } catch (NumberFormatException ex) {
             throw new NumberFormatException("Cannot convert column: "
-                    + this.name + " with index " + this.index + " and value " + this.value + " to double");
+                    + this.name + " with index " + this.index + " and value ->" + this.value + "<- to double");
 
         }
 
@@ -131,7 +135,7 @@ public class Column {
         this.targetObject = targetObject;
     }
 
-    void setValue(Object value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 

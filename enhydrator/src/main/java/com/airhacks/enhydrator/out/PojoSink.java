@@ -70,7 +70,6 @@ public class PojoSink extends Sink {
         this.consumer = consumer;
         this.target = target;
         this.devNullConsumer = devNull;
-        this.unmappedFields = new HashMap<>();
         initializeChildren();
     }
 
@@ -101,6 +100,7 @@ public class PojoSink extends Sink {
 
     @Override
     public void processRow(Row currentRow) {
+        this.unmappedFields = new HashMap<>();
         Object targetObject = convert(this.target, currentRow);
         if (currentRow.hasChildren() && this.childrenType != null) {
             mapChildren(targetObject, currentRow.getChildren());

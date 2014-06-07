@@ -32,12 +32,14 @@ import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  *
  * @author airhacks.com
  */
+@Ignore
 public class CopyTableIT {
 
     JDBCSource source;
