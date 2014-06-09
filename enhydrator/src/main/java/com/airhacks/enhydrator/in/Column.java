@@ -91,9 +91,16 @@ public class Column {
             return;
         }
         StringTokenizer tokenizer = new StringTokenizer(asString, ".");
-        int degree = Integer.parseInt(tokenizer.nextToken());
-        int minute = Integer.parseInt(tokenizer.nextToken());
-        int second = Integer.parseInt(tokenizer.nextToken());
+        int degree = 0, minute = 0, second = 0;
+        if (tokenizer.hasMoreTokens()) {
+            degree = Integer.parseInt(tokenizer.nextToken());
+        }
+        if (tokenizer.hasMoreTokens()) {
+            minute = Integer.parseInt(tokenizer.nextToken());
+        }
+        if (tokenizer.hasMoreTokens()) {
+            second = Integer.parseInt(tokenizer.nextToken());
+        }
         this.value = (double) degree + (minute / 60d) + (second / 3600d);
 
     }
