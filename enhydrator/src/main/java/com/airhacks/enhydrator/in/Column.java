@@ -1,5 +1,7 @@
 package com.airhacks.enhydrator.in;
 
+import java.util.StringTokenizer;
+
 /*
  * #%L
  * enhydrator
@@ -77,6 +79,22 @@ public class Column {
                     + this.name + " with index " + this.index + " and value ->" + this.value + "<- to double");
 
         }
+    }
+
+    public void convertDMSToDouble() {
+        if (value == null) {
+            return;
+        }
+        String asString = String.valueOf(value);
+        if (asString.isEmpty()) {
+            this.value = (double) 0;
+            return;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(asString, ".");
+        int degree = Integer.parseInt(tokenizer.nextToken());
+        int minute = Integer.parseInt(tokenizer.nextToken());
+        int second = Integer.parseInt(tokenizer.nextToken());
+        this.value = (double) degree + (minute / 60d) + (second / 3600d);
 
     }
 

@@ -80,4 +80,14 @@ public class ColumnTest {
         assertThat(value, is(0.0));
     }
 
+    @Test
+    public void convertDMSToDouble() {
+        Column column = new Column(0, "dms", "1.4.2");
+        column.convertDMSToDouble();
+        assertTrue(column.getValue() instanceof Double);
+        Double value = (Double) column.getValue();
+        assertThat(value, is(1.0672222222222223d));
+
+    }
+
 }
