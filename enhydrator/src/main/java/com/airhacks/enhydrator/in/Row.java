@@ -240,4 +240,8 @@ public class Row {
         return "Row{" + "columnByName=" + columnByName + ", columnByIndex=" + columnByIndex + ", children=" + children + '}';
     }
 
+    public void errorOccured(Throwable ex) {
+        this.memory.addProcessingError(ex);
+    }
+
 }

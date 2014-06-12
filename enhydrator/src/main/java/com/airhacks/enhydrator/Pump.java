@@ -104,6 +104,14 @@ public class Pump {
 
     }
 
+    void processAndIgnoreErrors(Row row) {
+        try {
+            onNewRow(row);
+        } catch (Throwable ex) {
+            row.errorOccured(ex);
+        }
+    }
+
     void onNewRow(Row row) {
         row.useMemory(memory);
         this.flowListener.accept("Processing: " + row.getNumberOfColumns() + " columns !");

@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.transform;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
@@ -30,16 +32,18 @@ import java.util.concurrent.atomic.LongAdder;
 public class Memory {
 
     private final Map<String, Object> store;
+    private final List<Throwable> processingErrors;
 
-    private LongAdder counter;
-    private LongAdder processedRowCount;
-    private LongAdder errorCount;
+    private final LongAdder counter;
+    private final LongAdder processedRowCount;
+    private final LongAdder errorCount;
 
     public Memory() {
         this.store = new ConcurrentHashMap<>();
         this.counter = new LongAdder();
         this.processedRowCount = new LongAdder();
         this.errorCount = new LongAdder();
+        this.processingErrors = new ArrayList<>();
     }
 
     public Map<String, Object> put(String key, Object value) {
@@ -77,6 +81,18 @@ public class Memory {
 
     public long getNumberCount() {
         return this.errorCount.longValue();
+    }
+
+    public void addProcessingError(Throwable ex) {
+        this.processingErrors.add(ex);
+    }
+
+    public boolean areErrorsOccured() {
+        return !this.processingErrors.isEmpty();
+    }
+
+    public List<Throwable> getProcessingErrors() {
+        return this.processingErrors;
     }
 
 }
