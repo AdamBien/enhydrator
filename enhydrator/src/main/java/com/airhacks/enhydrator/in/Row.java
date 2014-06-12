@@ -241,7 +241,7 @@ public class Row {
     }
 
     public void errorOccured(Throwable ex) {
-        this.memory.addProcessingError(ex);
+        this.memory.addProcessingError(this, ex);
     }
 
 }

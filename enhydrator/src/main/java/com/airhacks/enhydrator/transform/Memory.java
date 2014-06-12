@@ -19,9 +19,10 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-import java.util.ArrayList;
-import java.util.List;
+import com.airhacks.enhydrator.in.Row;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -32,7 +33,7 @@ import java.util.concurrent.atomic.LongAdder;
 public class Memory {
 
     private final Map<String, Object> store;
-    private final List<Throwable> processingErrors;
+    private final Map<Row, Throwable> processingErrors;
 
     private final LongAdder counter;
     private final LongAdder processedRowCount;
@@ -43,7 +44,7 @@ public class Memory {
         this.counter = new LongAdder();
         this.processedRowCount = new LongAdder();
         this.errorCount = new LongAdder();
-        this.processingErrors = new ArrayList<>();
+        this.processingErrors = new ConcurrentHashMap<>();
     }
 
     public Map<String, Object> put(String key, Object value) {
@@ -83,16 +84,20 @@ public class Memory {
         return this.errorCount.longValue();
     }
 
-    public void addProcessingError(Throwable ex) {
-        this.processingErrors.add(ex);
+    public void addProcessingError(Row erroneous, Throwable ex) {
+        this.processingErrors.put(erroneous, ex);
     }
 
     public boolean areErrorsOccured() {
         return !this.processingErrors.isEmpty();
     }
 
-    public List<Throwable> getProcessingErrors() {
-        return this.processingErrors;
+    public Collection<Throwable> getProcessingErrors() {
+        return this.processingErrors.values();
+    }
+
+    public Set<Row> getErroneousRows() {
+        return this.processingErrors.keySet();
     }
 
 }

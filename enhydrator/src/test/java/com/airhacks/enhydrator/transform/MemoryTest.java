@@ -19,7 +19,9 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-import java.util.List;
+import com.airhacks.enhydrator.in.Row;
+import java.util.Collection;
+import java.util.Set;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -35,13 +37,17 @@ public class MemoryTest {
     @Test
     public void areErrorsOccured() {
         Memory memory = new Memory();
-        List<Throwable> processingErrors = memory.getProcessingErrors();
+        Collection<Throwable> processingErrors = memory.getProcessingErrors();
         assertTrue(processingErrors.isEmpty());
         assertFalse(memory.areErrorsOccured());
-        memory.addProcessingError(new Exception("test"));
+        final Row row = new Row();
+        memory.addProcessingError(row, new Exception("test"));
         assertTrue(memory.areErrorsOccured());
         processingErrors = memory.getProcessingErrors();
         assertThat(processingErrors.size(), is(1));
+        Set<Row> erroneousRows = memory.getErroneousRows();
+        assertThat(erroneousRows.size(), is(1));
+        assertTrue(erroneousRows.contains(row));
     }
 
 }
