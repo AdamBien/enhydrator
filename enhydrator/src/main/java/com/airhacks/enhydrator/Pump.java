@@ -91,16 +91,16 @@ public class Pump {
 
     }
 
-    public long start() {
+    public Memory start() {
         Iterable<Row> input = this.source.query(sql, params);
         this.flowListener.accept("Query executed: " + sql);
         this.sinks.forEach(s -> s.init());
         this.flowListener.accept("Sink initialized");
-        input.forEach(this::onNewRow);
+        input.forEach(this::processAndIgnoreErrors);
         this.flowListener.accept("Results processed");
         this.sinks.forEach(s -> s.close());
         this.flowListener.accept("Sink closed");
-        return this.memory.getProcessedRowCount();
+        return this.memory;
 
     }
 

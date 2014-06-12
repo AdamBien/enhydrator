@@ -129,7 +129,7 @@ public class PumpIT {
                 from(source).
                 to(consumer).
                 sqlQuery("select * from Coffee").build();
-        long rowCount = pump.start();
+        long rowCount = pump.start().getProcessedRowCount();
         //counts all rows, not processed rows
         assertThat(rowCount, is(2l));
         verify(consumer, never()).processRow(any(Row.class));
@@ -147,7 +147,7 @@ public class PumpIT {
                 to(consumer).
                 sqlQuery("select * from Coffee").
                 build();
-        long rowCount = pump.start();
+        long rowCount = pump.start().getProcessedRowCount();
         assertThat(rowCount, is(2l));
         verify(consumer, times(2)).processRow(any(Row.class));
     }
