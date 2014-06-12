@@ -62,7 +62,7 @@ public class Pump {
 
     private final Sink deadLetterQueue;
     private final Consumer<String> flowListener;
-    private long rowCount;
+    private Memory memory;
 
     private Pump(Source source, Function<ResultSet, Row> rowTransformer,
             List<Function<Row, Row>> before,
@@ -87,12 +87,11 @@ public class Pump {
         this.deadLetterQueue = dlq;
         this.sql = sql;
         this.params = params;
+        this.memory = new Memory();
 
     }
 
     public long start() {
-        Memory memory = new Memory();
-        this.rowCount = 0;
         Iterable<Row> input = this.source.query(sql, params);
         this.flowListener.accept("Query executed: " + sql);
         this.sinks.forEach(s -> s.init());
@@ -101,13 +100,13 @@ public class Pump {
         this.flowListener.accept("Results processed");
         this.sinks.forEach(s -> s.close());
         this.flowListener.accept("Sink closed");
-        return this.rowCount;
+        return this.memory.getProcessedRowCount();
 
     }
 
     void onNewRow(Row row) {
+        row.useMemory(memory);
         this.flowListener.accept("Processing: " + row.getNumberOfColumns() + " columns !");
-        this.rowCount++;
         Optional<Boolean> first = this.filterExpressions.stream().
                 map(e -> this.filterExpression.execute(row, e)).
                 filter(r -> r == false).findFirst();
@@ -116,7 +115,7 @@ public class Pump {
         } else {
             this.flowListener.accept("Row ignored by filtering");
         }
-
+        row.successfullyProcessed();
     }
 
     void transformRow(Row convertedRow) {

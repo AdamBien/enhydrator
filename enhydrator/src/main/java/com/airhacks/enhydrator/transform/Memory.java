@@ -32,10 +32,14 @@ public class Memory {
     private final Map<String, Object> store;
 
     private LongAdder counter;
+    private LongAdder processedRowCount;
+    private LongAdder errorCount;
 
     public Memory() {
         this.store = new ConcurrentHashMap<>();
         this.counter = new LongAdder();
+        this.processedRowCount = new LongAdder();
+        this.errorCount = new LongAdder();
     }
 
     public Map<String, Object> put(String key, Object value) {
@@ -57,6 +61,22 @@ public class Memory {
 
     public Object get(String key) {
         return this.store.get(key);
+    }
+
+    public void processed() {
+        this.processedRowCount.increment();
+    }
+
+    public void errorOccured() {
+        this.errorCount.increment();
+    }
+
+    public long getProcessedRowCount() {
+        return this.processedRowCount.longValue();
+    }
+
+    public long getNumberCount() {
+        return this.errorCount.longValue();
     }
 
 }

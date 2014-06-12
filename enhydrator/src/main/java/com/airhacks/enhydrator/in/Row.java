@@ -44,13 +44,16 @@ public class Row {
 
     private List<Row> children;
 
-    private final Memory memory;
+    private Memory memory;
 
     public Row() {
         this.columnByName = new ConcurrentHashMap<>();
         this.columnByIndex = new ConcurrentHashMap<>();
         this.children = new CopyOnWriteArrayList<>();
-        this.memory = new Memory();
+    }
+
+    public void useMemory(Memory memory) {
+        this.memory = memory;
     }
 
     public Object getColumnValue(String columnName) {
@@ -222,6 +225,14 @@ public class Row {
 
     public Memory getMemory() {
         return memory;
+    }
+
+    public void successfullyProcessed() {
+        this.memory.processed();
+    }
+
+    public void errorOccured() {
+        this.memory.errorOccured();
     }
 
     @Override

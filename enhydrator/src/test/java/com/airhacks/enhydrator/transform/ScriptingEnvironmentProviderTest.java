@@ -19,24 +19,30 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
+
 import com.airhacks.enhydrator.in.Row;
 import javax.script.Bindings;
 import javax.script.ScriptEngineManager;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 /**
  *
  * @author airhacks.com
  */
-public class ScriptingEnvironmentProvider {
+public class ScriptingEnvironmentProviderTest {
 
-    public static Bindings create(ScriptEngineManager scriptEngineManager, Row input) {
-        Bindings bindings = scriptEngineManager.getBindings();
-        bindings.put("$ROW", input);
-        final Row emptyRow = new Row();
-        emptyRow.useMemory(input.getMemory());
-        bindings.put("$EMPTY", emptyRow);
-        bindings.put("$MEMORY", input.getMemory());
-        input.getColumns().forEach(c -> bindings.put(c.getName(), c));
-        return bindings;
+    @Test
+    public void emptyRowHasMemory() {
+        Row row = new Row();
+        Memory input = new Memory();
+        row.useMemory(input);
+        Bindings bindings = ScriptingEnvironmentProvider.create(new ScriptEngineManager(), row);
+        Object memory = bindings.get("$MEMORY");
+        assertNotNull(memory);
+        assertThat(memory, is(input));
     }
+
 }
