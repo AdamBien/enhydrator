@@ -74,6 +74,13 @@ public class Row {
         this.columnByName.values().stream().filter(predicate).forEach(modifier);
     }
 
+    public void findColumnsAndChangeName(Predicate<Column> predicate, Function<Column, String> renamingFunction) {
+        List<Column> collect = this.columnByName.values().stream().
+                filter(predicate).collect(Collectors.toList());
+        collect.stream().forEach(c -> this.changeColumnName(c.getName(), renamingFunction.apply(c)));
+
+    }
+
     public Column getColumnByIndex(int index) {
         return this.columnByIndex.get(index);
     }

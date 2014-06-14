@@ -20,6 +20,7 @@ package com.airhacks.enhydrator.in;
  * #L%
  */
 import java.util.Map;
+import java.util.function.Function;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -109,6 +110,23 @@ public class RowTest {
         assertThat(first.getValue(), is("duke 0"));
         Column second = this.cut.getColumnByIndex(1);
         assertThat(second.getValue(), is("SFO 1"));
+    }
+
+    @Test
+    public void findColumnsAndChangeName() {
+        this.cut.addColumn(0, "name", "duke");
+        this.cut.addColumn(1, "city", "SFO");
+        Function<Column, String> renamer = col
+                -> {
+                    int index = col.getIndex();
+                    String name = col.getName();
+                    return index + "_" + name;
+                };
+        this.cut.findColumnsAndChangeName(c -> true, renamer);
+        Column first = this.cut.getColumnByIndex(0);
+        assertThat(first.getName(), is("0_name"));
+        Column second = this.cut.getColumnByIndex(1);
+        assertThat(second.getName(), is("1_city"));
 
     }
 
