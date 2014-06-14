@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -97,6 +97,18 @@ public class RowTest {
 
         Column originColumn = this.cut.getColumnByName(oldName);
         assertNull(originColumn);
+
+    }
+
+    @Test
+    public void findColumnsAndApply() {
+        this.cut.addColumn(0, "name", "duke");
+        this.cut.addColumn(1, "city", "SFO");
+        this.cut.findColumnsAndApply(c -> true, c -> c.setValue(c.getValue() + " " + c.getIndex()));
+        Column first = this.cut.getColumnByIndex(0);
+        assertThat(first.getValue(), is("duke 0"));
+        Column second = this.cut.getColumnByIndex(1);
+        assertThat(second.getValue(), is("SFO 1"));
 
     }
 
