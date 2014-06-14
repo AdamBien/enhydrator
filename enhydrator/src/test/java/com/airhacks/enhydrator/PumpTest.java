@@ -20,7 +20,7 @@ import org.junit.Test;
 public class PumpTest {
 
     @Test
-    public void type() {
+    public void continueOnError() {
         List<Row> inputRows = new ArrayList<>();
         inputRows.add(getStringRow());
         inputRows.add(getIntRow());
@@ -40,7 +40,25 @@ public class PumpTest {
         assertNotNull(erroneousRows);
         assertFalse(erroneousRows.isEmpty());
         assertThat(memory.getProcessedRowCount(), is(1l));
+    }
 
+    @Test(expected = NumberFormatException.class)
+    public void stopOnError() {
+        List<Row> inputRows = new ArrayList<>();
+        inputRows.add(getStringRow());
+        inputRows.add(getIntRow());
+        VirtualSinkSource in = new VirtualSinkSource("in", inputRows);
+        VirtualSinkSource out = new VirtualSinkSource();
+        Pump cut = new Pump.Engine().
+                from(in).
+                startWith(t -> {
+                    t.getColumnByName("a").convertToInteger();
+                    return t;
+                }).
+                stopOnError().
+                to(out).
+                build();
+        cut.start();
     }
 
     Row getStringRow() {
