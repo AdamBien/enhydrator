@@ -63,6 +63,7 @@ public class Pump {
     private final Sink deadLetterQueue;
     private final Consumer<String> flowListener;
     private Memory memory;
+    private final boolean stopOnError;
 
     private Pump(Source source, Function<ResultSet, Row> rowTransformer,
             List<Function<Row, Row>> before,
@@ -73,7 +74,7 @@ public class Pump {
             List<Sink> sinks,
             Sink dlq,
             String sql,
-            Consumer<String> flowListener, Object... params) {
+            Consumer<String> flowListener, boolean stopOnError, Object... params) {
         this.flowListener = flowListener;
         this.filterExpressions = filterExpressions;
         this.expression = new Expression(flowListener);
@@ -87,6 +88,7 @@ public class Pump {
         this.deadLetterQueue = dlq;
         this.sql = sql;
         this.params = params;
+        this.stopOnError = stopOnError;
         this.memory = new Memory();
 
     }
@@ -96,7 +98,13 @@ public class Pump {
         this.flowListener.accept("Query executed: " + sql);
         this.sinks.forEach(s -> s.init());
         this.flowListener.accept("Sink initialized");
-        input.forEach(this::processAndIgnoreErrors);
+        if (this.stopOnError) {
+            this.flowListener.accept("Erroneous rows will stop the pipeline");
+            input.forEach(this::onNewRow);
+        } else {
+            this.flowListener.accept("Ignoring processing errors");
+            input.forEach(this::processAndIgnoreErrors);
+        }
         this.flowListener.accept("Results processed");
         this.sinks.forEach(s -> s.close());
         this.flowListener.accept("Sink closed");
@@ -231,6 +239,7 @@ public class Pump {
         private String sql;
         private Object[] params;
         private Consumer<String> flowListener;
+        private boolean stopOnError;
 
         public Engine() {
             this.sinks = new ArrayList<>();
@@ -245,6 +254,7 @@ public class Pump {
             this.flowListener = f -> {
             };
             this.deadLetterQueue = new LogSink();
+            this.stopOnError = false;
         }
 
         public Engine homeScriptFolder(String baseFolder) {
@@ -322,6 +332,11 @@ public class Pump {
             return this;
         }
 
+        public Engine stopOnError() {
+            this.stopOnError = true;
+            return this;
+        }
+
         public Pump build() {
             return new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions,
@@ -331,6 +346,7 @@ public class Pump {
                     this.deadLetterQueue,
                     this.sql,
                     this.flowListener,
+                    this.stopOnError,
                     this.params);
         }
 
