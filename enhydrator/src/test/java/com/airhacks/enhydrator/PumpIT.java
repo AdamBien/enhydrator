@@ -9,9 +9,9 @@ package com.airhacks.enhydrator;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -188,9 +188,7 @@ public class PumpIT {
 
     @Test
     public void usePipeline() {
-        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
-        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Pipeline pipeline = PipelineTest.getJDBCPipeline();
+        Pipeline pipeline = PipelineTest.getCSVPipeline();
         Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
@@ -198,7 +196,7 @@ public class PumpIT {
                 to(consumer).
                 build();
         pump.start();
-        verify(consumer).processRow(any(Row.class));
+        verify(consumer, times(4)).processRow(any(Row.class));
     }
 
     @Test
