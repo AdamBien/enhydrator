@@ -332,8 +332,8 @@ public class Pump {
             return this;
         }
 
-        public Engine stopOnError() {
-            this.stopOnError = true;
+        public Engine continueOnError() {
+            this.stopOnError = false;
             return this;
         }
 
