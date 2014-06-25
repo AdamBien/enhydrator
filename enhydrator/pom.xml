@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
-            <version>10.10.1.1</version>
+            <version>10.10.2.0</version>
             <artifactId>derby</artifactId>
             <scope>test</scope>
         </dependency>
@@ -85,7 +85,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+<!--            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.5</version>
@@ -98,7 +98,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
