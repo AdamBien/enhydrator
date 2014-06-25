@@ -129,7 +129,7 @@ public class PumpIT {
                 from(source).
                 to(consumer).
                 sqlQuery("select * from Coffee").build();
-        long rowCount = pump.start();
+        long rowCount = pump.start().getProcessedRowCount();
         //counts all rows, not processed rows
         assertThat(rowCount, is(2l));
         verify(consumer, never()).processRow(any(Row.class));
@@ -147,7 +147,7 @@ public class PumpIT {
                 to(consumer).
                 sqlQuery("select * from Coffee").
                 build();
-        long rowCount = pump.start();
+        long rowCount = pump.start().getProcessedRowCount();
         assertThat(rowCount, is(2l));
         verify(consumer, times(2)).processRow(any(Row.class));
     }
@@ -188,9 +188,7 @@ public class PumpIT {
 
     @Test
     public void usePipeline() {
-        CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
-        CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Pipeline pipeline = PipelineTest.getJDBCPipeline();
+        Pipeline pipeline = PipelineTest.getCSVPipeline();
         Sink consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
@@ -198,7 +196,7 @@ public class PumpIT {
                 to(consumer).
                 build();
         pump.start();
-        verify(consumer).processRow(any(Row.class));
+        verify(consumer, times(4)).processRow(any(Row.class));
     }
 
     @Test

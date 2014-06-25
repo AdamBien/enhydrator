@@ -19,7 +19,9 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
@@ -68,4 +70,32 @@ public class ColumnTest {
         Boolean booleanValue = (Boolean) column.getValue();
         assertFalse(booleanValue);
     }
+
+    @Test
+    public void convertEmptyStringToDouble() {
+        Column column = new Column(0, "double", "");
+        column.convertToDouble();
+        assertTrue(column.getValue() instanceof Double);
+        Double value = (Double) column.getValue();
+        assertThat(value, is(0.0));
+    }
+
+    @Test
+    public void convertDMSToDouble() {
+        Column column = new Column(0, "dms", "1.4.2");
+        column.convertDMSToDouble();
+        assertTrue(column.getValue() instanceof Double);
+        Double value = (Double) column.getValue();
+        assertThat(value, is(1.0672222222222223d));
+    }
+
+    @Test
+    public void convertDMSToDoubleWithUnsufficientPrecision() {
+        Column column = new Column(0, "dms", "0.0");
+        column.convertDMSToDouble();
+        assertTrue(column.getValue() instanceof Double);
+        Double value = (Double) column.getValue();
+        assertThat(value, is(0.0d));
+    }
+
 }

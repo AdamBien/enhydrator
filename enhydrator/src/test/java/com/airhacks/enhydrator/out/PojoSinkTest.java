@@ -186,8 +186,4 @@ public class PojoSinkTest {
         return (Developer) this.cachingConsumer.getObject();
     }
 
-    private void PojoSink(Class<Developer> aClass, CachingConsumer cachingConsumer, Consumer<Map<String, Object>> devNull) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }

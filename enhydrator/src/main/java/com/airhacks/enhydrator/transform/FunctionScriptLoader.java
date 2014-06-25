@@ -73,7 +73,7 @@ public class FunctionScriptLoader {
                 Bindings bindings = ScriptingEnvironmentProvider.create(manager, input);
                 return (Row) engine.eval(content, bindings);
             } catch (ScriptException ex) {
-                throw new IllegalStateException("Cannot evaluate script", ex);
+                throw new IllegalStateException("Cannot evaluate script: " + scriptName, ex);
             }
         };
     }

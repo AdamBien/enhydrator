@@ -1,4 +1,4 @@
-package com.airhacks.enhydrator.transform;
+package com.airhacks.enhydrator.out;
 
 /*
  * #%L
@@ -19,24 +19,41 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
+
 import com.airhacks.enhydrator.in.Row;
-import javax.script.Bindings;
-import javax.script.ScriptEngineManager;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
  * @author airhacks.com
  */
-public class ScriptingEnvironmentProvider {
+public class RowSinkTest {
 
-    public static Bindings create(ScriptEngineManager scriptEngineManager, Row input) {
-        Bindings bindings = scriptEngineManager.getBindings();
-        bindings.put("$ROW", input);
-        final Row emptyRow = new Row();
-        emptyRow.useMemory(input.getMemory());
-        bindings.put("$EMPTY", emptyRow);
-        bindings.put("$MEMORY", input.getMemory());
-        input.getColumns().forEach(c -> bindings.put(c.getName(), c));
-        return bindings;
+    private Row expected;
+
+    private boolean tested;
+
+    @Before
+    public void init() {
+        this.expected = TestRows.getStringRow();
     }
+
+    @Test
+    public void process() {
+        RowSink cut = new RowSink("*", r -> {
+            assertThat(r, is(expected));
+            this.setTested();
+        });
+        cut.processRow(expected);
+        assertTrue(tested);
+    }
+
+    public void setTested() {
+        this.tested = true;
+    }
+
 }

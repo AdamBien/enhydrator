@@ -30,7 +30,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -44,13 +46,16 @@ public class Row {
 
     private List<Row> children;
 
-    private final Memory memory;
+    private Memory memory;
 
     public Row() {
         this.columnByName = new ConcurrentHashMap<>();
         this.columnByIndex = new ConcurrentHashMap<>();
         this.children = new CopyOnWriteArrayList<>();
-        this.memory = new Memory();
+    }
+
+    public void useMemory(Memory memory) {
+        this.memory = memory;
     }
 
     public Object getColumnValue(String columnName) {
@@ -63,6 +68,17 @@ public class Row {
 
     public Column getColumnByName(String column) {
         return this.columnByName.get(column);
+    }
+
+    public void findColumnsAndApply(Predicate<Column> predicate, Consumer<Column> modifier) {
+        this.columnByName.values().stream().filter(predicate).forEach(modifier);
+    }
+
+    public void findColumnsAndChangeName(Predicate<Column> predicate, Function<Column, String> renamingFunction) {
+        List<Column> collect = this.columnByName.values().stream().
+                filter(predicate).collect(Collectors.toList());
+        collect.stream().forEach(c -> this.changeColumnName(c.getName(), renamingFunction.apply(c)));
+
     }
 
     public Column getColumnByIndex(int index) {
@@ -224,9 +240,21 @@ public class Row {
         return memory;
     }
 
+    public void successfullyProcessed() {
+        this.memory.processed();
+    }
+
+    public void errorOccured() {
+        this.memory.errorOccured();
+    }
+
     @Override
     public String toString() {
         return "Row{" + "columnByName=" + columnByName + ", columnByIndex=" + columnByIndex + ", children=" + children + '}';
+    }
+
+    public void errorOccured(Throwable ex) {
+        this.memory.addProcessingError(this, ex);
     }
 
 }

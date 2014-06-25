@@ -62,7 +62,8 @@ public class Pump {
 
     private final Sink deadLetterQueue;
     private final Consumer<String> flowListener;
-    private long rowCount;
+    private final Memory memory;
+    private final boolean stopOnError;
 
     private Pump(Source source, Function<ResultSet, Row> rowTransformer,
             List<Function<Row, Row>> before,
@@ -73,7 +74,7 @@ public class Pump {
             List<Sink> sinks,
             Sink dlq,
             String sql,
-            Consumer<String> flowListener, Object... params) {
+            Consumer<String> flowListener, boolean stopOnError, Object... params) {
         this.flowListener = flowListener;
         this.filterExpressions = filterExpressions;
         this.expression = new Expression(flowListener);
@@ -87,27 +88,41 @@ public class Pump {
         this.deadLetterQueue = dlq;
         this.sql = sql;
         this.params = params;
+        this.stopOnError = stopOnError;
+        this.memory = new Memory();
 
     }
 
-    public long start() {
-        Memory memory = new Memory();
-        this.rowCount = 0;
+    public Memory start() {
         Iterable<Row> input = this.source.query(sql, params);
         this.flowListener.accept("Query executed: " + sql);
         this.sinks.forEach(s -> s.init());
         this.flowListener.accept("Sink initialized");
-        input.forEach(this::onNewRow);
+        if (this.stopOnError) {
+            this.flowListener.accept("Erroneous rows will stop the pipeline");
+            input.forEach(this::onNewRow);
+        } else {
+            this.flowListener.accept("Ignoring processing errors");
+            input.forEach(this::processAndIgnoreErrors);
+        }
         this.flowListener.accept("Results processed");
         this.sinks.forEach(s -> s.close());
         this.flowListener.accept("Sink closed");
-        return this.rowCount;
+        return this.memory;
 
     }
 
+    void processAndIgnoreErrors(Row row) {
+        try {
+            onNewRow(row);
+        } catch (Throwable ex) {
+            row.errorOccured(ex);
+        }
+    }
+
     void onNewRow(Row row) {
+        row.useMemory(memory);
         this.flowListener.accept("Processing: " + row.getNumberOfColumns() + " columns !");
-        this.rowCount++;
         Optional<Boolean> first = this.filterExpressions.stream().
                 map(e -> this.filterExpression.execute(row, e)).
                 filter(r -> r == false).findFirst();
@@ -116,7 +131,7 @@ public class Pump {
         } else {
             this.flowListener.accept("Row ignored by filtering");
         }
-
+        row.successfullyProcessed();
     }
 
     void transformRow(Row convertedRow) {
@@ -224,6 +239,7 @@ public class Pump {
         private String sql;
         private Object[] params;
         private Consumer<String> flowListener;
+        private boolean stopOnError;
 
         public Engine() {
             this.sinks = new ArrayList<>();
@@ -238,6 +254,7 @@ public class Pump {
             this.flowListener = f -> {
             };
             this.deadLetterQueue = new LogSink();
+            this.stopOnError = true;
         }
 
         public Engine homeScriptFolder(String baseFolder) {
@@ -315,6 +332,11 @@ public class Pump {
             return this;
         }
 
+        public Engine continueOnError() {
+            this.stopOnError = false;
+            return this;
+        }
+
         public Pump build() {
             return new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions,
@@ -324,6 +346,7 @@ public class Pump {
                     this.deadLetterQueue,
                     this.sql,
                     this.flowListener,
+                    this.stopOnError,
                     this.params);
         }
 

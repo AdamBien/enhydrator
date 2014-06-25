@@ -69,8 +69,8 @@ public class PipelineTest {
         JDBCSource source = JDBCSourceIT.getSource();
         Sink logSink = new LogSink();
         Sink jdbcSink = JDBCSinkTest.getSink();
-        ColumnTransformation e1 = new ColumnTransformation("name", "convert", true);
-        ColumnTransformation e2 = new ColumnTransformation(42, "compress", true);
+        ColumnTransformation e1 = new ColumnTransformation("name", "convert");
+        ColumnTransformation e2 = new ColumnTransformation(42, "compress");
         Pipeline origin = new Pipeline("jdbc", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
         origin.addSink(logSink);
         origin.addSink(jdbcSink);
@@ -95,8 +95,8 @@ public class PipelineTest {
         Source source = new CSVSource("./src/test/files/pyramid.csv", ";", "UTF-8", true);
         Sink logSink = new LogSink();
         Sink jdbcSink = new VirtualSinkSource();
-        ColumnTransformation e1 = new ColumnTransformation("name", "convert", true);
-        ColumnTransformation e2 = new ColumnTransformation(42, "compress", true);
+        ColumnTransformation e1 = new ColumnTransformation("name", "convert");
+        ColumnTransformation e2 = new ColumnTransformation(42, "compress");
         Pipeline origin = new Pipeline("csv", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
         origin.addSink(logSink);
         origin.addSink(jdbcSink);

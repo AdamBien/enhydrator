@@ -35,18 +35,16 @@ public class ColumnTransformation {
     private String columnName;
     private Integer slot;
     private String function;
-    private boolean script;
 
     public ColumnTransformation() {
     }
 
-    public ColumnTransformation(String columnName, String function, boolean script) {
+    public ColumnTransformation(String columnName, String function) {
         this.columnName = columnName;
         this.function = function;
-        this.script = script;
     }
 
-    public ColumnTransformation(int slot, String function, boolean script) {
+    public ColumnTransformation(int slot, String function) {
         this.slot = slot;
         this.function = function;
     }
@@ -63,17 +61,12 @@ public class ColumnTransformation {
         return function;
     }
 
-    public boolean isScript() {
-        return script;
-    }
-
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.columnName);
-        hash = 29 * hash + Objects.hashCode(this.slot);
-        hash = 29 * hash + Objects.hashCode(this.function);
-        hash = 29 * hash + (this.script ? 1 : 0);
+        hash = 53 * hash + Objects.hashCode(this.columnName);
+        hash = 53 * hash + Objects.hashCode(this.slot);
+        hash = 53 * hash + Objects.hashCode(this.function);
         return hash;
     }
 
@@ -95,15 +88,12 @@ public class ColumnTransformation {
         if (!Objects.equals(this.function, other.function)) {
             return false;
         }
-        if (this.script != other.script) {
-            return false;
-        }
         return true;
     }
 
     @Override
     public String toString() {
-        return "EntryTransformation{" + "columnName=" + columnName + ", slot=" + slot + ", function=" + function + ", script=" + script + '}';
+        return "ColumnTransformation{" + "columnName=" + columnName + ", slot=" + slot + ", function=" + function + '}';
     }
 
 }

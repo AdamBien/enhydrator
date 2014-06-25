@@ -40,6 +40,9 @@ public class Pipeline {
     private String name;
     private Source source;
 
+    @XmlElement(name = "stop-on-error")
+    private boolean stopOnError;
+
     @XmlElement(name = "scripts-home")
     private String scriptsHome;
 
@@ -74,6 +77,7 @@ public class Pipeline {
         this.queryParams = new ArrayList<>();
         this.expressions = new ArrayList<>();
         this.filters = new ArrayList<>();
+        this.stopOnError = false;
     }
 
     public Pipeline(String name, String scriptsHome, String sqlQuery, Source source) {
@@ -160,6 +164,10 @@ public class Pipeline {
 
     public void setScriptsHome(String scriptsHome) {
         this.scriptsHome = scriptsHome;
+    }
+
+    public void setStopOnError(boolean stopOnError) {
+        this.stopOnError = stopOnError;
     }
 
     @Override

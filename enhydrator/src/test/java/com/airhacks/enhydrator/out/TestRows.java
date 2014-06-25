@@ -1,4 +1,4 @@
-package com.airhacks.enhydrator.transform;
+package com.airhacks.enhydrator.out;
 
 /*
  * #%L
@@ -20,23 +20,24 @@ package com.airhacks.enhydrator.transform;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
-import javax.script.Bindings;
-import javax.script.ScriptEngineManager;
 
 /**
  *
  * @author airhacks.com
  */
-public class ScriptingEnvironmentProvider {
+public class TestRows {
 
-    public static Bindings create(ScriptEngineManager scriptEngineManager, Row input) {
-        Bindings bindings = scriptEngineManager.getBindings();
-        bindings.put("$ROW", input);
-        final Row emptyRow = new Row();
-        emptyRow.useMemory(input.getMemory());
-        bindings.put("$EMPTY", emptyRow);
-        bindings.put("$MEMORY", input.getMemory());
-        input.getColumns().forEach(c -> bindings.put(c.getName(), c));
-        return bindings;
+    public static Row getStringRow() {
+        Row row = new Row();
+        row.addColumn(0, "a", "java");
+        row.addColumn(1, "b", "tengah");
+        return row;
+    }
+
+    public static Row getIntRow() {
+        Row row = new Row();
+        row.addColumn(0, "a", "1");
+        row.addColumn(1, "b", "2");
+        return row;
     }
 }

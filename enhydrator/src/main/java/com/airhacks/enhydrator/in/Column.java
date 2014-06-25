@@ -1,5 +1,7 @@
 package com.airhacks.enhydrator.in;
 
+import java.util.StringTokenizer;
+
 /*
  * #%L
  * enhydrator
@@ -66,13 +68,40 @@ public class Column {
             return;
         }
         String asString = String.valueOf(value);
+        if (asString.isEmpty()) {
+            this.value = (double) 0;
+            return;
+        }
         try {
             this.value = Double.parseDouble(asString);
         } catch (NumberFormatException ex) {
             throw new NumberFormatException("Cannot convert column: "
-                    + this.name + " with index " + this.index + " and value " + this.value + " to double");
+                    + this.name + " with index " + this.index + " and value ->" + this.value + "<- to double");
 
         }
+    }
+
+    public void convertDMSToDouble() {
+        if (value == null) {
+            return;
+        }
+        String asString = String.valueOf(value);
+        if (asString.isEmpty()) {
+            this.value = (double) 0;
+            return;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(asString, ".");
+        int degree = 0, minute = 0, second = 0;
+        if (tokenizer.hasMoreTokens()) {
+            degree = Integer.parseInt(tokenizer.nextToken());
+        }
+        if (tokenizer.hasMoreTokens()) {
+            minute = Integer.parseInt(tokenizer.nextToken());
+        }
+        if (tokenizer.hasMoreTokens()) {
+            second = Integer.parseInt(tokenizer.nextToken());
+        }
+        this.value = (double) degree + (minute / 60d) + (second / 3600d);
 
     }
 
@@ -131,7 +160,7 @@ public class Column {
         this.targetObject = targetObject;
     }
 
-    void setValue(Object value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 

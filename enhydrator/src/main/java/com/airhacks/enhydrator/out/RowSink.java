@@ -1,4 +1,4 @@
-package com.airhacks.enhydrator.transform;
+package com.airhacks.enhydrator.out;
 
 /*
  * #%L
@@ -19,24 +19,37 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
+
 import com.airhacks.enhydrator.in.Row;
-import javax.script.Bindings;
-import javax.script.ScriptEngineManager;
+import java.util.function.Consumer;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author airhacks.com
  */
-public class ScriptingEnvironmentProvider {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "row-sink")
+public class RowSink extends Sink {
 
-    public static Bindings create(ScriptEngineManager scriptEngineManager, Row input) {
-        Bindings bindings = scriptEngineManager.getBindings();
-        bindings.put("$ROW", input);
-        final Row emptyRow = new Row();
-        emptyRow.useMemory(input.getMemory());
-        bindings.put("$EMPTY", emptyRow);
-        bindings.put("$MEMORY", input.getMemory());
-        input.getColumns().forEach(c -> bindings.put(c.getName(), c));
-        return bindings;
+    @XmlTransient
+    private Consumer<Row> consumer;
+
+    public RowSink() {
+        super("*");
     }
+
+    public RowSink(String name, Consumer<Row> consumer) {
+        super(name);
+        this.consumer = consumer;
+    }
+
+    @Override
+    public void processRow(Row entries) {
+        consumer.accept(entries);
+    }
+
 }

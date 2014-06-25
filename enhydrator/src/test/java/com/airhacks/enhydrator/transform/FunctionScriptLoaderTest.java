@@ -90,17 +90,20 @@ public class FunctionScriptLoaderTest {
     @Test
     public void memoryAvailable() {
         Row input = new Row();
+        input.useMemory(new Memory());
         final String inputValue = "duke";
         input.addColumn(-1, "name", inputValue);
         RowTransformer function = this.cut.getRowTransformer("bindings");
         Row output = function.execute(input);
         assertNotNull(output);
         Memory memory = output.getMemory();
+        assertNotNull(memory);
     }
 
     @Test
     public void counterIsWorking() {
         Row input = new Row();
+        input.useMemory(new Memory());
         final String inputValue = "duke";
         input.addColumn(-1, "name", inputValue);
         RowTransformer function = this.cut.getRowTransformer("count");
@@ -114,6 +117,7 @@ public class FunctionScriptLoaderTest {
     @Test
     public void propertyIsStoredInMemory() {
         Row input = new Row();
+        input.useMemory(new Memory());
         final String inputValue = "duke";
         input.addColumn(-1, "name", inputValue);
         RowTransformer function = this.cut.getRowTransformer("store");

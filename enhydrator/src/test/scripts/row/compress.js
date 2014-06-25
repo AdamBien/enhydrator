@@ -19,4 +19,4 @@
  */
 
 print("Heavy row compression");
-return $ROW;
+$ROW;
