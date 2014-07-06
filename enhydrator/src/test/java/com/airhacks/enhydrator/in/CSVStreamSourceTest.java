@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,14 +19,14 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.Iterator;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Iterator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -110,7 +110,7 @@ public class CSVStreamSourceTest {
 
     @Test
     public void splitEmtpyRows() {
-        String[] split = CSVFileSource.split(";;", ";");
+        String[] split = CSVSource.split(";;", ";");
         assertNotNull(split);
         assertThat(split.length, is(3));
         for (String column : split) {
@@ -120,7 +120,7 @@ public class CSVStreamSourceTest {
 
     @Test
     public void splitEmptyStrings() {
-        String[] split = CSVFileSource.split(" ; ; ", ";");
+        String[] split = CSVSource.split(" ; ; ", ";");
         assertNotNull(split);
         assertThat(split.length, is(3));
         for (String column : split) {
@@ -148,7 +148,7 @@ public class CSVStreamSourceTest {
     }
 
     public static Source getSource(final String fileName) {
-        return new CSVFileSource(fileName, ";", "UTF-8", true);
+        return new CSVSource(fileName, ";", "UTF-8", true);
     }
 
 }
