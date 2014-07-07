@@ -122,6 +122,7 @@ public class Pump {
 
     void onNewRow(Row row) {
         row.useMemory(memory);
+        this.flowListener.accept("Received: " + row);
         this.flowListener.accept("Processing: " + row.getNumberOfColumns() + " columns !");
         Optional<Boolean> first = this.filterExpressions.stream().
                 map(e -> this.filterExpression.execute(row, e)).
