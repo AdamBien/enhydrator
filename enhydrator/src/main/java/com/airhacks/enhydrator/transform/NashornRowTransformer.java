@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.flexpipe.RowTransformation;
 import com.airhacks.enhydrator.in.Row;
 import java.util.Objects;
@@ -54,7 +53,7 @@ public class NashornRowTransformer extends RowTransformation {
     }
 
     void initialize() {
-        this.loader = new FunctionScriptLoader(this.baseScriptFolder);
+        this.loader = FunctionScriptLoader.create(this.baseScriptFolder);
         this.rowTransformer = this.loader.getRowTransformer(this.scriptName);
     }
 

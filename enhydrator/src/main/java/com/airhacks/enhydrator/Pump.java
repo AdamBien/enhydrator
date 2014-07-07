@@ -250,7 +250,6 @@ public class Pump {
             this.before = new ArrayList<>();
             this.after = new ArrayList<>();
             this.indexedFunctions = new HashMap<>();
-            this.loader = new FunctionScriptLoader();
             this.flowListener = f -> {
             };
             this.deadLetterQueue = new LogSink();
@@ -258,7 +257,7 @@ public class Pump {
         }
 
         public Engine homeScriptFolder(String baseFolder) {
-            this.loader = new FunctionScriptLoader(baseFolder);
+            this.loader = FunctionScriptLoader.create(baseFolder);
             return this;
         }
 
