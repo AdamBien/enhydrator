@@ -24,9 +24,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,26 +40,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  *
  * @author airhacks.com
  */
-public class CSVSourceTest {
+public abstract class CSVSourceValidation {
 
-    CSVFileSource cut;
-
-    @Before
-    public void init() {
-        this.cut = new CSVFileSource("./src/test/files/cars.csv", ";", "UTF-8", true);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void fileDoesNotExist() {
-        new CSVFileSource("does/NOT/exist", ";", "UTF-8", true);
-    }
+    protected Source cut;
 
     @Test
     public void query() {
@@ -78,15 +67,22 @@ public class CSVSourceTest {
     public void columnNameIsSet() {
         Iterable<Row> cars = this.cut.query(null);
         int counter = 0;
+        boolean headerSkipped = false;
         for (Row list : cars) {
-            Object entry = list.getColumnValue("Year");
+            Column entry = list.getColumnByName("Year");
+            if (!headerSkipped) {
+                assertThat(entry.getValue(), is("Year"));
+                headerSkipped = true;
+                continue;
+            }
+            Integer.parseInt(entry.getValue().toString());
             //Year;Make;Model;Length
-            counter++;
             assertNotNull(entry);
+            counter++;
 
         }
-        //Header is included
-        assertThat(counter, is(4));
+        //Header not included
+        assertThat(counter, is(3));
     }
 
     @Test
@@ -165,8 +161,6 @@ public class CSVSourceTest {
         }
     }
 
-    public static Source getSource(final String fileName) {
-        return new CSVFileSource(fileName, ";", "UTF-8", true);
-    }
+    public abstract Source getSource(final String fileName);
 
 }

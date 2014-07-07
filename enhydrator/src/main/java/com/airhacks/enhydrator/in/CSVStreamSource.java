@@ -24,9 +24,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -64,11 +64,13 @@ public class CSVStreamSource implements Source {
     private List<Row> iterable;
 
     private InputStream stream;
+    private boolean shouldProcessHeaders;
 
     public CSVStreamSource(InputStream stream, String delimiter, String charset, boolean containsHeaders) {
         this.stream = stream;
         this.delimiter = delimiter;
         this.containsHeaders = containsHeaders;
+        this.shouldProcessHeaders = this.containsHeaders;
         this.charsetName = charset;
         init();
     }
@@ -79,13 +81,10 @@ public class CSVStreamSource implements Source {
         this.lines = new BufferedReader(new InputStreamReader(stream, this.charset)).lines();
     }
 
-    void extractHeaders(int index, String headerLine) {
-        Row headers = new Row();
-        cellToRow(headers, headerLine, index);
-        for (int i = 0; i < headers.getNumberOfColumns(); i++) {
-            Column columnByIndex = headers.getColumnByIndex(i);
-            this.columnNames.add(String.valueOf(columnByIndex.getValue()));
-        }
+    void extractHeaders(Row headers, int index, String headerLine) {
+        cellToRow(headers, headerLine, index, headerLine);
+        Column columnByIndex = headers.getColumnByIndex(index);
+        this.columnNames.add(String.valueOf(columnByIndex.getValue()));
     }
 
     /**
@@ -110,17 +109,22 @@ public class CSVStreamSource implements Source {
         Row row = new Row();
         for (int i = 0; i < splitted.length; i++) {
             String slot = splitted[i];
-            if (this.containsHeaders && i == 0) {
-                this.extractHeaders(i, slot);
+            if (this.shouldProcessHeaders) {
+                this.extractHeaders(row, i, slot);
                 continue;
             }
             cellToRow(row, slot, i);
         }
+        this.shouldProcessHeaders = false;
         return row;
     }
 
     void cellToRow(Row row, String slot, int index) {
         String columnName = getColumnName(index);
+        cellToRow(row, slot, index, columnName);
+    }
+
+    void cellToRow(Row row, String slot, int index, String columnName) {
         if (slot.isEmpty()) {
             row.addNullColumn(index, columnName);
         } else {
