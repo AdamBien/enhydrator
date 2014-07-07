@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.transform;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,6 +52,24 @@ public class FunctionScriptLoaderTest {
         final String input = "chief";
         Object result = function.execute(input);
         assertThat(result, is(input));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createWithNullParameter() {
+        FunctionScriptLoader.create(null);
+    }
+
+    @Test
+    public void createResourceFunctionScriptLoader() {
+        FunctionScriptLoader actual = FunctionScriptLoader.create("resource___anything");
+        assertNotNull(actual);
+        assertTrue(actual instanceof ResourceFunctionScriptLoader);
+    }
+
+    @Test
+    public void createFileFunctionScriptLoader() {
+        FunctionScriptLoader actual = FunctionScriptLoader.create("/config");
+        assertTrue(actual instanceof FileFunctionScriptLoader);
     }
 
     @Test
