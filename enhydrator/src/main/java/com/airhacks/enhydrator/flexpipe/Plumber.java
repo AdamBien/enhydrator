@@ -34,6 +34,7 @@ import com.airhacks.enhydrator.transform.TargetMapping;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -84,12 +85,19 @@ public class Plumber {
 
     public Pipeline fromConfiguration(String pipeName) {
         Path path = getPath(pipeName);
-        BufferedReader bufferedReader;
         try {
-            bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
-            return (Pipeline) unmarshaller.unmarshal(bufferedReader);
-        } catch (IOException | JAXBException ex) {
+            BufferedReader bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
+            return fromInputStream(bufferedReader);
+        } catch (IOException ex) {
             throw new IllegalStateException("Cannot deserialize pipeline with name: " + pipeName, ex);
+        }
+    }
+
+    public Pipeline fromInputStream(Reader reader) {
+        try {
+            return (Pipeline) unmarshaller.unmarshal(reader);
+        } catch (JAXBException ex) {
+            throw new IllegalStateException("Cannot deserialize pipeline from input stream ", ex);
         }
     }
 
