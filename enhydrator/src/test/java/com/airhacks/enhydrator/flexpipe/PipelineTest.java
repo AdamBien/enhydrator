@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.JDBCSourceIT;
@@ -47,7 +46,7 @@ public class PipelineTest {
     @Test
     public void jaxbJDBCPipelineSerialization() {
         Pipeline origin = getJDBCPipeline();
-        Plumber plumber = new Plumber(".", "config");
+        Plumber plumber = Plumber.createWith(".", "config");
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
         assertNotSame(deserialized, origin);
@@ -57,7 +56,7 @@ public class PipelineTest {
     @Test
     public void jaxbCSVPipelineSerialization() {
         Pipeline origin = getCSVPipeline();
-        Plumber plumber = new Plumber(".", "config");
+        Plumber plumber = Plumber.createWith(".", "config");
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
         assertNotSame(deserialized, origin);

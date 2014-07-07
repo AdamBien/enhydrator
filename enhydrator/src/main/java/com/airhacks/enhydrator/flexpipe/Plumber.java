@@ -58,17 +58,37 @@ public class Plumber {
     private String baseFolder;
     private String configurationFolder;
 
-    public Plumber() {
-        this(".", "config");
+    public static Plumber createWithDefaultPath() {
+        return new Plumber(".", "config");
     }
 
-    public Plumber(String baseFolder, String configurationFolder) {
+    public static Plumber createWith(String baseFolder, String configurationFolder) {
+        return new Plumber(baseFolder, configurationFolder);
+    }
+
+    public static Plumber createWithoutPath() {
+        return new Plumber();
+    }
+
+    private Plumber() {
+        this.init();
+    }
+
+    private Plumber(String baseFolder, String configurationFolder) {
         Objects.requireNonNull(baseFolder, "Base folder cannot be null");
         Objects.requireNonNull(configurationFolder, "Configuration folder cannot be null");
         this.baseFolder = baseFolder;
         this.configurationFolder = configurationFolder;
         try {
             Files.createDirectories(Paths.get(baseFolder, configurationFolder));
+        } catch (IOException ex) {
+            throw new IllegalStateException("Cannot create directories for plumber ", ex);
+        }
+        this.init();
+    }
+
+    final void init() {
+        try {
             this.context = JAXBContext.newInstance(JDBCSource.class,
                     CSVFileSource.class, VirtualSinkSource.class,
                     Pipeline.class, JDBCSink.class, LogSink.class,
@@ -78,7 +98,7 @@ public class Plumber {
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             this.unmarshaller = context.createUnmarshaller();
-        } catch (JAXBException | IOException ex) {
+        } catch (JAXBException ex) {
             throw new IllegalStateException("Plumber construction failed ", ex);
         }
     }

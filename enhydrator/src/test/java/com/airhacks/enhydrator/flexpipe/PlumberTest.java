@@ -35,7 +35,7 @@ public class PlumberTest {
 
     @Test
     public void writeAndReadConfiguration() {
-        Plumber plumber = new Plumber();
+        Plumber plumber = Plumber.createWithDefaultPath();
         Pipeline origin = PipelineTest.getJDBCPipeline();
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
@@ -45,11 +45,13 @@ public class PlumberTest {
 
     @Test
     public void readConfigurationFromInputStream() throws FileNotFoundException {
-        Plumber plumber = new Plumber();
+        Plumber output = Plumber.createWithDefaultPath();
         Pipeline origin = PipelineTest.getJDBCPipeline();
-        plumber.intoConfiguration(origin);
+        output.intoConfiguration(origin);
+
+        Plumber input = Plumber.createWithoutPath();
         Reader reader = new FileReader("./config/" + origin.getName() + ".xml");
-        Pipeline deserialized = plumber.fromInputStream(reader);
+        Pipeline deserialized = input.fromInputStream(reader);
         assertNotSame(deserialized, origin);
         assertThat(deserialized, is(origin));
     }
