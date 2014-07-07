@@ -49,16 +49,16 @@ import org.junit.Test;
  */
 public class CSVSourceTest {
 
-    CSVSource cut;
+    CSVFileSource cut;
 
     @Before
     public void init() {
-        this.cut = new CSVSource("./src/test/files/cars.csv", ";", "UTF-8", true);
+        this.cut = new CSVFileSource("./src/test/files/cars.csv", ";", "UTF-8", true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void fileDoesNotExist() {
-        new CSVSource("does/NOT/exist", ";", "UTF-8", true);
+        new CSVFileSource("does/NOT/exist", ";", "UTF-8", true);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class CSVSourceTest {
 
     @Test
     public void splitEmtpyRows() {
-        String[] split = CSVSource.split(";;", ";");
+        String[] split = CSVFileSource.split(";;", ";");
         assertNotNull(split);
         assertThat(split.length, is(3));
         for (String column : split) {
@@ -138,7 +138,7 @@ public class CSVSourceTest {
 
     @Test
     public void splitEmptyStrings() {
-        String[] split = CSVSource.split(" ; ; ", ";");
+        String[] split = CSVFileSource.split(" ; ; ", ";");
         assertNotNull(split);
         assertThat(split.length, is(3));
         for (String column : split) {
@@ -166,7 +166,7 @@ public class CSVSourceTest {
     }
 
     public static Source getSource(final String fileName) {
-        return new CSVSource(fileName, ";", "UTF-8", true);
+        return new CSVFileSource(fileName, ";", "UTF-8", true);
     }
 
 }

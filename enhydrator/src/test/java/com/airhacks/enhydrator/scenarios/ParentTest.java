@@ -22,7 +22,7 @@ package com.airhacks.enhydrator.scenarios;
 import com.airhacks.enhydrator.Pump;
 import com.airhacks.enhydrator.functions.NonRecursiveTree;
 import com.airhacks.enhydrator.transform.SkipFirstRow;
-import com.airhacks.enhydrator.in.CSVSource;
+import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
@@ -44,7 +44,7 @@ public class ParentTest {
      */
     @Test
     public void copy() {
-        Source source = new CSVSource("./src/test/files/files.csv", ";", "UTF-8", true);
+        Source source = new CSVFileSource("./src/test/files/files.csv", ";", "UTF-8", true);
         VirtualSinkSource vss = new VirtualSinkSource();
         Pump pump = new Pump.Engine().
                 from(source).

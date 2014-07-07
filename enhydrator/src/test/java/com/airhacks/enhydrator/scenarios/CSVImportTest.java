@@ -20,7 +20,7 @@ package com.airhacks.enhydrator.scenarios;
  * #L%
  */
 import com.airhacks.enhydrator.Pump;
-import com.airhacks.enhydrator.in.CSVSource;
+import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
@@ -82,7 +82,7 @@ public class CSVImportTest {
     }
 
     VirtualSinkSource getSource(final String fileName) {
-        Source source = new CSVSource(fileName, ";", "UTF-8", true);
+        Source source = new CSVFileSource(fileName, ";", "UTF-8", true);
         VirtualSinkSource vss = new VirtualSinkSource();
         Pump pump = new Pump.Engine().
                 from(source).

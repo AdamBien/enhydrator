@@ -58,7 +58,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "csv-source")
-public class CSVSource implements Source {
+public class CSVFileSource implements Source {
 
     private String fileName;
     private String charsetName;
@@ -83,7 +83,7 @@ public class CSVSource implements Source {
     @XmlTransient
     private List<Row> iterable;
 
-    public CSVSource(String file, String delimiter, String charset, boolean fileContainsHeaders) {
+    public CSVFileSource(String file, String delimiter, String charset, boolean fileContainsHeaders) {
         this.fileName = file;
         this.delimiter = delimiter;
         this.fileContainsHeaders = fileContainsHeaders;
@@ -91,7 +91,7 @@ public class CSVSource implements Source {
         init();
     }
 
-    public CSVSource() {
+    public CSVFileSource() {
     }
 
     void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
@@ -120,7 +120,7 @@ public class CSVSource implements Source {
         try {
             headerLine = Files.lines(this.file, this.charset).findFirst().get();
         } catch (IOException ex) {
-            Logger.getLogger(CSVSource.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CSVFileSource.class.getName()).log(Level.SEVERE, null, ex);
         }
         Row headers = parse(headerLine, this.delimiter);
         List<String> sortedNames = new ArrayList<>();
@@ -199,7 +199,7 @@ public class CSVSource implements Source {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final CSVSource other = (CSVSource) obj;
+        final CSVFileSource other = (CSVFileSource) obj;
         if (!Objects.equals(this.fileName, other.fileName)) {
             return false;
         }

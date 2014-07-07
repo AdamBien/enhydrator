@@ -19,7 +19,8 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.CSVSource;
+
+import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.JDBCSourceIT;
 import com.airhacks.enhydrator.in.Source;
@@ -92,7 +93,7 @@ public class PipelineTest {
         targetMapper.addMapping(0, new TargetMapping("*", "*"));
         DatatypeMapper datatypeMapper = new DatatypeMapper();
         datatypeMapper.addMapping(0, Datatype.DOUBLE);
-        Source source = new CSVSource("./src/test/files/pyramid.csv", ";", "UTF-8", true);
+        Source source = new CSVFileSource("./src/test/files/pyramid.csv", ";", "UTF-8", true);
         Sink logSink = new LogSink();
         Sink jdbcSink = new VirtualSinkSource();
         ColumnTransformation e1 = new ColumnTransformation("name", "convert");
