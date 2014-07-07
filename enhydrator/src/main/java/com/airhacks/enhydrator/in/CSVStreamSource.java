@@ -76,7 +76,7 @@ public class CSVStreamSource implements Source {
     void init() throws IllegalStateException, IllegalArgumentException {
         this.charset = Charset.forName(charsetName);
         this.columnNames = new ArrayList<>();
-        this.lines = new BufferedReader(new InputStreamReader(stream)).lines();
+        this.lines = new BufferedReader(new InputStreamReader(stream, this.charset)).lines();
     }
 
     void extractHeaders(int index, String headerLine) {
