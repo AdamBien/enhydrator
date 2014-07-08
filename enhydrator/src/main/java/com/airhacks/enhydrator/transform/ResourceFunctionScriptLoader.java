@@ -19,10 +19,10 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Objects;
 
 /**
  *
@@ -38,6 +38,7 @@ public class ResourceFunctionScriptLoader extends FunctionScriptLoader {
     public Reader load(String scriptFolder, String name) {
         String resourceName = this.baseFolder + scriptFolder + "/" + name + ".js";
         InputStream resourceAsStream = ResourceFunctionScriptLoader.class.getClassLoader().getResourceAsStream(resourceName);
+        Objects.requireNonNull(resourceAsStream, "Cannot load function: " + name + " from: " + resourceName);
         return new InputStreamReader(resourceAsStream);
     }
 
