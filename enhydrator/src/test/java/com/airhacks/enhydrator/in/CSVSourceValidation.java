@@ -40,26 +40,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  *
  * @author airhacks.com
  */
-public class CSVSourceTest {
+public abstract class CSVSourceValidation {
 
-    CSVSource cut;
-
-    @Before
-    public void init() {
-        this.cut = new CSVSource("./src/test/files/cars.csv", ";", "UTF-8", true);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void fileDoesNotExist() {
-        new CSVSource("does/NOT/exist", ";", "UTF-8", true);
-    }
+    protected Source cut;
 
     @Test
     public void query() {
@@ -78,15 +67,22 @@ public class CSVSourceTest {
     public void columnNameIsSet() {
         Iterable<Row> cars = this.cut.query(null);
         int counter = 0;
+        boolean headerSkipped = false;
         for (Row list : cars) {
-            Object entry = list.getColumnValue("Year");
+            Column entry = list.getColumnByName("Year");
+            if (!headerSkipped) {
+                assertThat(entry.getValue(), is("Year"));
+                headerSkipped = true;
+                continue;
+            }
+            Integer.parseInt(entry.getValue().toString());
             //Year;Make;Model;Length
-            counter++;
             assertNotNull(entry);
+            counter++;
 
         }
-        //Header is included
-        assertThat(counter, is(4));
+        //Header not included
+        assertThat(counter, is(3));
     }
 
     @Test
@@ -128,7 +124,7 @@ public class CSVSourceTest {
 
     @Test
     public void splitEmtpyRows() {
-        String[] split = CSVSource.split(";;", ";");
+        String[] split = CSVFileSource.split(";;", ";");
         assertNotNull(split);
         assertThat(split.length, is(3));
         for (String column : split) {
@@ -138,7 +134,7 @@ public class CSVSourceTest {
 
     @Test
     public void splitEmptyStrings() {
-        String[] split = CSVSource.split(" ; ; ", ";");
+        String[] split = CSVFileSource.split(" ; ; ", ";");
         assertNotNull(split);
         assertThat(split.length, is(3));
         for (String column : split) {
@@ -165,8 +161,6 @@ public class CSVSourceTest {
         }
     }
 
-    public static Source getSource(final String fileName) {
-        return new CSVSource(fileName, ";", "UTF-8", true);
-    }
+    public abstract Source getSource(final String fileName);
 
 }

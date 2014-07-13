@@ -20,10 +20,8 @@ package com.airhacks.enhydrator.transform;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.Reader;
+import java.util.Objects;
 import javax.script.Bindings;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -33,11 +31,20 @@ import javax.script.ScriptException;
 /**
  * @author airhacks.com
  */
-public class FunctionScriptLoader {
+public abstract class FunctionScriptLoader {
+
+    public static FunctionScriptLoader create(String baseFolder) {
+        Objects.requireNonNull(baseFolder, "Parameter baseFolder cannot be null!");
+        if (baseFolder.startsWith("resource")) {
+            return new ResourceFunctionScriptLoader();
+        } else {
+            return new FileFunctionScriptLoader(baseFolder);
+        }
+    }
 
     private final ScriptEngineManager manager;
     private final ScriptEngine engine;
-    private String baseFolder;
+    protected String baseFolder;
     public static final String COLUMN_SCRIPT_FOLDER = "column";
     public static final String ROW_SCRIPT_FOLDER = "row";
 
@@ -53,7 +60,7 @@ public class FunctionScriptLoader {
     }
 
     public ColumnTransformer getColumnTransformer(String scriptName) {
-        String content = load(COLUMN_SCRIPT_FOLDER, scriptName);
+        Reader content = load(COLUMN_SCRIPT_FOLDER, scriptName);
         Invocable invocable = (Invocable) engine;
         try {
             engine.eval(content);
@@ -68,7 +75,7 @@ public class FunctionScriptLoader {
             if (input == null) {
                 return null;
             }
-            String content = load(ROW_SCRIPT_FOLDER, scriptName);
+            Reader content = load(ROW_SCRIPT_FOLDER, scriptName);
             try {
                 Bindings bindings = ScriptingEnvironmentProvider.create(manager, input);
                 return (Row) engine.eval(content, bindings);
@@ -78,14 +85,5 @@ public class FunctionScriptLoader {
         };
     }
 
-    public String load(String scriptFolder, String name) {
-        String fileName = name + ".js";
-        try {
-            return new String(Files.readAllBytes(Paths.get(baseFolder, scriptFolder, fileName)), "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            throw new IllegalStateException("Encoding is not supported");
-        } catch (IOException ex) {
-            throw new IllegalStateException("Cannot load script " + ex.getMessage());
-        }
-    }
+    public abstract Reader load(String scriptFolder, String name);
 }

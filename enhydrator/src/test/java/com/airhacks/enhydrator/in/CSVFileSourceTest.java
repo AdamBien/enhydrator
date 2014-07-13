@@ -19,28 +19,29 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
  * @author airhacks.com
  */
-public class CSVStreamSourceTest extends CSVSourceValidation {
+public class CSVFileSourceTest extends CSVSourceValidation {
 
     @Before
     public void init() throws FileNotFoundException {
-        this.cut = new CSVStreamSource(new FileInputStream("./src/test/files/cars.csv"), ";", "UTF-8", true);
+        this.cut = new CSVFileSource("./src/test/files/cars.csv", ";", "UTF-8", true);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void fileDoesNotExist() {
+        new CSVFileSource("does/NOT/exist", ";", "UTF-8", true);
     }
 
     @Override
     public Source getSource(final String fileName) {
-        try {
-            return new CSVStreamSource(new FileInputStream(fileName), ";", "UTF-8", true);
-        } catch (FileNotFoundException ex) {
-            throw new IllegalStateException("Cannot find file: " + fileName, ex);
-        }
+        return new CSVFileSource(fileName, ";", "UTF-8", true);
     }
 
 }

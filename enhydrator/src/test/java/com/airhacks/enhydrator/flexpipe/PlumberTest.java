@@ -19,6 +19,9 @@ package com.airhacks.enhydrator.flexpipe;
  * limitations under the License.
  * #L%
  */
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
@@ -32,10 +35,23 @@ public class PlumberTest {
 
     @Test
     public void writeAndReadConfiguration() {
-        Plumber plumber = new Plumber();
+        Plumber plumber = Plumber.createWithDefaultPath();
         Pipeline origin = PipelineTest.getJDBCPipeline();
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
+        assertNotSame(deserialized, origin);
+        assertThat(deserialized, is(origin));
+    }
+
+    @Test
+    public void readConfigurationFromInputStream() throws FileNotFoundException {
+        Plumber output = Plumber.createWithDefaultPath();
+        Pipeline origin = PipelineTest.getJDBCPipeline();
+        output.intoConfiguration(origin);
+
+        Plumber input = Plumber.createWithoutPath();
+        Reader reader = new FileReader("./config/" + origin.getName() + ".xml");
+        Pipeline deserialized = input.fromInputStream(reader);
         assertNotSame(deserialized, origin);
         assertThat(deserialized, is(origin));
     }

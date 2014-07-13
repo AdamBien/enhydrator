@@ -21,10 +21,13 @@ package com.airhacks.enhydrator.transform;
  */
 import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
+import java.io.IOException;
+import java.io.Reader;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +42,7 @@ public class FunctionScriptLoaderTest {
 
     @Before
     public void init() {
-        this.cut = new FunctionScriptLoader(SCRIPTS_HOME_FOLDER);
+        this.cut = new FileFunctionScriptLoader(SCRIPTS_HOME_FOLDER);
     }
 
     @Test
@@ -49,6 +52,24 @@ public class FunctionScriptLoaderTest {
         final String input = "chief";
         Object result = function.execute(input);
         assertThat(result, is(input));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createWithNullParameter() {
+        FunctionScriptLoader.create(null);
+    }
+
+    @Test
+    public void createResourceFunctionScriptLoader() {
+        FunctionScriptLoader actual = FunctionScriptLoader.create("resource___anything");
+        assertNotNull(actual);
+        assertTrue(actual instanceof ResourceFunctionScriptLoader);
+    }
+
+    @Test
+    public void createFileFunctionScriptLoader() {
+        FunctionScriptLoader actual = FunctionScriptLoader.create("/config");
+        assertTrue(actual instanceof FileFunctionScriptLoader);
     }
 
     @Test
@@ -69,9 +90,10 @@ public class FunctionScriptLoaderTest {
     }
 
     @Test
-    public void load() {
-        String content = this.cut.load("column", "noop");
+    public void load() throws IOException {
+        Reader content = this.cut.load("column", "noop");
         assertNotNull(content);
+        assertTrue(content.read() != -1);
     }
 
     @Test

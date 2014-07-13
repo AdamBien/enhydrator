@@ -20,7 +20,7 @@ package com.airhacks.enhydrator.flexpipe;
  * #L%
  */
 import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
-import com.airhacks.enhydrator.in.CSVSource;
+import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.JDBCSink;
@@ -34,6 +34,7 @@ import com.airhacks.enhydrator.transform.TargetMapping;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,19 +58,39 @@ public class Plumber {
     private String baseFolder;
     private String configurationFolder;
 
-    public Plumber() {
-        this(".", "config");
+    public static Plumber createWithDefaultPath() {
+        return new Plumber(".", "config");
     }
 
-    public Plumber(String baseFolder, String configurationFolder) {
+    public static Plumber createWith(String baseFolder, String configurationFolder) {
+        return new Plumber(baseFolder, configurationFolder);
+    }
+
+    public static Plumber createWithoutPath() {
+        return new Plumber();
+    }
+
+    private Plumber() {
+        this.init();
+    }
+
+    private Plumber(String baseFolder, String configurationFolder) {
         Objects.requireNonNull(baseFolder, "Base folder cannot be null");
         Objects.requireNonNull(configurationFolder, "Configuration folder cannot be null");
         this.baseFolder = baseFolder;
         this.configurationFolder = configurationFolder;
         try {
             Files.createDirectories(Paths.get(baseFolder, configurationFolder));
+        } catch (IOException ex) {
+            throw new IllegalStateException("Cannot create directories for plumber ", ex);
+        }
+        this.init();
+    }
+
+    final void init() {
+        try {
             this.context = JAXBContext.newInstance(JDBCSource.class,
-                    CSVSource.class, VirtualSinkSource.class,
+                    CSVFileSource.class, VirtualSinkSource.class,
                     Pipeline.class, JDBCSink.class, LogSink.class,
                     UnmanagedConnectionProvider.class, ColumnTransformation.class,
                     NashornRowTransformer.class, DestinationMapper.class,
@@ -77,19 +98,26 @@ public class Plumber {
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             this.unmarshaller = context.createUnmarshaller();
-        } catch (JAXBException | IOException ex) {
+        } catch (JAXBException ex) {
             throw new IllegalStateException("Plumber construction failed ", ex);
         }
     }
 
     public Pipeline fromConfiguration(String pipeName) {
         Path path = getPath(pipeName);
-        BufferedReader bufferedReader;
         try {
-            bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
-            return (Pipeline) unmarshaller.unmarshal(bufferedReader);
-        } catch (IOException | JAXBException ex) {
+            BufferedReader bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
+            return fromInputStream(bufferedReader);
+        } catch (IOException ex) {
             throw new IllegalStateException("Cannot deserialize pipeline with name: " + pipeName, ex);
+        }
+    }
+
+    public Pipeline fromInputStream(Reader reader) {
+        try {
+            return (Pipeline) unmarshaller.unmarshal(reader);
+        } catch (JAXBException ex) {
+            throw new IllegalStateException("Cannot deserialize pipeline from input stream ", ex);
         }
     }
 
