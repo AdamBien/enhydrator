@@ -267,6 +267,9 @@ public class Pump {
         }
 
         public Engine to(Sink sink) {
+            if (this.sinks == null) {
+                this.sinks = new ArrayList<>();
+            }
             this.sinks.add(sink);
             return this;
         }
