@@ -21,6 +21,7 @@ package com.airhacks.enhydrator.flexpipe;
  */
 import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
 import com.airhacks.enhydrator.in.CSVFileSource;
+import com.airhacks.enhydrator.in.CSVStreamSource;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.JDBCSink;
@@ -91,7 +92,7 @@ public class Plumber {
     final void init() {
         try {
             this.context = JAXBContext.newInstance(JDBCSource.class,
-                    CSVFileSource.class, VirtualSinkSource.class,
+                    CSVFileSource.class, CSVStreamSource.class, VirtualSinkSource.class,
                     Pipeline.class, JDBCSink.class, LogSink.class,
                     UnmanagedConnectionProvider.class, ColumnTransformation.class,
                     NashornRowTransformer.class, DestinationMapper.class,

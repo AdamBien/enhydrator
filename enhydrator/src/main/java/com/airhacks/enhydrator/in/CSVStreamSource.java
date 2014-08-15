@@ -43,39 +43,55 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author airhacks.com
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "csv-stream-source")
 public class CSVStreamSource implements Source {
 
-    private final String charsetName;
-    private final String delimiter;
-    private final boolean containsHeaders;
+    private String charsetName;
+    private String delimiter;
+    private boolean containsHeaders;
 
+    @XmlTransient
     private Charset charset;
 
     static final String REGEX_SPLIT_EXPRESSION = "(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
 
+    @XmlTransient
     private Stream<String> lines;
 
+    @XmlTransient
     private List<String> columnNames;
+    @XmlTransient
     private List<Row> iterable;
 
+    @XmlTransient
     private InputStream stream;
+    @XmlTransient
     private boolean shouldProcessHeaders;
+
+    public CSVStreamSource() {
+        // for JAXB
+    }
 
     public CSVStreamSource(InputStream stream, String delimiter, String charset, boolean containsHeaders) {
         this.stream = stream;
         this.delimiter = delimiter;
         this.containsHeaders = containsHeaders;
-        this.shouldProcessHeaders = this.containsHeaders;
         this.charsetName = charset;
         init();
     }
 
     void init() throws IllegalStateException, IllegalArgumentException {
+        this.shouldProcessHeaders = this.containsHeaders;
         this.charset = Charset.forName(charsetName);
         this.columnNames = new ArrayList<>();
         this.lines = new BufferedReader(new InputStreamReader(stream, this.charset)).lines();
@@ -180,4 +196,8 @@ public class CSVStreamSource implements Source {
         return true;
     }
 
+    public void setStream(InputStream stream) {
+        this.stream = stream;
+        this.init();
+    }
 }
