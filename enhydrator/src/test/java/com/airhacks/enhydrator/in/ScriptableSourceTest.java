@@ -26,9 +26,12 @@ import java.io.Reader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Iterator;
 import javax.script.ScriptException;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,6 +67,28 @@ public class ScriptableSourceTest {
         assertNotNull(theOnly);
         Collection<Column> columns = theOnly.getColumns();
         assertFalse(columns.isEmpty());
+
+        Iterator<Column> iterator = columns.iterator();
+        Column javaColumn = iterator.next();
+        javaColumn.convertToInteger();
+        Integer javaRank = (Integer) javaColumn.getValue();
+        assertThat(javaRank, is(1));
+
+        Column cColumn = iterator.next();
+        cColumn.convertToInteger();
+        Integer cRank = (Integer) cColumn.getValue();
+        assertThat(cRank, is(2));
+
+        Column cobolColumn = iterator.next();
+        cobolColumn.convertToInteger();
+        Integer cobolRank = (Integer) cobolColumn.getValue();
+        assertThat(cobolRank, is(3));
+
+        Column esotericColumn = iterator.next();
+        esotericColumn.convertToInteger();
+        Integer esotericRank = (Integer) esotericColumn.getValue();
+        assertThat(esotericRank, is(4));
+
     }
 
 }
