@@ -19,38 +19,92 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author airhacks.com
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "json-source")
 public class ScriptableSource implements Source {
 
-    private final String charsetName;
+    private String charsetName;
+
+    @XmlTransient
     private Charset charset;
+
+    @XmlTransient
     private List<Row> iterable;
-    private final Path input;
+
+    @XmlTransient
+    private Path input;
+
+    @XmlTransient
     private ScriptEngine nashorn;
-    private final Reader script;
+    @XmlTransient
+    private Reader script;
+    @XmlTransient
     private List<Row> rows;
+    private String inputFile;
+    private String scriptFile;
+
+    ScriptableSource() {
+    }
+
+    public ScriptableSource(String inputFile, String scriptFile, String charset) {
+        this.inputFile = inputFile;
+        this.scriptFile = scriptFile;
+        this.charsetName = charset;
+    }
 
     public ScriptableSource(Path path, Reader script, String charset) {
         this.input = path;
         this.charsetName = charset;
         this.script = script;
         init();
+    }
+
+    void preInitialize() {
+        this.input = Paths.get(this.inputFile);
+        try {
+            this.script = new FileReader(this.scriptFile);
+        } catch (FileNotFoundException ex) {
+            throw new IllegalStateException("Cannot read script file " + this.scriptFile, ex);
+        }
+    }
+
+    void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
+        this.preInitialize();
+        this.init();
+    }
+
+    static FileReader getScriptContents(String location) {
+        try {
+            return new FileReader(location);
+        } catch (FileNotFoundException ex) {
+            throw new IllegalStateException("Cannot find file: " + location, ex);
+        }
     }
 
     void init() throws IllegalStateException, IllegalArgumentException {
@@ -87,6 +141,36 @@ public class ScriptableSource implements Source {
             }
         }
         return this.iterable;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + Objects.hashCode(this.charsetName);
+        hash = 67 * hash + Objects.hashCode(this.inputFile);
+        hash = 67 * hash + Objects.hashCode(this.scriptFile);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ScriptableSource other = (ScriptableSource) obj;
+        if (!Objects.equals(this.charsetName, other.charsetName)) {
+            return false;
+        }
+        if (!Objects.equals(this.inputFile, other.inputFile)) {
+            return false;
+        }
+        if (!Objects.equals(this.scriptFile, other.scriptFile)) {
+            return false;
+        }
+        return true;
     }
 
 }
