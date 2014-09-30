@@ -76,6 +76,8 @@ public class ScriptableSource implements Source {
         this.inputFile = inputFile;
         this.scriptFile = scriptFile;
         this.charsetName = charset;
+        this.preInitialize();
+        this.init();
     }
 
     public ScriptableSource(Path path, Reader script, String charset) {
