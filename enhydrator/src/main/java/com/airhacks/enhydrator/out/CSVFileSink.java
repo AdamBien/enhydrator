@@ -21,9 +21,9 @@ package com.airhacks.enhydrator.out;
  */
 import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
-import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -47,9 +47,10 @@ public class CSVFileSink extends Sink {
     @XmlTransient
     private boolean namesAlreadyWritten = false;
     @XmlTransient
-    BufferedWriter bos;
+    PrintWriter bos;
 
-    public CSVFileSink(String fileName, String delimiter, boolean useNamesAsHeaders, boolean append) {
+    public CSVFileSink(String sinkName, String fileName, String delimiter, boolean useNamesAsHeaders, boolean append) {
+        super(sinkName);
         this.fileName = fileName;
         this.delimiter = delimiter;
         this.append = append;
@@ -67,7 +68,7 @@ public class CSVFileSink extends Sink {
     @Override
     public void init() {
         try {
-            this.bos = new BufferedWriter(new FileWriter(this.fileName, append));
+            this.bos = new PrintWriter(new FileWriter(this.fileName, append));
         } catch (IOException ex) {
             throw new IllegalStateException("File " + this.fileName + " not found", ex);
         }
@@ -76,7 +77,7 @@ public class CSVFileSink extends Sink {
     @Override
     public void processRow(Row entries) {
         Collection<Column> columns = entries.getColumns();
-        if (!this.namesAlreadyWritten && this.useNamesAsHeaders) {
+        if (this.useNamesAsHeaders && !this.namesAlreadyWritten) {
             String header = columns.stream().map(c -> c.getName()).
                     reduce((t, u) -> t + delimiter + u).get();
             write(header);
@@ -87,28 +88,14 @@ public class CSVFileSink extends Sink {
         write(line);
     }
 
-    void write(String line) throws IllegalStateException {
-        try {
-            this.bos.write(line);
-            this.bos.write("\n");
-        } catch (IOException ex) {
-            throw new IllegalStateException("Cannot write line", ex);
-        }
+    void write(String line) {
+        this.bos.println(line);
     }
 
     @Override
     public void close() {
-        try {
-            this.bos.flush();
-        } catch (IOException ex) {
-            throw new IllegalStateException("Cannot flush", ex);
-        }
-        try {
-            this.bos.close();
-        } catch (IOException ex) {
-            throw new IllegalStateException("Cannot close", ex);
-
-        }
+        this.bos.flush();
+        this.bos.close();
     }
 
 }

@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.Row;
 import java.util.Arrays;
@@ -53,7 +52,7 @@ public class CSVFileSinkTest {
 
     @Before
     public void init() {
-        this.cut = new CSVFileSink(FILE_NAME, DELIMITER, USE_HEADERS, false);
+        this.cut = new CSVFileSink("*", FILE_NAME, DELIMITER, USE_HEADERS, false);
     }
 
     @Test
