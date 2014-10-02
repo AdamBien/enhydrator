@@ -2,20 +2,33 @@ package com.airhacks.enhydrator.out;
 
 import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.Row;
+import java.util.Arrays;
+import java.util.List;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  *
  * @author airhacks.com
  */
+@RunWith(Parameterized.class)
 public class CSVFileSinkTest {
 
     static final String FILE_NAME = "./target/temp" + System.currentTimeMillis() + ".csv";
     private static final String DELIMITER = "|";
-    private final boolean USE_HEADERS = true;
+    public int input;
+
+    @Parameterized.Parameter(0)
+    public boolean USE_HEADERS = true;
+
+    @Parameterized.Parameters(name = "Test with headers: {index} -> {0})")
+    public static List<Boolean[]> data() {
+        return Arrays.asList(new Boolean[][]{{true}, {false}});
+    }
     private CSVFileSink cut;
 
     @Before
@@ -35,17 +48,14 @@ public class CSVFileSinkTest {
         Row read = result.iterator().next();
         assertNotNull(read);
         System.out.println(entries.getColumnNames() + " " + read.getColumnNames());
-        read.getColumnNames().stream().forEach(t
-                -> assertTrue(entries.getColumnNames().contains(t)));
-        Row content = result.iterator().next();
-        assertNotNull(content);
-    }
-
-    @Test
-    public void serializeLineWithoutHeaders() {
-        CSVFileSink cut = new CSVFileSink(FILE_NAME, "|", false, false);
-        cut.init();
-        cut.processRow(getEntries());
+        System.out.println(entries.getColumnValues().values() + " " + read.getColumnValues().values());
+        if (USE_HEADERS) {
+            read.getColumnNames().stream().forEach(t
+                    -> assertTrue(entries.getColumnNames().contains(t)));
+        } else {
+            read.getColumnValues().values().stream().forEach(t
+                    -> assertTrue(entries.getColumnValues().values().contains(t)));
+        }
     }
 
     Row getEntries() {
