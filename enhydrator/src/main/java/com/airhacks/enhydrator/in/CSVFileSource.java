@@ -24,9 +24,9 @@ package com.airhacks.enhydrator.in;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -146,7 +146,7 @@ public class CSVFileSource implements Source {
     }
 
     Row parse(String line, String delimiter) {
-        String[] splitted = split(line, delimiter + REGEX_SPLIT_EXPRESSION);
+        String[] splitted = split(line, escape(delimiter) + REGEX_SPLIT_EXPRESSION);
         if (splitted == null || splitted.length == 0) {
             return null;
         }
@@ -213,6 +213,11 @@ public class CSVFileSource implements Source {
             return false;
         }
         return true;
+    }
+
+    String escape(String delimiter) {
+        //return delimiter;
+        return "\\" + delimiter;
     }
 
 }
