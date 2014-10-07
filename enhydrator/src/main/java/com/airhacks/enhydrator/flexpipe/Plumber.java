@@ -100,8 +100,7 @@ public class Plumber {
                     NashornRowTransformer.class, DestinationMapper.class,
                     TargetMapping.class, DatatypeMapper.class,
                     Datatype.class, SkipFirstRow.class, ScriptableSource.class,
-                    CSVFileSink.class);
-                    TargetMapping.class, DatatypeMapper.class, NameMapper.class, Datatype.class, SkipFirstRow.class);
+                    CSVFileSink.class, NameMapper.class);
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             this.unmarshaller = context.createUnmarshaller();
