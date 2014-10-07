@@ -148,7 +148,7 @@ public class CSVFileSource implements Source {
     }
 
     Row parse(String line, String delimiter) {
-        String[] splitted = split(line, delimiter + REGEX_SPLIT_EXPRESSION);
+        String[] splitted = split(line, escape(delimiter) + REGEX_SPLIT_EXPRESSION);
         if (splitted == null || splitted.length == 0) {
             return null;
         }
@@ -215,6 +215,11 @@ public class CSVFileSource implements Source {
             return false;
         }
         return true;
+    }
+
+    String escape(String delimiter) {
+        //return delimiter;
+        return "\\" + delimiter;
     }
 
     public void setFileName(String fileName) {

@@ -22,6 +22,7 @@ package com.airhacks.enhydrator.flexpipe;
 import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.JDBCSourceIT;
+import com.airhacks.enhydrator.in.ScriptableSource;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
@@ -61,6 +62,17 @@ public class PipelineTest {
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
         assertNotSame(deserialized, origin);
         assertEquals(deserialized, origin);
+    }
+
+    @Test
+    public void jsonPipelineSerialization() {
+        Pipeline origin = getJSONPipeline();
+        Plumber plumber = Plumber.createWith(".", "config");
+        plumber.intoConfiguration(origin);
+        Pipeline deserialized = plumber.fromConfiguration(origin.getName());
+        assertNotSame(deserialized, origin);
+        assertEquals(deserialized, origin);
+
     }
 
     public static Pipeline getJDBCPipeline() {
@@ -104,6 +116,26 @@ public class PipelineTest {
         origin.addQueryParam(2);
         origin.addEntryTransformation(e1);
         origin.addEntryTransformation(e2);
+        origin.addPreRowTransformation(targetMapper);
+        origin.addPreRowTransformation(datatypeMapper);
+        origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));
+        origin.addPostRowTransformation(new NashornRowTransformer("src/test/scripts", "compress"));
+        origin.addFilter("true");
+        origin.addExpression("print($ROW); $ROW");
+        return origin;
+    }
+
+    public static Pipeline getJSONPipeline() {
+        DestinationMapper targetMapper = new DestinationMapper();
+        targetMapper.addMapping(0, new TargetMapping("*", "*"));
+        DatatypeMapper datatypeMapper = new DatatypeMapper();
+        datatypeMapper.addMapping(1, Datatype.INTEGER);
+        Source source = new ScriptableSource("./src/test/files/languages.json", "./src/test/files/converter.js", "UTF-8");
+        Sink logSink = new LogSink();
+        Sink virtualSink = new VirtualSinkSource();
+        Pipeline origin = new Pipeline("json", "src/test/scripts", null, source);
+        origin.addSink(logSink);
+        origin.addSink(virtualSink);
         origin.addPreRowTransformation(targetMapper);
         origin.addPreRowTransformation(datatypeMapper);
         origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));

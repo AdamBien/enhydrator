@@ -23,7 +23,9 @@ import com.airhacks.enhydrator.db.UnmanagedConnectionProvider;
 import com.airhacks.enhydrator.in.CSVFileSource;
 import com.airhacks.enhydrator.in.CSVStreamSource;
 import com.airhacks.enhydrator.in.JDBCSource;
+import com.airhacks.enhydrator.in.ScriptableSource;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
+import com.airhacks.enhydrator.out.CSVFileSink;
 import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.transform.Datatype;
@@ -96,6 +98,9 @@ public class Plumber {
                     Pipeline.class, JDBCSink.class, LogSink.class,
                     UnmanagedConnectionProvider.class, ColumnTransformation.class,
                     NashornRowTransformer.class, DestinationMapper.class,
+                    TargetMapping.class, DatatypeMapper.class,
+                    Datatype.class, SkipFirstRow.class, ScriptableSource.class,
+                    CSVFileSink.class);
                     TargetMapping.class, DatatypeMapper.class, NameMapper.class, Datatype.class, SkipFirstRow.class);
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
