@@ -46,4 +46,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public interface Source {
 
     Iterable<Row> query(String query, Object... params);
+
+    default Iterable<Row> query() {
+        return this.query(null);
+    }
+
 }
