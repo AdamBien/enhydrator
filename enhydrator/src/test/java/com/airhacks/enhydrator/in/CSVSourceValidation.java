@@ -52,7 +52,7 @@ public abstract class CSVSourceValidation {
 
     @Test
     public void query() {
-        Iterable<Row> cars = this.cut.query(null);
+        Iterable<Row> cars = this.cut.query();
         int counter = 0;
         for (Row row : cars) {
             counter++;
@@ -65,7 +65,7 @@ public abstract class CSVSourceValidation {
 
     @Test
     public void columnNameIsSet() {
-        Iterable<Row> cars = this.cut.query(null);
+        Iterable<Row> cars = this.cut.query();
         int counter = 0;
         boolean headerSkipped = false;
         for (Row list : cars) {
@@ -88,7 +88,7 @@ public abstract class CSVSourceValidation {
     @Test
     public void columnIndexIsSet() {
         Source source = getSource("./src/test/files/index.csv");
-        Iterable<Row> pyramid = source.query(null);
+        Iterable<Row> pyramid = source.query();
 
         Iterator<Row> iterator = pyramid.iterator();
         iterator.next(); //skip header
@@ -104,7 +104,7 @@ public abstract class CSVSourceValidation {
     @Test
     public void nullHandling() {
         Source vss = getSource("./src/test/files/nullcolumns.csv");
-        Iterable<Row> query = vss.query(null);
+        Iterable<Row> query = vss.query();
         Iterator<Row> iterator = query.iterator();
         iterator.next(); //skipping header
         Row first = iterator.next();
@@ -145,7 +145,7 @@ public abstract class CSVSourceValidation {
     @Test
     public void pyramid() {
         Source vss = getSource("./src/test/files/pyramid.csv");
-        Iterable<Row> query = vss.query(null);
+        Iterable<Row> query = vss.query();
         int counter = 1;
         boolean readHeader = false;
         String columnName;
