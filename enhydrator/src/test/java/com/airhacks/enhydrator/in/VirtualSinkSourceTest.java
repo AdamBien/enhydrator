@@ -100,7 +100,7 @@ public class VirtualSinkSourceTest {
     @Test
     public void query() {
         VirtualSinkSource source = getSource();
-        Iterable<Row> results = source.query(null);
+        Iterable<Row> results = source.query();
         int rowCounter = 0;
         for (Row list : results) {
             assertNotNull(list);

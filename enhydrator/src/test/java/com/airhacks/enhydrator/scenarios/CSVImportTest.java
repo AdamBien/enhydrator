@@ -47,7 +47,7 @@ public class CSVImportTest {
 
         int numberOfRows = vss.getNumberOfRows();
         assertTrue(numberOfRows > 0);
-        Iterable<Row> query = vss.query(null);
+        Iterable<Row> query = vss.query();
         boolean foundFord = false;
         for (Row list : query) {
             assertThat(list.getNumberOfColumns(), is(4));
@@ -63,7 +63,7 @@ public class CSVImportTest {
         VirtualSinkSource vss = getSource("./src/test/files/nullcolumns.csv");
         int numberOfRows = vss.getNumberOfRows();
         assertThat(numberOfRows, is(3));
-        Iterable<Row> query = vss.query(null);
+        Iterable<Row> query = vss.query();
         Iterator<Row> iterator = query.iterator();
         iterator.next(); //skipping header
         Row first = iterator.next();

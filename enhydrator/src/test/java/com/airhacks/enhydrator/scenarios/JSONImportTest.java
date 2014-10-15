@@ -46,7 +46,7 @@ public class JSONImportTest {
         VirtualSinkSource vss = getSource("./src/test/files/languages.json");
         int numberOfRows = vss.getNumberOfRows();
         assertThat(numberOfRows, is(1));
-        Iterable<Row> query = vss.query(null);
+        Iterable<Row> query = vss.query();
         Iterator<Row> iterator = query.iterator();
         Row first = iterator.next();
         assertThat(first.getColumnValue("java"), is("1"));

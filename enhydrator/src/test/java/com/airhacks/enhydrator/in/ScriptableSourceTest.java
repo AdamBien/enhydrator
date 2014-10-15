@@ -61,7 +61,7 @@ public class ScriptableSourceTest {
 
     @Test
     public void query() {
-        Iterable<Row> query = this.cut.query(null, null);
+        Iterable<Row> query = this.cut.query();
         assertNotNull(query);
         Row theOnly = query.iterator().next();
         assertNotNull(theOnly);
