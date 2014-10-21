@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,20 +46,20 @@ public class PojoSink extends Sink {
 
     private static final String DEFAULT_NAME = "pojo";
     @XmlTransient
-    private Class target;
+    protected Class target;
     @XmlTransient
-    private Class childrenType;
+    protected Class childrenType;
     @XmlTransient
-    private Consumer<Object> consumer;
+    protected Consumer<Object> consumer;
 
     @XmlTransient
-    private String childrenFieldName = null;
+    protected String childrenFieldName = null;
 
     @XmlTransient
-    private final Consumer<Map<String, Object>> devNullConsumer;
+    protected final Consumer<Map<String, Object>> devNullConsumer;
 
     @XmlTransient
-    private Map<String, Object> unmappedFields;
+    protected Map<String, Object> unmappedFields;
 
     public PojoSink(Class target, Consumer<Object> consumer, Consumer<Map<String, Object>> devNull) {
         this(DEFAULT_NAME, target, consumer, devNull);
@@ -111,20 +111,20 @@ public class PojoSink extends Sink {
         }
     }
 
-    Object convert(Class pojoType, Row currentRow) {
+    protected Object convert(Class pojoType, Row currentRow) {
         Object targetObject = newInstance(pojoType);
         currentRow.getColumnValues().forEach((k, v) -> setField(targetObject, k, v));
         return targetObject;
     }
 
-    void mapChildren(Object parent, List<Row> children) {
+    protected void mapChildren(Object parent, List<Row> children) {
         List<Object> pojos = children.stream().
                 map(c -> convert(this.childrenType, c)).
                 collect(Collectors.toList());
         setField(parent, this.childrenFieldName, pojos);
     }
 
-    Object newInstance(Class clazz) throws IllegalStateException {
+    protected Object newInstance(Class clazz) throws IllegalStateException {
         Object targetObject;
         try {
             targetObject = clazz.newInstance();
@@ -177,7 +177,7 @@ public class PojoSink extends Sink {
         return null;
     }
 
-    static Pair<String, Class<? extends Object>> getChildInfo(Class target) {
+    protected static Pair<String, Class<? extends Object>> getChildInfo(Class target) {
         Field[] declaredFields = target.getDeclaredFields();
         for (Field field : declaredFields) {
             final Class<?> type = field.getType();
