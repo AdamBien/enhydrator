@@ -90,7 +90,7 @@ public class CSVStreamSource implements Source {
         init();
     }
 
-    void init() throws IllegalStateException, IllegalArgumentException {
+    public void init() throws IllegalStateException, IllegalArgumentException {
         this.shouldProcessHeaders = this.containsHeaders;
         this.charset = Charset.forName(charsetName);
         this.columnNames = new ArrayList<>();
@@ -198,6 +198,13 @@ public class CSVStreamSource implements Source {
 
     public void setStream(InputStream stream) {
         this.stream = stream;
-        this.init();
+    }
+
+    public String getCharsetName() {
+        return charsetName;
+    }
+
+    public void setCharsetName(String charsetName) {
+        this.charsetName = charsetName;
     }
 }
