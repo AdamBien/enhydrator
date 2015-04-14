@@ -109,7 +109,7 @@ public class ScriptableSource implements Source {
         }
     }
 
-    void init() throws IllegalStateException, IllegalArgumentException {
+    public void init() throws IllegalStateException, IllegalArgumentException {
         this.rows = new ArrayList<>();
         this.charset = Charset.forName(charsetName);
         ScriptEngineManager manager = new ScriptEngineManager();
@@ -125,6 +125,19 @@ public class ScriptableSource implements Source {
         this.nashorn.put("INPUT", pullContent());
         this.nashorn.put("ROWS", this.rows);
         return (List<Row>) this.nashorn.eval(script);
+    }
+
+    public void setInput(Path input) {
+        this.input = input;
+    }
+
+    public void setScriptFile(String scriptFile) {
+        this.scriptFile = scriptFile;
+        try {
+            this.script = new FileReader(this.scriptFile);
+        } catch (FileNotFoundException ex) {
+            throw new IllegalStateException("Cannot read script file " + this.scriptFile, ex);
+        }
     }
 
     /**
