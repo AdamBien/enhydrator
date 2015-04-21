@@ -367,6 +367,7 @@ public class Pump {
             });
             pipeline.getPostRowTransfomers().forEach(t -> endWith(t::execute));
             this.expressions = pipeline.getExpressions();
+            this.filterExpressions = pipeline.getFilters();
             List<Object> queryParams = pipeline.getQueryParams();
             if (queryParams == null || queryParams.isEmpty()) {
                 sqlQuery(pipeline.getSqlQuery());

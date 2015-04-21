@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.flexpipe;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -159,6 +159,10 @@ public class Pipeline {
         return expressions;
     }
 
+    public List<String> getFilters() {
+        return filters;
+    }
+
     public String getScriptsHome() {
         return scriptsHome;
     }
@@ -197,6 +201,7 @@ public class Pipeline {
         hash = 67 * hash + Objects.hashCode(this.columnTransformations);
         hash = 67 * hash + Objects.hashCode(this.postRowTransfomers);
         hash = 67 * hash + Objects.hashCode(this.expressions);
+        hash = 67 * hash + Objects.hashCode(this.filters);
         return hash;
     }
 
@@ -236,6 +241,10 @@ public class Pipeline {
         if (!Objects.equals(this.expressions, other.expressions)) {
             return false;
         }
+        if (!Objects.equals(this.filters, other.filters)) {
+            return false;
+        }
+
         return true;
     }
 
