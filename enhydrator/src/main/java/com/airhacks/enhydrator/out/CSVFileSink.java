@@ -21,9 +21,11 @@ package com.airhacks.enhydrator.out;
  */
 import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -43,11 +45,23 @@ public class CSVFileSink extends Sink {
     private String delimiter;
     private boolean append;
     private boolean useNamesAsHeaders;
+    private String charsetName = "UTF-8";
+    private Charset charset = Charset.forName(charsetName);
 
     @XmlTransient
     private boolean namesAlreadyWritten = false;
     @XmlTransient
     PrintWriter bos;
+
+    public CSVFileSink(String sinkName, String fileName, String delimiter, boolean useNamesAsHeaders, boolean append, String charsetName) {
+        super(sinkName);
+        this.fileName = fileName;
+        this.delimiter = delimiter;
+        this.append = append;
+        this.useNamesAsHeaders = useNamesAsHeaders;
+        this.charsetName = charsetName;
+        this.charset = Charset.forName(charsetName);
+    }
 
     public CSVFileSink(String sinkName, String fileName, String delimiter, boolean useNamesAsHeaders, boolean append) {
         super(sinkName);
@@ -68,7 +82,7 @@ public class CSVFileSink extends Sink {
     @Override
     public void init() {
         try {
-            this.bos = new PrintWriter(new FileWriter(this.fileName, append));
+            this.bos = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName, append), charset));
         } catch (IOException ex) {
             throw new IllegalStateException("File " + this.fileName + " not found", ex);
         }
