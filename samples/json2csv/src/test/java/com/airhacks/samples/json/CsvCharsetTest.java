@@ -42,15 +42,5 @@ public class CsvCharsetTest extends CsvTest {
                 to(csvFileSink).
                 build();
         pumpOut.start();
-
-        // check results
-        CSVFileSource reimoortSource = new CSVFileSource(fileName, sinkDelimiter, sourceCharsetName, sourceContainsHeaders);
-        
-        //RowSink rowSink = new RowSink(sinkName, r -> );
-//        Pump pumpIn = new Pump.Engine().
-//                from(reimoortSource).
-//                to(csvFileSink).
-//                build();
-//        pumpIn.start();
     }
 }
