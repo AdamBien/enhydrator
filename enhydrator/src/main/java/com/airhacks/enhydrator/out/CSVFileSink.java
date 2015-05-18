@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -45,8 +46,8 @@ public class CSVFileSink extends Sink {
     private String delimiter;
     private boolean append;
     private boolean useNamesAsHeaders;
-    private String charsetName = "UTF-8";
-    private Charset charset = Charset.forName(charsetName);
+    private String charsetName = StandardCharsets.UTF_8.displayName();
+    private Charset charset;
 
     @XmlTransient
     private boolean namesAlreadyWritten = false;
@@ -60,7 +61,6 @@ public class CSVFileSink extends Sink {
         this.append = append;
         this.useNamesAsHeaders = useNamesAsHeaders;
         this.charsetName = charsetName;
-        this.charset = Charset.forName(charsetName);
     }
 
     public CSVFileSink(String sinkName, String fileName, String delimiter, boolean useNamesAsHeaders, boolean append) {
@@ -81,6 +81,7 @@ public class CSVFileSink extends Sink {
 
     @Override
     public void init() {
+        this.charset = Charset.forName(charsetName);
         try {
             this.bos = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName, append), charset));
         } catch (IOException ex) {
