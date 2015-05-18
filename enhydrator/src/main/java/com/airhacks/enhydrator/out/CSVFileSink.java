@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,8 +46,7 @@ public class CSVFileSink extends Sink {
     private String delimiter;
     private boolean append;
     private boolean useNamesAsHeaders;
-    private String charsetName = StandardCharsets.UTF_8.displayName();
-    private Charset charset;
+    private String charsetName;
 
     @XmlTransient
     private boolean namesAlreadyWritten = false;
@@ -81,7 +80,11 @@ public class CSVFileSink extends Sink {
 
     @Override
     public void init() {
-        this.charset = Charset.forName(charsetName);
+        if (charsetName == null || charsetName.isEmpty()) {
+            charsetName = StandardCharsets.UTF_8.displayName();
+        }
+
+        Charset charset = Charset.forName(charsetName);
         try {
             this.bos = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName, append), charset));
         } catch (IOException ex) {
