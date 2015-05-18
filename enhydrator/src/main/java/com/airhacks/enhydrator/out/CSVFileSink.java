@@ -101,8 +101,10 @@ public class CSVFileSink extends Sink {
             write(header);
             this.namesAlreadyWritten = true;
         }
-        String line = columns.stream().map(c -> c.getValue().toString()).
-                reduce((t, u) -> t + delimiter + u).get();
+        String line = columns.stream()
+                .map(Column::getValueAsOptional)
+                .map(value -> value.orElse("").toString())
+                .reduce((t, u) -> t + delimiter + u).get();
         write(line);
     }
 

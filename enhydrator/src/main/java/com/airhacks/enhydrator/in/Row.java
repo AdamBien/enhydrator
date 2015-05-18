@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -142,7 +143,7 @@ public class Row {
 
     public Map<String, Object> getColumnValues() {
         return this.columnByName.entrySet().
-                stream().filter(e -> e.getValue().getValue() != null).
+                stream()/*.filter(e -> e.getValue().getValue() != null)*/.
                 collect(Collectors.toMap(k -> k.getKey(), v -> value(v)));
     }
 
@@ -152,7 +153,8 @@ public class Row {
         Column column = entry.getValue();
         Objects.requireNonNull(columnName, "Column name cannot be null");
         Objects.requireNonNull(column, "Column with name " + columnName + " is null");
-        Object value = column.getValue();
+        Optional<Object> valueAsOptional = column.getValueAsOptional();
+        Object value = valueAsOptional.orElse("");
         Objects.requireNonNull(value, "Column with name " + columnName + " has null value");
         return value;
     }

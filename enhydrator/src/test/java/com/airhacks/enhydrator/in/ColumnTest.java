@@ -98,4 +98,22 @@ public class ColumnTest {
         assertThat(value, is(0.0d));
     }
 
+    @Test
+    public void testIsNumber() {
+        Column column = new Column(0, "number", 42);
+        assertTrue(column.isNumber());
+
+        Column nullColumn = new Column(0, "number");
+        assertFalse(nullColumn.isNumber());
+    }
+
+    @Test
+    public void testIsString() {
+        Column column = new Column(0, "string", "aString");
+        assertTrue(column.isString());
+
+        Column nullColumn = new Column(0, "string");
+        assertFalse(nullColumn.isString());
+    }
+
 }

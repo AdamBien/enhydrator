@@ -20,6 +20,7 @@ package com.airhacks.enhydrator.out;
  * #L%
  */
 import com.airhacks.enhydrator.in.CSVFileSource;
+import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
 import java.util.Arrays;
 import java.util.List;
@@ -81,6 +82,11 @@ public class CSVFileSinkTest {
         Row row = new Row();
         row.addColumn(-1, "a", "java");
         row.addColumn(-1, "b", "tengah");
+        Column c = new Column(-1, "c", null);
+        row.addColumn(c);
+        row.addColumn(-1, "d", "groovy");
+        Column e = new Column(-1, "e", null);
+        row.addColumn(e);
         return row;
     }
 
