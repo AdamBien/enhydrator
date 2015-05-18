@@ -164,7 +164,7 @@ public class Column {
     }
 
     public void setValue(Object value) {
-        this.value = Optional.of(value);
+        this.value = Optional.ofNullable(value);
     }
 
     boolean isNumber() {

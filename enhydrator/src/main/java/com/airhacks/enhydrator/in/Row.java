@@ -141,22 +141,20 @@ public class Row {
         return this.columnByName.size();
     }
 
-    public Map<String, Object> getColumnValues() {
+    public Map<String, Optional<Object>> getColumnValues() {
         return this.columnByName.entrySet().
                 stream()/*.filter(e -> e.getValue().getValue() != null)*/.
                 collect(Collectors.toMap(k -> k.getKey(), v -> value(v)));
     }
 
-    Object value(Entry<String, Column> entry) {
+    Optional<Object> value(Entry<String, Column> entry) {
         Objects.requireNonNull(entry, "Entry cannot be null");
         String columnName = entry.getKey();
         Column column = entry.getValue();
         Objects.requireNonNull(columnName, "Column name cannot be null");
         Objects.requireNonNull(column, "Column with name " + columnName + " is null");
         Optional<Object> valueAsOptional = column.getValueAsOptional();
-        Object value = valueAsOptional.orElse("");
-        Objects.requireNonNull(value, "Column with name " + columnName + " has null value");
-        return value;
+        return valueAsOptional;
     }
 
     public Set<String> getColumnNames() {

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -120,7 +121,7 @@ public class PojoSink extends Sink {
         List<Object> pojos = children.stream().
                 map(c -> convert(this.childrenType, c)).
                 collect(Collectors.toList());
-        setField(parent, this.childrenFieldName, pojos);
+        setField(parent, this.childrenFieldName, Optional.of(pojos));
     }
 
     protected Object newInstance(Class clazz) throws IllegalStateException {
@@ -133,7 +134,7 @@ public class PojoSink extends Sink {
         return targetObject;
     }
 
-    public void setField(Object target, String name, Object value) {
+    public void setField(Object target, String name, Optional<Object> value) {
         Objects.requireNonNull(target, "Object cannot be null");
         Class<? extends Object> targetClass = target.getClass();
         Field field;
@@ -143,7 +144,7 @@ public class PojoSink extends Sink {
             field = getFieldAnnotatedWith(targetClass, name);
             if (field == null) {
                 if (this.devNullConsumer != null) {
-                    unmappedFields.put(name, value);
+                    unmappedFields.put(name, value.orElse(null));
                     return;
                 } else {
                     throw new IllegalArgumentException(target.getClass() + " does not have a field with the name " + name, ex);
@@ -152,13 +153,15 @@ public class PojoSink extends Sink {
         } catch (SecurityException ex) {
             throw new IllegalStateException("Cannot access private field", ex);
         }
-        try {
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (IllegalAccessException ex) {
-            throw new IllegalStateException("Cannot set field: " + name + " with " + value, ex);
-        } finally {
-            field.setAccessible(false);
+        if(value.isPresent()) {
+            try {
+                field.setAccessible(true);
+                field.set(target, value.get());
+            } catch (IllegalAccessException ex) {
+                throw new IllegalStateException("Cannot set field: " + name + " with " + value.get(), ex);
+            } finally {
+                field.setAccessible(false);
+            }
         }
     }
 
