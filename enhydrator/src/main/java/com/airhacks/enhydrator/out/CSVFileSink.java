@@ -94,7 +94,7 @@ public class CSVFileSink extends Sink {
 
     @Override
     public void processRow(Row entries) {
-        Collection<Column> columns = entries.getColumns();
+        Collection<Column> columns = entries.getColumnsSortedByColumnIndex();
         if (this.useNamesAsHeaders && !this.namesAlreadyWritten) {
             String header = columns.stream().map(c -> c.getName()).
                     reduce((t, u) -> t + delimiter + u).get();
@@ -116,6 +116,14 @@ public class CSVFileSink extends Sink {
     public void close() {
         this.bos.flush();
         this.bos.close();
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
 }

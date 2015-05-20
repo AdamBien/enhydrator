@@ -90,6 +90,12 @@ public class Row {
         return this.columnByName.values();
     }
 
+    public Collection<Column> getColumnsSortedByColumnIndex() {
+        return this.columnByName.values().stream().
+                sorted((col1, col2) -> Integer.compare(col1.getIndex(), col2.getIndex())).
+                collect(Collectors.toList());
+    }
+
     public void changeColumnName(String oldName, String newName) {
         Column column = this.columnByName.remove(oldName);
         if (column == null) {
@@ -142,8 +148,7 @@ public class Row {
     }
 
     public Map<String, Optional<Object>> getColumnValues() {
-        return this.columnByName.entrySet().
-                stream()/*.filter(e -> e.getValue().getValue() != null)*/.
+        return this.columnByName.entrySet().stream().
                 collect(Collectors.toMap(k -> k.getKey(), v -> value(v)));
     }
 

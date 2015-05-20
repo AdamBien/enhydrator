@@ -24,7 +24,9 @@ import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
 import java.util.Arrays;
 import java.util.List;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,21 +74,34 @@ public class CSVFileSinkTest {
         if (USE_HEADERS) {
             read.getColumnNames().stream().forEach(t
                     -> assertTrue(entries.getColumnNames().contains(t)));
+            // ensure the order of the columns
+            assertEquals("Column One", read.getColumnByIndex(0).getName());
+            assertEquals("Column Two", read.getColumnByIndex(1).getName());
+            assertEquals("Column Three (empty)", read.getColumnByIndex(2).getName());
+            assertEquals("Column Four", read.getColumnByIndex(3).getName());
+            assertEquals("Column Five (empty)", read.getColumnByIndex(4).getName());
+
         } else {
             read.getColumnValues().values().stream().forEach(t
                     -> assertTrue(entries.getColumnValues().values().contains(t)));
+            // ensure the order of the columns
+            assertEquals("java", read.getColumnByIndex(0).getValue());
+            assertEquals("tengah", read.getColumnByIndex(1).getValue());
+            assertNull(read.getColumnByIndex(2).getValue());
+            assertEquals("groovy", read.getColumnByIndex(3).getValue());
+            assertNull(read.getColumnByIndex(4).getValue());
         }
     }
 
     Row getEntries() {
         Row row = new Row();
-        row.addColumn(-1, "a", "java");
-        row.addColumn(-1, "b", "tengah");
-        Column c = new Column(-1, "c", null);
-        row.addColumn(c);
-        row.addColumn(-1, "d", "groovy");
-        Column e = new Column(-1, "e", null);
+        Column e = new Column(5, "Column Five (empty)", null);
         row.addColumn(e);
+        row.addColumn(2, "Column Two", "tengah");
+        row.addColumn(4, "Column Four", "groovy");
+        row.addColumn(1, "Column One", "java");
+        Column c = new Column(3, "Column Three (empty)", null);
+        row.addColumn(c);
         return row;
     }
 
