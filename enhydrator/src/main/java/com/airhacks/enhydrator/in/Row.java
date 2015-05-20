@@ -47,16 +47,23 @@ public class Row {
 
     private List<Row> children;
 
-    private Memory memory;
+    private Memory rowMemory;
+    private Memory globalMemory;
 
     public Row() {
         this.columnByName = new ConcurrentHashMap<>();
         this.columnByIndex = new ConcurrentHashMap<>();
         this.children = new CopyOnWriteArrayList<>();
+        this.rowMemory = new Memory();
+        this.globalMemory = new Memory();
     }
 
-    public void useMemory(Memory memory) {
-        this.memory = memory;
+    public void useRowMemory(Memory rowMemory) {
+        this.rowMemory = rowMemory;
+    }
+
+    public void useGlobalMemory(Memory globalMemory) {
+        this.globalMemory = globalMemory;
     }
 
     public Object getColumnValue(String columnName) {
@@ -241,16 +248,22 @@ public class Row {
         return !this.children.isEmpty();
     }
 
-    public Memory getMemory() {
-        return memory;
+    public Memory getRowMemory() {
+        return rowMemory;
+    }
+
+    public Memory getGlobalMemory() {
+        return globalMemory;
     }
 
     public void successfullyProcessed() {
-        this.memory.processed();
+        this.rowMemory.processed();
+        this.globalMemory.processed();
     }
 
     public void errorOccured() {
-        this.memory.errorOccured();
+        this.rowMemory.errorOccured();
+        this.globalMemory.errorOccured();
     }
 
     @Override
@@ -259,7 +272,8 @@ public class Row {
     }
 
     public void errorOccured(Throwable ex) {
-        this.memory.addProcessingError(this, ex);
+        this.rowMemory.addProcessingError(this, ex);
+        this.globalMemory.addProcessingError(this, ex);
     }
 
 }
