@@ -74,10 +74,6 @@ public class CSVFileSink extends Sink {
         //required for JAXB
     }
 
-    void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
-        this.init();
-    }
-
     @Override
     public void init() {
         if (charsetName == null || charsetName.isEmpty()) {
