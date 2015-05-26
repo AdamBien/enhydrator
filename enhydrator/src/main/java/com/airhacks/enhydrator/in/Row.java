@@ -89,7 +89,7 @@ public class Row {
         return this.columnByName.values();
     }
 
-    public Collection<Column> getColumnsSortedByColumnIndex() {
+    public List<Column> getColumnsSortedByColumnIndex() {
         return this.columnByName.values().stream().
                 sorted((col1, col2) -> Integer.compare(col1.getIndex(), col2.getIndex())).
                 collect(Collectors.toList());
@@ -252,13 +252,17 @@ public class Row {
         this.memory.errorOccured();
     }
 
-    @Override
-    public String toString() {
-        return "Row{" + "columnByName=" + columnByName + ", columnByIndex=" + columnByIndex + ", children=" + children + '}';
-    }
-
     public void errorOccured(Throwable ex) {
         this.memory.addProcessingError(this, ex);
     }
 
+    public void reindexColumns() {
+        this.columnByIndex.clear();
+        this.columnByName.values().forEach(col -> this.columnByIndex.put(col.getIndex(), col));
+    }
+
+    @Override
+    public String toString() {
+        return "Row{" + "columnByName=" + columnByName + ", columnByIndex=" + columnByIndex + ", children=" + children + '}';
+    }
 }
