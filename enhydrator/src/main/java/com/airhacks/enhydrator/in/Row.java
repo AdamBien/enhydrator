@@ -266,14 +266,18 @@ public class Row {
         this.globalMemory.errorOccured();
     }
 
-    @Override
-    public String toString() {
-        return "Row{" + "columnByName=" + columnByName + ", columnByIndex=" + columnByIndex + ", children=" + children + '}';
-    }
-
     public void errorOccured(Throwable ex) {
         this.rowMemory.addProcessingError(this, ex);
         this.globalMemory.addProcessingError(this, ex);
     }
 
+    public void reindexColumns() {
+        this.columnByIndex.clear();
+        this.columnByName.values().forEach(col -> this.columnByIndex.put(col.getIndex(), col));
+    }
+
+    @Override
+    public String toString() {
+        return "Row{" + "columnByName=" + columnByName + ", columnByIndex=" + columnByIndex + ", children=" + children + '}';
+    }
 }
