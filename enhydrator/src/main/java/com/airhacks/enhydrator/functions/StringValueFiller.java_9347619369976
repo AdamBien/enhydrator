@@ -1,3 +1,5 @@
+package com.airhacks.enhydrator.functions;
+
 /*
  * #%L
  * enhydrator
@@ -17,16 +19,32 @@
  * limitations under the License.
  * #L%
  */
-var Row = Java.type("com.airhacks.enhydrator.in.Row");
-print(INPUT);
-var row = new Row();
-var results = JSON.parse(INPUT);
-var counter = 0;
-for (result in results.methods) {
-    print(result + " - " + results.methods[result]);
-    row.addColumn(counter++, result, results.methods[result]);
+import com.airhacks.enhydrator.in.Row;
+import com.airhacks.enhydrator.transform.RowTransformer;
+
+/**
+ *
+ * @author airhacks.com
+ */
+public class StringValueFiller implements RowTransformer {
+
+    private String fillValue;
+
+    public StringValueFiller(String value) {
+        this.fillValue = value;
+    }
+
+    public StringValueFiller() {
+        this.fillValue = " ";
+    }
+
+    @Override
+    public Row execute(Row input) {
+        if (input == null) {
+            return null;
+        }
+        input.getColumns().forEach(e -> e.fillWithValue(this.fillValue));
+        return input;
+    }
 
 }
-ROWS.add(row);
-ROWS;
-
