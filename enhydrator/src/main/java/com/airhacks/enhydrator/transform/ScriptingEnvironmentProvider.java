@@ -33,9 +33,10 @@ public class ScriptingEnvironmentProvider {
         Bindings bindings = scriptEngineManager.getBindings();
         bindings.put("$ROW", input);
         final Row emptyRow = new Row();
-        emptyRow.useMemory(input.getMemory());
+        emptyRow.useRowMemory(input.getRowMemory());
         bindings.put("$EMPTY", emptyRow);
-        bindings.put("$MEMORY", input.getMemory());
+        bindings.put("$MEMORY", input.getRowMemory());
+        bindings.put("$GLOBAL_MEMORY", input.getGlobalMemory());
         input.getColumns().forEach(c -> bindings.put(c.getName(), c));
         return bindings;
     }

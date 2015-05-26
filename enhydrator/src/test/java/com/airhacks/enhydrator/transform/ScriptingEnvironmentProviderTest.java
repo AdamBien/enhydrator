@@ -38,7 +38,7 @@ public class ScriptingEnvironmentProviderTest {
     public void emptyRowHasMemory() {
         Row row = new Row();
         Memory input = new Memory();
-        row.useMemory(input);
+        row.useRowMemory(input);
         Bindings bindings = ScriptingEnvironmentProvider.create(new ScriptEngineManager(), row);
         Object memory = bindings.get("$MEMORY");
         assertNotNull(memory);

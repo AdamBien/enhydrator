@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -46,16 +47,23 @@ public class Row {
 
     private List<Row> children;
 
-    private Memory memory;
+    private Memory rowMemory;
+    private Memory globalMemory;
 
     public Row() {
         this.columnByName = new ConcurrentHashMap<>();
         this.columnByIndex = new ConcurrentHashMap<>();
         this.children = new CopyOnWriteArrayList<>();
+        this.rowMemory = new Memory();
+        this.globalMemory = new Memory();
     }
 
-    public void useMemory(Memory memory) {
-        this.memory = memory;
+    public void useRowMemory(Memory rowMemory) {
+        this.rowMemory = rowMemory;
+    }
+
+    public void useGlobalMemory(Memory globalMemory) {
+        this.globalMemory = globalMemory;
     }
 
     public Object getColumnValue(String columnName) {
@@ -87,6 +95,12 @@ public class Row {
 
     public Collection<Column> getColumns() {
         return this.columnByName.values();
+    }
+
+    public Collection<Column> getColumnsSortedByColumnIndex() {
+        return this.columnByName.values().stream().
+                sorted((col1, col2) -> Integer.compare(col1.getIndex(), col2.getIndex())).
+                collect(Collectors.toList());
     }
 
     public void changeColumnName(String oldName, String newName) {
@@ -140,21 +154,19 @@ public class Row {
         return this.columnByName.size();
     }
 
-    public Map<String, Object> getColumnValues() {
-        return this.columnByName.entrySet().
-                stream().filter(e -> e.getValue().getValue() != null).
+    public Map<String, Optional<Object>> getColumnValues() {
+        return this.columnByName.entrySet().stream().
                 collect(Collectors.toMap(k -> k.getKey(), v -> value(v)));
     }
 
-    Object value(Entry<String, Column> entry) {
+    Optional<Object> value(Entry<String, Column> entry) {
         Objects.requireNonNull(entry, "Entry cannot be null");
         String columnName = entry.getKey();
         Column column = entry.getValue();
         Objects.requireNonNull(columnName, "Column name cannot be null");
         Objects.requireNonNull(column, "Column with name " + columnName + " is null");
-        Object value = column.getValue();
-        Objects.requireNonNull(value, "Column with name " + columnName + " has null value");
-        return value;
+        Optional<Object> valueAsOptional = column.getValueAsOptional();
+        return valueAsOptional;
     }
 
     public Set<String> getColumnNames() {
@@ -236,16 +248,22 @@ public class Row {
         return !this.children.isEmpty();
     }
 
-    public Memory getMemory() {
-        return memory;
+    public Memory getRowMemory() {
+        return rowMemory;
+    }
+
+    public Memory getGlobalMemory() {
+        return globalMemory;
     }
 
     public void successfullyProcessed() {
-        this.memory.processed();
+        this.rowMemory.processed();
+        this.globalMemory.processed();
     }
 
     public void errorOccured() {
-        this.memory.errorOccured();
+        this.rowMemory.errorOccured();
+        this.globalMemory.errorOccured();
     }
 
     @Override
@@ -254,7 +272,8 @@ public class Row {
     }
 
     public void errorOccured(Throwable ex) {
-        this.memory.addProcessingError(this, ex);
+        this.rowMemory.addProcessingError(this, ex);
+        this.globalMemory.addProcessingError(this, ex);
     }
 
 }

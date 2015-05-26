@@ -28,7 +28,6 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -74,10 +73,6 @@ public class CSVFileSink extends Sink {
         //required for JAXB
     }
 
-    void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
-        this.init();
-    }
-
     @Override
     public void init() {
         if (charsetName == null || charsetName.isEmpty()) {
@@ -94,15 +89,17 @@ public class CSVFileSink extends Sink {
 
     @Override
     public void processRow(Row entries) {
-        Collection<Column> columns = entries.getColumns();
+        Collection<Column> columns = entries.getColumnsSortedByColumnIndex();
         if (this.useNamesAsHeaders && !this.namesAlreadyWritten) {
             String header = columns.stream().map(c -> c.getName()).
                     reduce((t, u) -> t + delimiter + u).get();
             write(header);
             this.namesAlreadyWritten = true;
         }
-        String line = columns.stream().map(c -> c.getValue().toString()).
-                reduce((t, u) -> t + delimiter + u).get();
+        String line = columns.stream()
+                .map(Column::getValueAsOptional)
+                .map(value -> value.orElse("").toString())
+                .reduce((t, u) -> t + delimiter + u).get();
         write(line);
     }
 
@@ -114,6 +111,14 @@ public class CSVFileSink extends Sink {
     public void close() {
         this.bos.flush();
         this.bos.close();
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
 }
