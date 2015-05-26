@@ -97,7 +97,7 @@ public class Row {
         return this.columnByName.values();
     }
 
-    public Collection<Column> getColumnsSortedByColumnIndex() {
+    public List<Column> getColumnsSortedByColumnIndex() {
         return this.columnByName.values().stream().
                 sorted((col1, col2) -> Integer.compare(col1.getIndex(), col2.getIndex())).
                 collect(Collectors.toList());
