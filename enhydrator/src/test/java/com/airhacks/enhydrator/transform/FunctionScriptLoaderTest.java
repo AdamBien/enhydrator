@@ -23,6 +23,8 @@ import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -39,10 +41,13 @@ public class FunctionScriptLoaderTest {
 
     FunctionScriptLoader cut;
     public static final String SCRIPTS_HOME_FOLDER = "./src/test/scripts";
+    private Map<String, Object> scriptEngineBindings;
 
     @Before
     public void init() {
-        this.cut = new FileFunctionScriptLoader(SCRIPTS_HOME_FOLDER);
+        this.scriptEngineBindings = new HashMap<>();
+        this.cut = new FileFunctionScriptLoader(SCRIPTS_HOME_FOLDER, this.scriptEngineBindings);
+
     }
 
     @Test
@@ -56,19 +61,19 @@ public class FunctionScriptLoaderTest {
 
     @Test(expected = NullPointerException.class)
     public void createWithNullParameter() {
-        FunctionScriptLoader.create(null);
+        FunctionScriptLoader.create(null, null);
     }
 
     @Test
     public void createResourceFunctionScriptLoader() {
-        FunctionScriptLoader actual = FunctionScriptLoader.create("resource___anything");
+        FunctionScriptLoader actual = FunctionScriptLoader.create("resource___anything", null);
         assertNotNull(actual);
         assertTrue(actual instanceof ResourceFunctionScriptLoader);
     }
 
     @Test
     public void createFileFunctionScriptLoader() {
-        FunctionScriptLoader actual = FunctionScriptLoader.create("/config");
+        FunctionScriptLoader actual = FunctionScriptLoader.create("/config", null);
         assertTrue(actual instanceof FileFunctionScriptLoader);
     }
 

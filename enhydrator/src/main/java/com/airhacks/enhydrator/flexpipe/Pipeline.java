@@ -21,7 +21,6 @@ package com.airhacks.enhydrator.flexpipe;
  */
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.Sink;
-import com.airhacks.enhydrator.transform.NashornRowTransformer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -169,20 +168,6 @@ public class Pipeline {
 
     public void setScriptsHome(String scriptsHome) {
         this.scriptsHome = scriptsHome;
-
-        // Propage to all already added transformers
-        preRowTransformers.stream().filter((t) -> (t instanceof NashornRowTransformer)).map((t) -> (NashornRowTransformer)t).map((nt) -> {
-            nt.setBaseScriptFolder(scriptsHome);
-            return nt;
-        }).forEach((nt) -> {
-            nt.initialize();
-        });
-        postRowTransfomers.stream().filter((t) -> (t instanceof NashornRowTransformer)).map((t) -> (NashornRowTransformer)t).map((nt) -> {
-            nt.setBaseScriptFolder(scriptsHome);
-            return nt;
-        }).forEach((nt) -> {
-            nt.initialize();
-        });
     }
 
     public void setStopOnError(boolean stopOnError) {
@@ -252,4 +237,5 @@ public class Pipeline {
     public String toString() {
         return "JDBCPipeline{" + "name=" + name + ", source=" + source + ", sqlQuery=" + sqlQuery + ", queryParams=" + queryParams + ", sink=" + sinks + ", preRowTransformers=" + preRowTransformers + ", entryTransformations=" + columnTransformations + ", postRowTransfomers=" + postRowTransfomers + ", expressions=" + expressions + '}';
     }
+
 }

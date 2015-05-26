@@ -72,7 +72,6 @@ public class PipelineTest {
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
         assertNotSame(deserialized, origin);
         assertEquals(deserialized, origin);
-
     }
 
     public static Pipeline getJDBCPipeline() {

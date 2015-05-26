@@ -20,6 +20,7 @@ package com.airhacks.enhydrator.transform;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
+import java.util.Map;
 
 /**
  *
@@ -27,6 +28,9 @@ import com.airhacks.enhydrator.in.Row;
  */
 @FunctionalInterface
 public interface RowTransformer {
+
+    default void init(Map<String, Object> scriptEngineBindings) {
+    }
 
     Row execute(Row input);
 

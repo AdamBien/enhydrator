@@ -20,6 +20,7 @@ package com.airhacks.enhydrator.transform;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
+import java.util.Map;
 import javax.script.Bindings;
 import javax.script.ScriptEngineManager;
 
@@ -29,7 +30,7 @@ import javax.script.ScriptEngineManager;
  */
 public class ScriptingEnvironmentProvider {
 
-    public static Bindings create(ScriptEngineManager scriptEngineManager, Row input) {
+    public static Bindings create(ScriptEngineManager scriptEngineManager, Map<String, Object> scriptEngineBindings, Row input) {
         Bindings bindings = scriptEngineManager.getBindings();
         bindings.put("$ROW", input);
         final Row emptyRow = new Row();
@@ -38,6 +39,9 @@ public class ScriptingEnvironmentProvider {
         bindings.put("$MEMORY", input.getRowMemory());
         bindings.put("$GLOBAL_MEMORY", input.getGlobalMemory());
         input.getColumns().forEach(c -> bindings.put(c.getName(), c));
+        if (scriptEngineBindings != null) {
+            bindings.putAll(scriptEngineBindings);
+        }
         return bindings;
     }
 }

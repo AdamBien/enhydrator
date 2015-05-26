@@ -19,13 +19,13 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  *
@@ -33,8 +33,8 @@ import java.nio.file.Paths;
  */
 public class FileFunctionScriptLoader extends FunctionScriptLoader {
 
-    public FileFunctionScriptLoader(String baseFolder) {
-        super(baseFolder);
+    public FileFunctionScriptLoader(String baseFolder, Map<String, Object> scriptEngineBindings) {
+        super(baseFolder, scriptEngineBindings);
     }
 
     @Override

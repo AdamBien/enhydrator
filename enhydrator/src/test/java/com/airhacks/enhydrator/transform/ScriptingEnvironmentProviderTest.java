@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.transform;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.in.Row;
 import javax.script.Bindings;
 import javax.script.ScriptEngineManager;
@@ -39,7 +38,7 @@ public class ScriptingEnvironmentProviderTest {
         Row row = new Row();
         Memory input = new Memory();
         row.useRowMemory(input);
-        Bindings bindings = ScriptingEnvironmentProvider.create(new ScriptEngineManager(), row);
+        Bindings bindings = ScriptingEnvironmentProvider.create(new ScriptEngineManager(), null, row);
         Object memory = bindings.get("$MEMORY");
         assertNotNull(memory);
         assertThat(memory, is(input));

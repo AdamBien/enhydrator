@@ -21,6 +21,7 @@ package com.airhacks.enhydrator.transform;
  */
 import com.airhacks.enhydrator.in.Row;
 import java.io.Reader;
+import java.util.Map;
 import java.util.Objects;
 import javax.script.Bindings;
 import javax.script.Invocable;
@@ -33,24 +34,26 @@ import javax.script.ScriptException;
  */
 public abstract class FunctionScriptLoader {
 
-    public static FunctionScriptLoader create(String baseFolder) {
-        Objects.requireNonNull(baseFolder, "Parameter baseFolder cannot be null!");
-        if (baseFolder.startsWith("resource")) {
-            return new ResourceFunctionScriptLoader();
-        } else {
-            return new FileFunctionScriptLoader(baseFolder);
-        }
-    }
-
     private final ScriptEngineManager manager;
     private final ScriptEngine engine;
+    private Map<String, Object> scriptEngineBindings;
     protected String baseFolder;
     public static final String COLUMN_SCRIPT_FOLDER = "column";
     public static final String ROW_SCRIPT_FOLDER = "row";
 
-    public FunctionScriptLoader(String baseFolder) {
+    public static FunctionScriptLoader create(String baseFolder, Map<String, Object> scriptEngineBindings) {
+        Objects.requireNonNull(baseFolder, "Parameter baseFolder cannot be null!");
+        if (baseFolder.startsWith("resource")) {
+            return new ResourceFunctionScriptLoader(scriptEngineBindings);
+        } else {
+            return new FileFunctionScriptLoader(baseFolder, scriptEngineBindings);
+        }
+    }
+
+    public FunctionScriptLoader(String baseFolder, Map<String, Object> scriptEngineBindings) {
         this();
         this.baseFolder = baseFolder;
+        this.scriptEngineBindings = scriptEngineBindings;
     }
 
     public FunctionScriptLoader() {
@@ -77,7 +80,7 @@ public abstract class FunctionScriptLoader {
             }
             Reader content = load(ROW_SCRIPT_FOLDER, scriptName);
             try {
-                Bindings bindings = ScriptingEnvironmentProvider.create(manager, input);
+                Bindings bindings = ScriptingEnvironmentProvider.create(manager, this.scriptEngineBindings, input);
                 return (Row) engine.eval(content, bindings);
             } catch (ScriptException ex) {
                 throw new IllegalStateException("Cannot evaluate script: " + scriptName, ex);
@@ -86,4 +89,9 @@ public abstract class FunctionScriptLoader {
     }
 
     public abstract Reader load(String scriptFolder, String name);
+
+    public Map<String, Object> getScriptEngineBindings() {
+        return scriptEngineBindings;
+    }
+
 }

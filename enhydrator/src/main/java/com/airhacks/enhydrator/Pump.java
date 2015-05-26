@@ -64,6 +64,7 @@ public class Pump {
     private final Consumer<String> flowListener;
     private final Memory pumpMemory;
     private final boolean stopOnError;
+    private final Map<String, Object> scriptEngineBindings;
 
     private Pump(Source source, Function<ResultSet, Row> rowTransformer,
             List<Function<Row, Row>> before,
@@ -77,12 +78,13 @@ public class Pump {
             Consumer<String> flowListener,
             boolean stopOnError,
             Memory pumpMemory,
+            Map<String, Object> scriptEngineBindings,
             Object... params) {
 
         this.flowListener = flowListener;
         this.filterExpressions = filterExpressions;
-        this.expression = new Expression(flowListener);
-        this.filterExpression = new FilterExpression(flowListener);
+        this.expression = new Expression(flowListener, scriptEngineBindings);
+        this.filterExpression = new FilterExpression(flowListener, scriptEngineBindings);
         this.source = source;
         this.beforeTransformations = before;
         this.namedEntryFunctions = namedFunctions;
@@ -94,6 +96,7 @@ public class Pump {
         this.params = params;
         this.stopOnError = stopOnError;
         this.pumpMemory = pumpMemory;
+        this.scriptEngineBindings = scriptEngineBindings;
     }
 
     public Memory start() {
@@ -254,14 +257,20 @@ public class Pump {
             this.before = new ArrayList<>();
             this.after = new ArrayList<>();
             this.indexedFunctions = new HashMap<>();
-            this.flowListener = f -> { };
+            this.flowListener = f -> {
+            };
             this.deadLetterQueue = new LogSink();
             this.stopOnError = true;
             this.engineMemory = new Memory();
         }
 
+        public Engine homeScriptFolder(String baseFolder, Map<String, Object> bindings) {
+            this.loader = FunctionScriptLoader.create(baseFolder, bindings);
+            return this;
+        }
+
         public Engine homeScriptFolder(String baseFolder) {
-            this.loader = FunctionScriptLoader.create(baseFolder);
+            this.loader = FunctionScriptLoader.create(baseFolder, null);
             return this;
         }
 
@@ -359,6 +368,7 @@ public class Pump {
                     this.flowListener,
                     this.stopOnError,
                     this.engineMemory,
+                    this.loader.getScriptEngineBindings(),
                     this.params);
         }
 

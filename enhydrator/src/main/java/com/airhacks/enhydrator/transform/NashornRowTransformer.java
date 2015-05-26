@@ -21,6 +21,7 @@ package com.airhacks.enhydrator.transform;
  */
 import com.airhacks.enhydrator.flexpipe.RowTransformation;
 import com.airhacks.enhydrator.in.Row;
+import java.util.Map;
 import java.util.Objects;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -49,23 +50,21 @@ public class NashornRowTransformer extends RowTransformation {
     public NashornRowTransformer(String baseScriptFolder, String scriptName) {
         this.scriptName = scriptName;
         this.baseScriptFolder = baseScriptFolder;
-        this.initialize();
     }
 
-    public void initialize() {
-        this.loader = FunctionScriptLoader.create(this.baseScriptFolder);
+    @Override
+    public void init(Map<String, Object> scriptEngineBindings) {
+        this.loader = FunctionScriptLoader.create(this.baseScriptFolder, scriptEngineBindings);
         this.rowTransformer = this.loader.getRowTransformer(this.scriptName);
     }
 
     void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
         System.out.println("afterUnmarschal called: " + toString());
-//        this.initialize();
     }
 
     public void setBaseScriptFolder(String baseScriptFolder) {
         this.baseScriptFolder = baseScriptFolder;
     }
-
 
     @Override
     public Row execute(Row input) {

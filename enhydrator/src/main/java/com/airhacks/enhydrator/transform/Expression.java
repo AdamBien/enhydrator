@@ -20,6 +20,7 @@ package com.airhacks.enhydrator.transform;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
+import java.util.Map;
 import java.util.function.Consumer;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -34,21 +35,23 @@ public class Expression {
 
     private final ScriptEngineManager manager;
     private final ScriptEngine engine;
+    private final Map<String, Object> scriptEngineBindings;
     private Consumer<String> expressionListener;
 
     public Expression() {
         this(l -> {
-        });
+        }, null);
     }
 
-    public Expression(Consumer<String> expressionListener) {
+    public Expression(Consumer<String> expressionListener, Map<String, Object> scriptEngineBindings) {
         this.expressionListener = expressionListener;
         this.manager = new ScriptEngineManager();
         this.engine = manager.getEngineByName("nashorn");
+        this.scriptEngineBindings = scriptEngineBindings;
     }
 
     public Row execute(Row input, String expression) {
-        Bindings bindings = ScriptingEnvironmentProvider.create(manager, input);
+        Bindings bindings = ScriptingEnvironmentProvider.create(manager, this.scriptEngineBindings, input);
         try {
             this.expressionListener.accept("Executing: " + expression);
             Object result = this.engine.eval(expression, bindings);

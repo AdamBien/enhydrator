@@ -23,7 +23,10 @@ import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.transform.Memory;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -78,6 +81,26 @@ public class PumpTest {
                 to(out).
                 build();
         cut.start();
+    }
+
+    @Test
+    public void scriptEngineBindings() {
+        List<Row> inputRows = new ArrayList<>();
+        inputRows.add(getStringRow());
+        Map<String, Object> bindings = new HashMap<>();
+        bindings.put("date", new Date());
+
+        VirtualSinkSource in = new VirtualSinkSource("in", inputRows);
+        VirtualSinkSource out = new VirtualSinkSource();
+        Pump cut = new Pump.Engine().
+                homeScriptFolder("src/test/scripts", bindings).
+                from(in).
+                startWith("date_should_exist").
+                to(out).
+                build();
+        Memory memory = cut.start();
+        assertNotNull(memory.get("date"));
+
     }
 
     Row getStringRow() {
