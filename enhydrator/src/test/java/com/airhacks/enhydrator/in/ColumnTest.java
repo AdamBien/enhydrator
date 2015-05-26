@@ -20,7 +20,10 @@ package com.airhacks.enhydrator.in;
  * #L%
  */
 import static org.hamcrest.CoreMatchers.is;
+import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -98,4 +101,38 @@ public class ColumnTest {
         assertThat(value, is(0.0d));
     }
 
+    @Test
+    public void testIsNumber() {
+        Column column = new Column(0, "number", 42);
+        assertTrue(column.isNumber());
+
+        Column nullColumn = new Column(0, "number");
+        assertFalse(nullColumn.isNumber());
+    }
+
+    @Test
+    public void testIsString() {
+        Column column = new Column(0, "string", "aString");
+        assertTrue(column.isString());
+
+        Column nullColumn = new Column(0, "string");
+        assertFalse(nullColumn.isString());
+    }
+
+    @Test
+    public void testSetValue() {
+        Column stringColumn = new Column(0, "string");
+        String expectedString = "testOfSettingAString";
+        stringColumn.setValue(expectedString);
+        assertEquals(expectedString, stringColumn.getValue());
+
+        Integer expectedInt = 42;
+        Column integerColumn = new Column(0, "number");
+        integerColumn.setValue(expectedInt);
+        assertEquals(expectedInt, integerColumn.getValue());
+
+        Column nullColumn = new Column(0, "number");
+        nullColumn.setValue(null);
+        assertNull(nullColumn.getValue());
+    }
 }

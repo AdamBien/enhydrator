@@ -52,15 +52,20 @@ public class NashornRowTransformer extends RowTransformation {
         this.initialize();
     }
 
-    void initialize() {
+    public void initialize() {
         this.loader = FunctionScriptLoader.create(this.baseScriptFolder);
         this.rowTransformer = this.loader.getRowTransformer(this.scriptName);
     }
 
     void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
         System.out.println("afterUnmarschal called: " + toString());
-        this.initialize();
+//        this.initialize();
     }
+
+    public void setBaseScriptFolder(String baseScriptFolder) {
+        this.baseScriptFolder = baseScriptFolder;
+    }
+
 
     @Override
     public Row execute(Row input) {

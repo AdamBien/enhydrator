@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
-            <version>10.10.1.1</version>
+            <version>10.10.2.0</version>
             <artifactId>derby</artifactId>
             <scope>test</scope>
         </dependency>

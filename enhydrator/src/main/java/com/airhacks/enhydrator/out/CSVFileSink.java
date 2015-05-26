@@ -21,11 +21,13 @@ package com.airhacks.enhydrator.out;
  */
 import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -43,11 +45,21 @@ public class CSVFileSink extends Sink {
     private String delimiter;
     private boolean append;
     private boolean useNamesAsHeaders;
+    private String charsetName;
 
     @XmlTransient
     private boolean namesAlreadyWritten = false;
     @XmlTransient
     PrintWriter bos;
+
+    public CSVFileSink(String sinkName, String fileName, String delimiter, boolean useNamesAsHeaders, boolean append, String charsetName) {
+        super(sinkName);
+        this.fileName = fileName;
+        this.delimiter = delimiter;
+        this.append = append;
+        this.useNamesAsHeaders = useNamesAsHeaders;
+        this.charsetName = charsetName;
+    }
 
     public CSVFileSink(String sinkName, String fileName, String delimiter, boolean useNamesAsHeaders, boolean append) {
         super(sinkName);
@@ -61,14 +73,15 @@ public class CSVFileSink extends Sink {
         //required for JAXB
     }
 
-    void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
-        this.init();
-    }
-
     @Override
     public void init() {
+        if (charsetName == null || charsetName.isEmpty()) {
+            charsetName = StandardCharsets.UTF_8.displayName();
+        }
+
+        Charset charset = Charset.forName(charsetName);
         try {
-            this.bos = new PrintWriter(new FileWriter(this.fileName, append));
+            this.bos = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName, append), charset));
         } catch (IOException ex) {
             throw new IllegalStateException("File " + this.fileName + " not found", ex);
         }
@@ -76,15 +89,17 @@ public class CSVFileSink extends Sink {
 
     @Override
     public void processRow(Row entries) {
-        Collection<Column> columns = entries.getColumns();
+        Collection<Column> columns = entries.getColumnsSortedByColumnIndex();
         if (this.useNamesAsHeaders && !this.namesAlreadyWritten) {
             String header = columns.stream().map(c -> c.getName()).
                     reduce((t, u) -> t + delimiter + u).get();
             write(header);
             this.namesAlreadyWritten = true;
         }
-        String line = columns.stream().map(c -> c.getValue().toString()).
-                reduce((t, u) -> t + delimiter + u).get();
+        String line = columns.stream()
+                .map(Column::getValueAsOptional)
+                .map(value -> value.orElse("").toString())
+                .reduce((t, u) -> t + delimiter + u).get();
         write(line);
     }
 
@@ -96,6 +111,14 @@ public class CSVFileSink extends Sink {
     public void close() {
         this.bos.flush();
         this.bos.close();
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
 }

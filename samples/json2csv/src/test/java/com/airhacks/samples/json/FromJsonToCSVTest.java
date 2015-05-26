@@ -12,9 +12,7 @@ import org.junit.Test;
  *
  * @author airhacks.com
  */
-public class FromJsonToCSVTest {
-
-    private final static String INPUT = "./src/test/resources/";
+public class FromJsonToCSVTest extends CsvTest {
 
     @Test
     public void fromJSONToCSV() throws FileNotFoundException {
@@ -28,10 +26,6 @@ public class FromJsonToCSVTest {
                 to(csvFileSink).
                 build();
         pump.start();
-    }
-
-    public String getFileName() {
-        return "./target/" + System.currentTimeMillis() + "output.csv";
     }
 
 }

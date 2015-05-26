@@ -95,7 +95,9 @@ public class CSVFileSource implements Source {
     }
 
     void afterUnmarshal(Unmarshaller umarshaller, Object parent) {
-        this.init();
+        if (this.fileName != null) {
+            this.init();
+        }
     }
 
     void init() throws IllegalStateException, IllegalArgumentException {
@@ -220,4 +222,8 @@ public class CSVFileSource implements Source {
         return "\\" + delimiter;
     }
 
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+        this.init();
+    }
 }

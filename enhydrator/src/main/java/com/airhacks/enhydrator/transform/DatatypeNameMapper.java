@@ -34,12 +34,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author airhacks.com
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "datatype-mapper")
-public class DatatypeMapper extends RowTransformation {
+@XmlRootElement(name = "datatype-name-mapper")
+public class DatatypeNameMapper extends RowTransformation {
 
-    private Map<Integer, Datatype> mappings;
+    private Map<String, Datatype> mappings;
 
-    public DatatypeMapper() {
+    public DatatypeNameMapper() {
         this.mappings = new HashMap<>();
     }
 
@@ -48,7 +48,7 @@ public class DatatypeMapper extends RowTransformation {
         if (input == null) {
             return null;
         }
-        this.mappings.entrySet().forEach(e -> changeDataType(input.getColumnByIndex(e.getKey()), e.getValue()));
+        this.mappings.entrySet().forEach(e -> changeDataType(input.getColumnByName(e.getKey()), e.getValue()));
         return input;
     }
 
@@ -69,8 +69,8 @@ public class DatatypeMapper extends RowTransformation {
         }
     }
 
-    public DatatypeMapper addMapping(int index, Datatype mapping) {
-        this.mappings.put(index, mapping);
+    public DatatypeNameMapper addMapping(String name, Datatype mapping) {
+        this.mappings.put(name, mapping);
         return this;
     }
 
@@ -89,7 +89,7 @@ public class DatatypeMapper extends RowTransformation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DatatypeMapper other = (DatatypeMapper) obj;
+        final DatatypeNameMapper other = (DatatypeNameMapper) obj;
         if (!Objects.equals(this.mappings, other.mappings)) {
             return false;
         }

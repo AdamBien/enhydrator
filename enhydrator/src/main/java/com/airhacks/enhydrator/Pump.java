@@ -62,7 +62,7 @@ public class Pump {
 
     private final Sink deadLetterQueue;
     private final Consumer<String> flowListener;
-    private final Memory memory;
+    private final Memory pumpMemory;
     private final boolean stopOnError;
 
     private Pump(Source source, Function<ResultSet, Row> rowTransformer,
@@ -74,7 +74,11 @@ public class Pump {
             List<Sink> sinks,
             Sink dlq,
             String sql,
-            Consumer<String> flowListener, boolean stopOnError, Object... params) {
+            Consumer<String> flowListener,
+            boolean stopOnError,
+            Memory pumpMemory,
+            Object... params) {
+
         this.flowListener = flowListener;
         this.filterExpressions = filterExpressions;
         this.expression = new Expression(flowListener);
@@ -89,8 +93,7 @@ public class Pump {
         this.sql = sql;
         this.params = params;
         this.stopOnError = stopOnError;
-        this.memory = new Memory();
-
+        this.pumpMemory = pumpMemory;
     }
 
     public Memory start() {
@@ -108,7 +111,7 @@ public class Pump {
         this.flowListener.accept("Results processed");
         this.sinks.forEach(s -> s.close());
         this.flowListener.accept("Sink closed");
-        return this.memory;
+        return this.pumpMemory;
 
     }
 
@@ -121,7 +124,7 @@ public class Pump {
     }
 
     void onNewRow(Row row) {
-        row.useMemory(memory);
+        row.useGlobalMemory(pumpMemory);
         this.flowListener.accept("Processing: " + row.getNumberOfColumns() + " columns !");
         Optional<Boolean> first = this.filterExpressions.stream().
                 map(e -> this.filterExpression.execute(row, e)).
@@ -240,6 +243,7 @@ public class Pump {
         private Object[] params;
         private Consumer<String> flowListener;
         private boolean stopOnError;
+        private Memory engineMemory;
 
         public Engine() {
             this.sinks = new ArrayList<>();
@@ -250,10 +254,10 @@ public class Pump {
             this.before = new ArrayList<>();
             this.after = new ArrayList<>();
             this.indexedFunctions = new HashMap<>();
-            this.flowListener = f -> {
-            };
+            this.flowListener = f -> { };
             this.deadLetterQueue = new LogSink();
             this.stopOnError = true;
+            this.engineMemory = new Memory();
         }
 
         public Engine homeScriptFolder(String baseFolder) {
@@ -267,6 +271,9 @@ public class Pump {
         }
 
         public Engine to(Sink sink) {
+            if (this.sinks == null) {
+                this.sinks = new ArrayList<>();
+            }
             this.sinks.add(sink);
             return this;
         }
@@ -292,6 +299,11 @@ public class Pump {
 
         public Engine with(String columnName, Function<Object, Object> entryFunction) {
             this.entryFunctions.put(columnName, entryFunction);
+            return this;
+        }
+
+        public Engine with(Memory engineMemory) {
+            this.engineMemory = engineMemory;
             return this;
         }
 
@@ -346,6 +358,7 @@ public class Pump {
                     this.sql,
                     this.flowListener,
                     this.stopOnError,
+                    this.engineMemory,
                     this.params);
         }
 
@@ -364,6 +377,7 @@ public class Pump {
             });
             pipeline.getPostRowTransfomers().forEach(t -> endWith(t::execute));
             this.expressions = pipeline.getExpressions();
+            this.filterExpressions = pipeline.getFilters();
             List<Object> queryParams = pipeline.getQueryParams();
             if (queryParams == null || queryParams.isEmpty()) {
                 sqlQuery(pipeline.getSqlQuery());

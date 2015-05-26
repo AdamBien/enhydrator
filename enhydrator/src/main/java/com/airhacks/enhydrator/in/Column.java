@@ -1,5 +1,6 @@
 package com.airhacks.enhydrator.in;
 
+import java.util.Optional;
 import java.util.StringTokenizer;
 
 /*
@@ -31,7 +32,7 @@ public class Column {
     private String name;
     private String targetSink;
     private String targetObject;
-    private Object value;
+    private Optional<Object> value;
 
     private final static String DEFAULT_DESTINATION = "*";
 
@@ -43,7 +44,7 @@ public class Column {
         this.index = index;
         this.name = name;
         this.targetSink = destination;
-        this.value = value;
+        this.value = Optional.ofNullable(value);
     }
 
     public Column(int index, String name) {
@@ -51,93 +52,99 @@ public class Column {
     }
 
     public void convertToInteger() {
-        if (value == null) {
-            return;
-        }
-        String asString = String.valueOf(value);
-        try {
-            this.value = Integer.parseInt(asString);
-        } catch (NumberFormatException ex) {
-            throw new NumberFormatException("Cannot convert column: "
-                    + this.name + " with index " + this.index + " and value " + this.value + " to integer");
+        if (value.isPresent()) {
+            String asString = String.valueOf(value.get());
+            try {
+                this.value = Optional.of(Integer.parseInt(asString));
+            } catch (NumberFormatException ex) {
+                throw new NumberFormatException("Cannot convert column: "
+                        + this.name + " with index " + this.index + " and value " + this.value + " to integer");
+            }
         }
     }
 
     public void convertToDouble() {
-        if (value == null) {
-            return;
-        }
-        String asString = String.valueOf(value);
-        if (asString.isEmpty()) {
-            this.value = (double) 0;
-            return;
-        }
-        try {
-            this.value = Double.parseDouble(asString);
-        } catch (NumberFormatException ex) {
-            throw new NumberFormatException("Cannot convert column: "
-                    + this.name + " with index " + this.index + " and value ->" + this.value + "<- to double");
-
+        if (value.isPresent()) {
+            String asString = String.valueOf(value.get());
+            if (asString.isEmpty()) {
+                this.value = Optional.of((double) 0);
+                return;
+            }
+            try {
+                this.value = Optional.of(Double.parseDouble(asString));
+            } catch (NumberFormatException ex) {
+                throw new NumberFormatException("Cannot convert column: "
+                        + this.name + " with index " + this.index + " and value ->" + this.value + "<- to double");
+            }
         }
     }
 
     public void convertDMSToDouble() {
-        if (value == null) {
-            return;
-        }
-        String asString = String.valueOf(value);
-        if (asString.isEmpty()) {
-            this.value = (double) 0;
-            return;
-        }
-        StringTokenizer tokenizer = new StringTokenizer(asString, ".");
-        int degree = 0, minute = 0, second = 0;
-        if (tokenizer.hasMoreTokens()) {
-            degree = Integer.parseInt(tokenizer.nextToken());
-        }
-        if (tokenizer.hasMoreTokens()) {
-            minute = Integer.parseInt(tokenizer.nextToken());
-        }
-        if (tokenizer.hasMoreTokens()) {
-            second = Integer.parseInt(tokenizer.nextToken());
-        }
-        this.value = (double) degree + (minute / 60d) + (second / 3600d);
+        if (value.isPresent()) {
 
+            String asString = String.valueOf(value.get());
+            if (asString.isEmpty()) {
+                this.value = Optional.of((double) 0);
+                return;
+            }
+            StringTokenizer tokenizer = new StringTokenizer(asString, ".");
+            int degree = 0, minute = 0, second = 0;
+            if (tokenizer.hasMoreTokens()) {
+                degree = Integer.parseInt(tokenizer.nextToken());
+            }
+            if (tokenizer.hasMoreTokens()) {
+                minute = Integer.parseInt(tokenizer.nextToken());
+            }
+            if (tokenizer.hasMoreTokens()) {
+                second = Integer.parseInt(tokenizer.nextToken());
+            }
+            this.value = Optional.of((double) degree + (minute / 60d) + (second / 3600d));
+        }
     }
 
     public void convertToBoolean() {
-        if (value == null) {
-            return;
+        if (value.isPresent()) {
+
+            String asString = String.valueOf(value.get());
+            this.value = Optional.of(Boolean.parseBoolean(asString));
         }
-        String asString = String.valueOf(value);
-        this.value = Boolean.parseBoolean(asString);
     }
 
     public void fillWithValue(String value) {
-        this.value = value;
+        this.value = Optional.of(value);
     }
 
     public void convertToString() {
-        if (value == null) {
-            return;
+        if (value.isPresent()) {
+            this.value = Optional.of(String.valueOf(value));
         }
-        this.value = String.valueOf(value);
     }
 
     public boolean isNullValue() {
-        return this.value == null;
+        return !this.value.isPresent();
     }
 
     public String getName() {
         return name;
     }
-
+ 
     public Object getValue() {
+        if(value.isPresent()) {
+            return value.get();
+        }
+        return null;
+    }
+
+    public Optional<Object> getValueAsOptional() {
         return value;
     }
 
     public int getIndex() {
         return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public String getTargetSink() {
@@ -148,7 +155,7 @@ public class Column {
         return targetObject;
     }
 
-    void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -161,20 +168,20 @@ public class Column {
     }
 
     public void setValue(Object value) {
-        this.value = value;
+        this.value = Optional.ofNullable(value);
     }
 
     boolean isNumber() {
-        return this.value instanceof Number;
+        return this.value.isPresent() && this.value.get() instanceof Number;
     }
 
     boolean isString() {
-        return this.value instanceof String;
+        return this.value.isPresent() && this.value.get() instanceof String;
     }
 
     @Override
     public String toString() {
-        return "Column{" + "index=" + index + ", name=" + name + ", targetSink=" + targetSink + ", targetObject=" + targetObject + ", value=" + value + '}';
+        return "Column{" + "index=" + index + ", name=" + name + ", targetSink=" + targetSink + ", targetObject=" + targetObject + ", value=" + value.orElse("") + '}';
     }
 
 }

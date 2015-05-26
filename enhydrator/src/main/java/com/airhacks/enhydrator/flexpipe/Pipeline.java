@@ -21,6 +21,7 @@ package com.airhacks.enhydrator.flexpipe;
  */
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.Sink;
+import com.airhacks.enhydrator.transform.NashornRowTransformer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -158,12 +159,30 @@ public class Pipeline {
         return expressions;
     }
 
+    public List<String> getFilters() {
+        return filters;
+    }
+
     public String getScriptsHome() {
         return scriptsHome;
     }
 
     public void setScriptsHome(String scriptsHome) {
         this.scriptsHome = scriptsHome;
+
+        // Propage to all already added transformers
+        preRowTransformers.stream().filter((t) -> (t instanceof NashornRowTransformer)).map((t) -> (NashornRowTransformer)t).map((nt) -> {
+            nt.setBaseScriptFolder(scriptsHome);
+            return nt;
+        }).forEach((nt) -> {
+            nt.initialize();
+        });
+        postRowTransfomers.stream().filter((t) -> (t instanceof NashornRowTransformer)).map((t) -> (NashornRowTransformer)t).map((nt) -> {
+            nt.setBaseScriptFolder(scriptsHome);
+            return nt;
+        }).forEach((nt) -> {
+            nt.initialize();
+        });
     }
 
     public void setStopOnError(boolean stopOnError) {
@@ -182,6 +201,7 @@ public class Pipeline {
         hash = 67 * hash + Objects.hashCode(this.columnTransformations);
         hash = 67 * hash + Objects.hashCode(this.postRowTransfomers);
         hash = 67 * hash + Objects.hashCode(this.expressions);
+        hash = 67 * hash + Objects.hashCode(this.filters);
         return hash;
     }
 
@@ -221,6 +241,10 @@ public class Pipeline {
         if (!Objects.equals(this.expressions, other.expressions)) {
             return false;
         }
+        if (!Objects.equals(this.filters, other.filters)) {
+            return false;
+        }
+
         return true;
     }
 
