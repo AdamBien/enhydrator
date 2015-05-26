@@ -36,12 +36,12 @@ public class ScriptingEnvironmentProviderTest {
     @Test
     public void emptyRowHasMemory() {
         Row row = new Row();
-        Memory input = new Memory();
-        row.useRowMemory(input);
+        Memory expected = new Memory();
+        row.useMemory(expected);
         Bindings bindings = ScriptingEnvironmentProvider.create(new ScriptEngineManager(), null, row);
-        Object memory = bindings.get("$MEMORY");
-        assertNotNull(memory);
-        assertThat(memory, is(input));
+        Object actual = bindings.get("$MEMORY");
+        assertNotNull(actual);
+        assertThat(actual, is(expected));
     }
 
 }

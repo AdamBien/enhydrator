@@ -127,7 +127,7 @@ public class Pump {
     }
 
     void onNewRow(Row row) {
-        row.useGlobalMemory(pumpMemory);
+        row.useMemory(pumpMemory);
         this.flowListener.accept("Processing: " + row.getNumberOfColumns() + " columns !");
         Optional<Boolean> first = this.filterExpressions.stream().
                 map(e -> this.filterExpression.execute(row, e)).
@@ -357,6 +357,14 @@ public class Pump {
             return this;
         }
 
+        public Map<String, Object> getScriptEngineBindings() {
+            if (this.loader == null) {
+                return null;
+            } else {
+                return this.loader.getScriptEngineBindings();
+            }
+        }
+
         public Pump build() {
             return new Pump(source, this.resultSetToEntries,
                     this.before, this.entryFunctions,
@@ -368,7 +376,7 @@ public class Pump {
                     this.flowListener,
                     this.stopOnError,
                     this.engineMemory,
-                    this.loader.getScriptEngineBindings(),
+                    getScriptEngineBindings(),
                     this.params);
         }
 

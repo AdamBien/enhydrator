@@ -105,6 +105,7 @@ public class PumpTest {
 
     Row getStringRow() {
         Row row = new Row();
+        row.useMemory(new Memory());
         row.addColumn(0, "a", "java");
         row.addColumn(1, "b", "tengah");
         return row;
@@ -112,6 +113,7 @@ public class PumpTest {
 
     Row getIntRow() {
         Row row = new Row();
+        row.useMemory(new Memory());
         row.addColumn(0, "a", "1");
         row.addColumn(1, "b", "2");
         return row;
