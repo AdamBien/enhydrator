@@ -1,5 +1,6 @@
 package com.airhacks.enhydrator.in;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringTokenizer;
 
@@ -12,9 +13,9 @@ import java.util.StringTokenizer;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +27,7 @@ import java.util.StringTokenizer;
  *
  * @author airhacks.com
  */
-public class Column {
+public class Column implements Cloneable {
 
     private int index;
     private String name;
@@ -40,10 +41,10 @@ public class Column {
         this(index, name, DEFAULT_DESTINATION, value);
     }
 
-    public Column(int index, String name, String destination, Object value) {
+    public Column(int index, String name, String targetSink, Object value) {
         this.index = index;
         this.name = name;
-        this.targetSink = destination;
+        this.targetSink = targetSink;
         this.value = Optional.ofNullable(value);
     }
 
@@ -127,9 +128,9 @@ public class Column {
     public String getName() {
         return name;
     }
- 
+
     public Object getValue() {
-        if(value.isPresent()) {
+        if (value.isPresent()) {
             return value.get();
         }
         return null;
@@ -177,6 +178,52 @@ public class Column {
 
     boolean isString() {
         return this.value.isPresent() && this.value.get() instanceof String;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + this.index;
+        hash = 67 * hash + Objects.hashCode(this.name);
+        hash = 67 * hash + Objects.hashCode(this.targetSink);
+        hash = 67 * hash + Objects.hashCode(this.targetObject);
+        hash = 67 * hash + Objects.hashCode(this.value);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Column other = (Column) obj;
+        if (this.index != other.index) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.targetSink, other.targetSink)) {
+            return false;
+        }
+        if (!Objects.equals(this.targetObject, other.targetObject)) {
+            return false;
+        }
+        if (!Objects.equals(this.value, other.value)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public Column clone() {
+        return new Column(index, name, targetSink, value.get());
     }
 
     @Override
