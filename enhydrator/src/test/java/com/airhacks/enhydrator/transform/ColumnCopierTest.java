@@ -5,6 +5,7 @@ import com.airhacks.enhydrator.in.Row;
 import java.util.Arrays;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,21 @@ public class ColumnCopierTest {
         Row withCopiedColumns = this.cut.execute(row);
         assertFalse(withCopiedColumns.isEmpty());
         assertThat(withCopiedColumns.getColumns().size(), is(3));
+        Column javaColumn = row.getColumnByName("java");
+        assertNotNull(javaColumn);
+
+        Column javaeeColumn = row.getColumnByName("javaee");
+        assertNotNull(javaeeColumn);
+
+    }
+
+    @Test
+    public void executeWithoutMappings() {
+        Row row = new Row();
+        row.addColumn(new Column(0, "duke", "42"));
+        Row withCopiedColumns = this.cut.execute(row);
+        assertFalse(withCopiedColumns.isEmpty());
+        assertThat(withCopiedColumns.getColumns().size(), is(1));
     }
 
 }
