@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,6 +47,14 @@ public class ColumnCopierTest {
         Row withCopiedColumns = this.cut.execute(row);
         assertFalse(withCopiedColumns.isEmpty());
         assertThat(withCopiedColumns.getColumns().size(), is(1));
+    }
+
+    @Test
+    public void executeEmptyRowWithMappings() {
+        this.cut.columnMappings.put("duke", Arrays.asList("java", "javaee"));
+        Row row = new Row();
+        Row withCopiedColumns = this.cut.execute(row);
+        assertTrue(withCopiedColumns.isEmpty());
     }
 
 }
