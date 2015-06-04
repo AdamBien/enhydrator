@@ -19,7 +19,6 @@ package com.airhacks.enhydrator.scenarios;
  * limitations under the License.
  * #L%
  */
-
 import com.airhacks.enhydrator.Pump;
 import com.airhacks.enhydrator.in.Column;
 import com.airhacks.enhydrator.in.Row;
@@ -27,7 +26,7 @@ import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.transform.ColumnCopier;
 import com.airhacks.enhydrator.transform.Datatype;
-import com.airhacks.enhydrator.transform.DatatypeMapper;
+import com.airhacks.enhydrator.transform.DatatypeNameMapper;
 import com.airhacks.enhydrator.transform.Memory;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -49,7 +48,7 @@ public class ConvertToIntAndCopyTest {
         this.input = new VirtualSinkSource();
         this.output = new VirtualSinkSource();
         //map column answer to Integer
-        final DatatypeMapper datatypeMapper = new DatatypeMapper();
+        final DatatypeNameMapper datatypeMapper = new DatatypeNameMapper();
         datatypeMapper.addMapping("answer", Datatype.INTEGER);
         //Copy column question to answer and origin
         ColumnCopier columnCopier = new ColumnCopier();
