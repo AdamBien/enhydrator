@@ -333,9 +333,11 @@ public class Pump {
             return columnTransformer::execute;
         }
 
-        public Engine endWith(Function<Row, Row> after) {
-            this.after.add(after);
+        public Engine endWith(RowTransformer transformer) {
+            transformer.init(this.bindings);
+            this.after.add(transformer::execute);
             return this;
+
         }
 
         public Engine endWith(String scriptName) {
