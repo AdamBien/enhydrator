@@ -1,5 +1,7 @@
 package com.airhacks.enhydrator.transform;
 
+import java.util.Map;
+
 /*
  * #%L
  * enhydrator
@@ -25,6 +27,9 @@ package com.airhacks.enhydrator.transform;
  */
 @FunctionalInterface
 public interface ColumnTransformer {
+
+    default void init(Map<String, Object> scriptEngineBindings) {
+    }
 
     Object execute(Object entry);
 
