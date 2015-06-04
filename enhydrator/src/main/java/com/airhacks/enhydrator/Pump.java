@@ -247,6 +247,7 @@ public class Pump {
         private Consumer<String> flowListener;
         private boolean stopOnError;
         private Memory engineMemory;
+        private Map<String, Object> bindings;
 
         public Engine() {
             this.sinks = new ArrayList<>();
@@ -262,9 +263,11 @@ public class Pump {
             this.deadLetterQueue = new LogSink();
             this.stopOnError = true;
             this.engineMemory = new Memory();
+            this.bindings = new HashMap<>();
         }
 
         public Engine homeScriptFolder(String baseFolder, Map<String, Object> bindings) {
+            this.bindings = bindings;
             this.loader = FunctionScriptLoader.create(baseFolder, bindings);
             return this;
         }
@@ -293,12 +296,15 @@ public class Pump {
         }
 
         public Engine startWith(RowTransformer transformer) {
+            transformer.init(this.bindings);
             this.before.add(transformer::execute);
             return this;
         }
 
         public Engine startWith(String scriptName) {
-            return startWith(this.loader.getRowTransformer(scriptName));
+            final RowTransformer rowTransformer = this.loader.getRowTransformer(scriptName);
+            rowTransformer.init(this.bindings);
+            return startWith(rowTransformer);
         }
 
         public Engine startWithExpression(String scriptName) {
@@ -322,8 +328,9 @@ public class Pump {
         }
 
         Function<Object, Object> load(String scriptName) {
-            ColumnTransformer entryTransformer = this.loader.getColumnTransformer(scriptName);
-            return entryTransformer::execute;
+            ColumnTransformer columnTransformer = this.loader.getColumnTransformer(scriptName);
+            columnTransformer.init(this.bindings);
+            return columnTransformer::execute;
         }
 
         public Engine endWith(Function<Row, Row> after) {
@@ -333,6 +340,7 @@ public class Pump {
 
         public Engine endWith(String scriptName) {
             RowTransformer rowTransformer = this.loader.getRowTransformer(scriptName);
+            rowTransformer.init(this.bindings);
             return endWith(rowTransformer::execute);
         }
 
