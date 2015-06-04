@@ -21,6 +21,7 @@ package com.airhacks.enhydrator.transform;
  */
 import com.airhacks.enhydrator.flexpipe.RowTransformation;
 import com.airhacks.enhydrator.in.Row;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.xml.bind.Unmarshaller;
@@ -50,6 +51,7 @@ public class NashornRowTransformer extends RowTransformation {
     public NashornRowTransformer(String baseScriptFolder, String scriptName) {
         this.scriptName = scriptName;
         this.baseScriptFolder = baseScriptFolder;
+        init(new HashMap<>());
     }
 
     @Override
