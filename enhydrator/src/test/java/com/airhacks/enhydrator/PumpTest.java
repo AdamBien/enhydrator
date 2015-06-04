@@ -22,6 +22,7 @@ package com.airhacks.enhydrator;
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.transform.Memory;
+import com.airhacks.enhydrator.transform.RowTransformer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,12 +35,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  *
  * @author airhacks.com
  */
 public class PumpTest {
+
+    static final String EXISTING_HOME_FOLDER = "src/test/scripts";
 
     @Test
     public void continueOnError() {
@@ -93,14 +98,37 @@ public class PumpTest {
         VirtualSinkSource in = new VirtualSinkSource("in", inputRows);
         VirtualSinkSource out = new VirtualSinkSource();
         Pump cut = new Pump.Engine().
-                homeScriptFolder("src/test/scripts", bindings).
+                homeScriptFolder(EXISTING_HOME_FOLDER, bindings).
                 from(in).
                 startWith("date_should_exist").
                 to(out).
                 build();
         Memory memory = cut.start();
         assertNotNull(memory.get("date"));
+    }
 
+    @Test
+    public void preRowTransformerInitialization() {
+        Map<String, Object> bindings = new HashMap<>();
+        bindings.put("date", new Date());
+        RowTransformer transformer = mock(RowTransformer.class);
+        Pump pump = new Pump.Engine().
+                homeScriptFolder(EXISTING_HOME_FOLDER, bindings).
+                startWith(transformer).
+                build();
+        verify(transformer).init(bindings);
+    }
+
+    @Test
+    public void postRowTransformerInitialization() {
+        Map<String, Object> bindings = new HashMap<>();
+        bindings.put("date", new Date());
+        RowTransformer transformer = mock(RowTransformer.class);
+        Pump pump = new Pump.Engine().
+                homeScriptFolder(EXISTING_HOME_FOLDER, bindings).
+                endWith(transformer).
+                build();
+        verify(transformer).init(bindings);
     }
 
     Row getStringRow() {
