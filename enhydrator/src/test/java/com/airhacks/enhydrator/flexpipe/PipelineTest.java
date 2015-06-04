@@ -30,7 +30,7 @@ import com.airhacks.enhydrator.out.LogSink;
 import com.airhacks.enhydrator.out.Sink;
 import com.airhacks.enhydrator.transform.ColumnCopier;
 import com.airhacks.enhydrator.transform.Datatype;
-import com.airhacks.enhydrator.transform.DatatypeMapper;
+import com.airhacks.enhydrator.transform.DatatypeIndexMapper;
 import com.airhacks.enhydrator.transform.DestinationMapper;
 import com.airhacks.enhydrator.transform.NashornRowTransformer;
 import com.airhacks.enhydrator.transform.SkipFirstRow;
@@ -108,7 +108,7 @@ public class PipelineTest {
     public static Pipeline getCSVPipeline() {
         DestinationMapper targetMapper = new DestinationMapper();
         targetMapper.addMapping(0, new TargetMapping("*", "*"));
-        DatatypeMapper datatypeMapper = new DatatypeMapper();
+        DatatypeIndexMapper datatypeMapper = new DatatypeIndexMapper();
         datatypeMapper.addMapping(0, Datatype.DOUBLE);
         Source source = new CSVFileSource("./src/test/files/pyramid.csv", ";", "UTF-8", true);
         Sink logSink = new LogSink();
@@ -134,7 +134,7 @@ public class PipelineTest {
     public static Pipeline getJSONPipeline() {
         DestinationMapper targetMapper = new DestinationMapper();
         targetMapper.addMapping(0, new TargetMapping("*", "*"));
-        DatatypeMapper datatypeMapper = new DatatypeMapper();
+        DatatypeIndexMapper datatypeMapper = new DatatypeIndexMapper();
         datatypeMapper.addMapping(1, Datatype.INTEGER);
         Source source = new ScriptableSource("./src/test/files/languages.json", "./src/test/files/converter.js", "UTF-8");
         Sink logSink = new LogSink();

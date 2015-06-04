@@ -31,11 +31,11 @@ import org.junit.Test;
  */
 public class DatatypeMapperTest {
 
-    DatatypeMapper cut;
+    DatatypeIndexMapper cut;
 
     @Before
     public void init() {
-        this.cut = new DatatypeMapper();
+        this.cut = new DatatypeIndexMapper();
     }
 
     @Test
