@@ -19,9 +19,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,10 +37,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "datatype-mapper")
 public class DatatypeMapper extends RowTransformation {
 
-    private Map<Integer, Datatype> mappings;
+    private Map<Integer, Datatype> indexMappings;
+    private Map<String, Datatype> nameMappings;
 
     public DatatypeMapper() {
-        this.mappings = new HashMap<>();
+        this.indexMappings = new HashMap<>();
+        this.nameMappings = new HashMap<>();
     }
 
     @Override
@@ -48,7 +50,8 @@ public class DatatypeMapper extends RowTransformation {
         if (input == null) {
             return null;
         }
-        this.mappings.entrySet().forEach(e -> changeDataType(input.getColumnByIndex(e.getKey()), e.getValue()));
+        this.indexMappings.entrySet().forEach(e -> changeDataType(input.getColumnByIndex(e.getKey()), e.getValue()));
+        this.nameMappings.entrySet().forEach(e -> changeDataType(input.getColumnByName(e.getKey()), e.getValue()));
         return input;
     }
 
@@ -70,14 +73,19 @@ public class DatatypeMapper extends RowTransformation {
     }
 
     public DatatypeMapper addMapping(int index, Datatype mapping) {
-        this.mappings.put(index, mapping);
+        this.indexMappings.put(index, mapping);
+        return this;
+    }
+
+    public DatatypeMapper addMapping(String columnName, Datatype mapping) {
+        this.nameMappings.put(columnName, mapping);
         return this;
     }
 
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 83 * hash + Objects.hashCode(this.mappings);
+        hash = 83 * hash + Objects.hashCode(this.indexMappings);
         return hash;
     }
 
@@ -90,7 +98,7 @@ public class DatatypeMapper extends RowTransformation {
             return false;
         }
         final DatatypeMapper other = (DatatypeMapper) obj;
-        if (!Objects.equals(this.mappings, other.mappings)) {
+        if (!Objects.equals(this.indexMappings, other.indexMappings)) {
             return false;
         }
         return true;
