@@ -1,7 +1,7 @@
 enhydrator
 ==========
 
-Java 8 ETL toolkit without dependencies. Enhydrator reads table-`like structures, filters, transforms and writes them back.
+Java 8 ETL toolkit without dependencies. Enhydrator reads table-like structures, filters, transforms and writes them back.
 
 # How it works
 
