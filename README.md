@@ -27,7 +27,7 @@ Enhydrator ships with `CSVFileSource`, `CSVStreamSource`, `JDBCSource`, `Scripta
 
 ## Row
 
-The essential data structure is Row. A row comprises Columns accessible by index and / or a name:
+The essential data structure is `Row`. A row comprises `Column`s accessible by index and / or a name:
 
 ```java
 public class Row {
