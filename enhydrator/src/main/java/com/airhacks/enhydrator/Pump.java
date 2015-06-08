@@ -9,9 +9,9 @@ package com.airhacks.enhydrator;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ package com.airhacks.enhydrator;
  */
 import com.airhacks.enhydrator.flexpipe.ColumnTransformation;
 import com.airhacks.enhydrator.flexpipe.Pipeline;
-import com.airhacks.enhydrator.in.ResultSetToEntries;
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.LogSink;
@@ -32,7 +31,6 @@ import com.airhacks.enhydrator.transform.FilterExpression;
 import com.airhacks.enhydrator.transform.FunctionScriptLoader;
 import com.airhacks.enhydrator.transform.Memory;
 import com.airhacks.enhydrator.transform.RowTransformer;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +64,7 @@ public class Pump {
     private final boolean stopOnError;
     private final Map<String, Object> scriptEngineBindings;
 
-    private Pump(Source source, Function<ResultSet, Row> rowTransformer,
+    private Pump(Source source,
             List<Function<Row, Row>> before,
             Map<String, Function<Object, Object>> namedFunctions,
             List<String> filterExpressions,
@@ -131,7 +129,8 @@ public class Pump {
         this.flowListener.accept("Processing: " + row.getNumberOfColumns() + " columns !");
         Optional<Boolean> first = this.filterExpressions.stream().
                 map(e -> this.filterExpression.execute(row, e)).
-                filter(r -> r == false).findFirst();
+                filter(r -> r == false).
+                findFirst();
         if (!first.isPresent()) {
             transformRow(row);
         } else {
@@ -216,7 +215,9 @@ public class Pump {
         if (trafos == null || trafos.isEmpty()) {
             return convertedColumns;
         }
-        final Function<Row, Row> composition = trafos.stream().reduce((i, j) -> i.andThen(j)).get();
+        final Function<Row, Row> composition = trafos.stream().
+                reduce((i, j) -> i.andThen(j)).
+                get();
         Row result = composition.apply(convertedColumns);
         if (result == null) {
             return null;
@@ -234,7 +235,6 @@ public class Pump {
         private List<Sink> sinks;
         private Sink deadLetterQueue;
         private Source source;
-        private Function<ResultSet, Row> resultSetToEntries;
         private Map<String, Function<Object, Object>> entryFunctions;
         private Map<Integer, Function<Row, Row>> indexedFunctions;
         private List<Function<Row, Row>> before;
@@ -253,7 +253,6 @@ public class Pump {
             this.sinks = new ArrayList<>();
             this.expressions = new ArrayList<>();
             this.filterExpressions = new ArrayList<>();
-            this.resultSetToEntries = new ResultSetToEntries();
             this.entryFunctions = new HashMap<>();
             this.before = new ArrayList<>();
             this.after = new ArrayList<>();
@@ -376,7 +375,7 @@ public class Pump {
         }
 
         public Pump build() {
-            return new Pump(source, this.resultSetToEntries,
+            return new Pump(source,
                     this.before, this.entryFunctions,
                     this.filterExpressions,
                     this.expressions,
@@ -394,7 +393,6 @@ public class Pump {
             homeScriptFolder(pipeline.getScriptsHome());
             this.source = pipeline.getSource();
             this.sinks = pipeline.getSinks();
-            this.resultSetToEntries = new ResultSetToEntries();
             pipeline.getPreRowTransformers().forEach(t -> startWith(t::execute));
             List<ColumnTransformation> trafos = pipeline.getColumnTransformations();
             trafos.forEach(t -> {
