@@ -93,4 +93,44 @@ Each row is going to be transformed according to the following schema:
 5. Post-Row transformations are executed as in 2.
 6. The remaining `Row` is passed to the Sink instance.
 
+## Sample
+
+The following `language.csv` file is filtered for Language "java" and the corresponding column "rank" is converted to an `Integer`
+
+```
+language;rank
+java;1
+c;2
+cobol;3
+esoteric;4
+```
+The following test should pass. See the origin test [FromJsonToCSVTest.java](https://github.com/AdamBien/enhydrator/blob/master/samples/json2csv/src/test/java/com/airhacks/samples/json/FromJsonToCSVTest.java):
+
+```java
+    @Test
+    public void filterAndCastFromCSVFileToLog() {
+        Source source = new CSVFileSource(INPUT + "/languages.csv", ";", "utf-8", true);
+        VirtualSinkSource sink = new VirtualSinkSource();
+        Pump pump = new Pump.Engine().
+                from(source).
+                filter("$ROW.getColumnValue('language') === 'java'").
+                startWith(new DatatypeNameMapper().addMapping("rank", Datatype.INTEGER)).
+                to(sink).
+                to(new LogSink()).
+                build();
+        Memory memory = pump.start();
+        assertFalse(memory.areErrorsOccured());
+        assertThat(memory.getProcessedRowCount(), is(5l));
+
+        //expecting only "java" language
+        assertThat(sink.getNumberOfRows(), is(1));
+        String languageValue = (String) sink.getRow(0).getColumnValue("language");
+        assertThat(languageValue, is("java"));
+
+        //expecting "java" having rank 1 as Integer
+        Object rankValue = sink.getRow(0).getColumnValue("rank");
+        assertTrue(rankValue instanceof Integer);
+        assertThat((Integer) rankValue, is(1));
+    }
+```
 
