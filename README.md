@@ -66,4 +66,15 @@ public abstract class Sink implements AutoCloseable {
 
 Each transformed `Row` is passed to the Sink. Enhydrator ships with `CSVFileSink`, `JDBCSink`, `LogSink`, `PojoSink` (a `Row` to Object mapper), `RowSink` and `VirtualSinkSource`.
 
+## Filter expressions
+
+Filter expression is a JavaScript (Nashorn) snippet evaluated against the current row. The script has to return a Boolean `true`. Anything else is going to be interpreted as `false` and will skip the processing of current row.
+
+The current `Row` instance is passed to the script as a variable `$ROW`. In addition to the current Row, also `$MEMORY` (a map-like structure available for the entire processing pipeline), `$EMPTY` (an empty row) and also programmatically passed variables are accessible.
+
+## Transformation
+
+Each row is going to be transformed according to the following schema:
+1. All configured filter expressions are evaluated against the current row and have to return `true`
+2. 
 
