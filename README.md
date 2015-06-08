@@ -3,6 +3,16 @@ enhydrator
 
 Java 8 ETL toolkit without dependencies. Enhydrator reads table-like structures, filters, transforms and writes them back.
 
+# Installation
+
+```xml
+        <dependency>
+            <groupId>com.airhacks</groupId>
+            <artifactId>enhydrator</artifactId>
+            <version>[RECENT-VERSION]</version>
+        </dependency>
+```
+
 # How it works
 
 Enhydrator reads the data from a `Source`, filters, transforms and writes it back to a `Sink`.
