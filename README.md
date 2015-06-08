@@ -1,7 +1,17 @@
-`enhydrator
+enhydrator
 ==========
 
-Java 8 ETL toolkit without dependencies. Enhydrator reads table-`like structures, filters, transforms and writes them back.
+Java 8 ETL toolkit without dependencies. Enhydrator reads table-like structures, filters, transforms and writes them back.
+
+# Installation
+
+```xml
+        <dependency>
+            <groupId>com.airhacks</groupId>
+            <artifactId>enhydrator</artifactId>
+            <version>[RECENT-VERSION]</version>
+        </dependency>
+```
 
 # How it works
 
@@ -27,7 +37,7 @@ Enhydrator ships with `CSVFileSource`, `CSVStreamSource`, `JDBCSource`, `Scripta
 
 ## Row
 
-The essential data structure is Row. A row comprises Columns accessible by index and / or a name:
+The essential data structure is `Row`. A row comprises `Column`s accessible by index and / or a name:
 
 ```java
 public class Row {
@@ -65,5 +75,22 @@ public abstract class Sink implements AutoCloseable {
 ```
 
 Each transformed `Row` is passed to the Sink. Enhydrator ships with `CSVFileSink`, `JDBCSink`, `LogSink`, `PojoSink` (a `Row` to Object mapper), `RowSink` and `VirtualSinkSource`.
+
+## Filter expressions
+
+Filter expression is a JavaScript (Nashorn) snippet evaluated against the current row. The script has to return a Boolean `true`. Anything else is going to be interpreted as `false` and will skip the processing of current row.
+
+The current `Row` instance is passed to the script as a variable `$ROW`. In addition to the current Row, also `$MEMORY` (a map-like structure available for the entire processing pipeline), `$EMPTY` (an empty row) and also programmatically passed variables are accessible.
+
+## Transformation
+
+Each row is going to be transformed according to the following schema:
+
+1. All configured filter expressions are evaluated against the current row and have to return `true`.
+2. Pre-Row transformations are executed. A row transformation is a function: `Function<Row, Row>`. "Row in, Row out"
+3. Row expressions are executed agains the current row with the same variables (`$ROW`,`$EMPTY` etc.) as filters. A row expression does not have to return anything (is `void`).
+4. Column transformations are executed on the actual values: `Function<Object, Object>` of the `Column`.
+5. Post-Row transformations are executed as in 2.
+6. The remaining `Row` is passed to the Sink instance.
 
 
