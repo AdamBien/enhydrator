@@ -9,7 +9,7 @@
     <groupId>com.airhacks</groupId>
     <artifactId>enhydrator</artifactId>
     <name>enhydrator</name>
-    <version>0.0.6-SNAPSHOT</version>
+    <version>0.0.6</version>
     <packaging>jar</packaging>
     <description>enhydrator is an ETL based on Java 8</description>
     <url>https://github.com/AdamBien/enhydrator</url>
