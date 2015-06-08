@@ -80,7 +80,7 @@ Each row is going to be transformed according to the following schema:
 2. Pre-Row transformations are executed. A row transformation is a function: `Function<Row, Row>`. "Row in, Row out"
 3. Row expressions are executed agains the current row with the same variables (`$ROW`,`$EMPTY` etc.) as filters. A row expression does not have to return anything (is `void`).
 4. Column transformations are executed on the actual values: `Function<Object, Object>` of the `Column`.
-5. PostRow transformations are executed as in 2.
+5. Post-Row transformations are executed as in 2.
 6. The remaining `Row` is passed to the Sink instance.
 
 
