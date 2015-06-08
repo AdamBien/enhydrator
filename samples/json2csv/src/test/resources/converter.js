@@ -31,7 +31,7 @@ for (var i = 0; i < numberOfLanguages; i++) {
     var language = languages[i];
     for (key in language) {
         row.addColumn(0, "language", key);
-        row.addColumn(1, "value", language[key]);
+        row.addColumn(1, "rank", language[key]);
     }
     ROWS.add(row);
 }
