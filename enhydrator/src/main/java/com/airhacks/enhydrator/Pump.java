@@ -47,7 +47,7 @@ import javax.json.JsonValue;
 public class Pump {
 
     private final Source source;
-    private final Map<String, Function<Object, Object>> namedEntryFunctions;
+    private final Map<String, Function<Object, Object>> columnTransformations;
     private final List<Function<Row, Row>> beforeTransformations;
     private final List<Function<Row, Row>> afterTransformations;
     private final List<String> expressions;
@@ -85,7 +85,7 @@ public class Pump {
         this.filterExpression = new FilterExpression(flowListener, scriptEngineBindings);
         this.source = source;
         this.beforeTransformations = before;
-        this.namedEntryFunctions = namedFunctions;
+        this.columnTransformations = namedFunctions;
         this.expressions = expressions;
         this.afterTransformations = after;
         this.sinks = sinks;
@@ -139,17 +139,18 @@ public class Pump {
         row.successfullyProcessed();
     }
 
-    void transformRow(Row convertedRow) {
-        Row entryColumns = applyRowTransformations(this.beforeTransformations, convertedRow);
-        applyNamedFunctions(entryColumns);
-        this.flowListener.accept("Named functions processed");
-        applyExpressions(convertedRow);
-        this.flowListener.accept("Expressions processed");
+    void transformRow(Row currentRow) {
+        Row entryColumns = applyRowTransformations(this.beforeTransformations, currentRow);
+        this.flowListener.accept("Pre Row transformations processed");
+        applyExpressions(currentRow);
+        this.flowListener.accept("Row expressions processed");
+        columnTransformations(entryColumns);
+        this.flowListener.accept("Column transformations processed");
         Row afterProcessed = applyRowTransformations(this.afterTransformations, entryColumns);
         if (afterProcessed == null) {
             return;
         }
-        this.flowListener.accept("After process RowTransformer executed. " + afterProcessed.getNumberOfColumns() + " entries");
+        this.flowListener.accept("Post Row transformations processed: " + afterProcessed.getNumberOfColumns() + " entries");
         this.sink(afterProcessed);
         this.flowListener.accept("Result processed by sinks");
     }
@@ -197,7 +198,7 @@ public class Pump {
     }
 
     Object applyOrReturnOnNamed(String name, JsonValue value) {
-        final Function<Object, Object> function = this.namedEntryFunctions.get(name);
+        final Function<Object, Object> function = this.columnTransformations.get(name);
         if (function != null) {
             this.flowListener.accept("Function: " + function + " found for name: " + name);
             return function.apply(value);
@@ -207,8 +208,8 @@ public class Pump {
         }
     }
 
-    void applyNamedFunctions(Row entryColumns) {
-        this.namedEntryFunctions.forEach((k, v) -> entryColumns.transformColumn(k, v));
+    void columnTransformations(Row entryColumns) {
+        this.columnTransformations.forEach((k, v) -> entryColumns.transformColumn(k, v));
     }
 
     static Row applyRowTransformations(List<Function<Row, Row>> trafos, Row convertedColumns) {
