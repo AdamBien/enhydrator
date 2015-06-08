@@ -75,6 +75,10 @@ The current `Row` instance is passed to the script as a variable `$ROW`. In addi
 ## Transformation
 
 Each row is going to be transformed according to the following schema:
-1. All configured filter expressions are evaluated against the current row and have to return `true`
-2. 
+
+1. All configured filter expressions are evaluated against the current row and have to return `true`.
+2. Pre-Row transformations are executed. A row transformation is a function: `Function<Row, Row>`. "Row in, Row out"
+3. Row expressions are executed agains the current row with the same variables (`$ROW`,`$EMPTY` etc.) as filters. A row expression does not have to return anything (is `void`).
+4. Column transformations are executed on the actual values: `Function<Object, Object>` of the `Column`.
+
 
