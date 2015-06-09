@@ -63,6 +63,11 @@ public class VirtualSinkSource extends Sink implements Source {
         return this.rows.get(index);
     }
 
+    public VirtualSinkSource addRow(Row row) {
+        this.rows.add(row);
+        return this;
+    }
+
     /**
      * @see Source
      * @param query not applicable

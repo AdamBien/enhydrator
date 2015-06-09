@@ -33,40 +33,47 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ColumnTransformation {
 
     private String columnName;
-    private Integer slot;
-    private String function;
+    private Integer index;
+    private String scriptNameOrContent;
+    private boolean script;
 
     public ColumnTransformation() {
     }
 
-    public ColumnTransformation(String columnName, String function) {
+    public ColumnTransformation(String columnName, String function, boolean script) {
         this.columnName = columnName;
-        this.function = function;
+        this.scriptNameOrContent = function;
+        this.script = script;
     }
 
-    public ColumnTransformation(int slot, String function) {
-        this.slot = slot;
-        this.function = function;
+    public ColumnTransformation(int slot, String function, boolean script) {
+        this.index = slot;
+        this.scriptNameOrContent = function;
+        this.script = script;
     }
 
     public String getColumnName() {
         return columnName;
     }
 
-    public Integer getSlot() {
-        return slot;
+    public Integer getIndex() {
+        return index;
     }
 
-    public String getFunction() {
-        return function;
+    public String getScriptNameOrContent() {
+        return scriptNameOrContent;
+    }
+
+    public boolean isScript() {
+        return script;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.columnName);
-        hash = 53 * hash + Objects.hashCode(this.slot);
-        hash = 53 * hash + Objects.hashCode(this.function);
+        hash = 53 * hash + Objects.hashCode(this.index);
+        hash = 53 * hash + Objects.hashCode(this.scriptNameOrContent);
         return hash;
     }
 
@@ -82,10 +89,10 @@ public class ColumnTransformation {
         if (!Objects.equals(this.columnName, other.columnName)) {
             return false;
         }
-        if (!Objects.equals(this.slot, other.slot)) {
+        if (!Objects.equals(this.index, other.index)) {
             return false;
         }
-        if (!Objects.equals(this.function, other.function)) {
+        if (!Objects.equals(this.scriptNameOrContent, other.scriptNameOrContent)) {
             return false;
         }
         return true;
@@ -93,7 +100,8 @@ public class ColumnTransformation {
 
     @Override
     public String toString() {
-        return "ColumnTransformation{" + "columnName=" + columnName + ", slot=" + slot + ", function=" + function + '}';
+        return "ColumnTransformation{" + "columnName=" + columnName
+                + ", index=" + index + ", scriptNameOrContent=" + scriptNameOrContent
+                + ", script=" + script + '}';
     }
-
 }

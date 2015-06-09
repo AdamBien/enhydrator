@@ -160,7 +160,7 @@ public class PumpIT {
         Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 from(source).
-                with("Name", "quote").
+                withColumnScript("Name", "quote").
                 to(consumer).
                 sqlQuery("select * from Coffee").
                 build();

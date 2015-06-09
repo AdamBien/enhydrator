@@ -84,8 +84,8 @@ public class PipelineTest {
         JDBCSource source = JDBCSourceIT.getSource();
         Sink logSink = new LogSink();
         Sink jdbcSink = JDBCSinkTest.getSink();
-        ColumnTransformation e1 = new ColumnTransformation("name", "convert");
-        ColumnTransformation e2 = new ColumnTransformation(42, "compress");
+        ColumnTransformation e1 = new ColumnTransformation("name", "convert", true);
+        ColumnTransformation e2 = new ColumnTransformation(42, "compress", true);
         Pipeline origin = new Pipeline("jdbc", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
         origin.addSink(logSink);
         origin.addSink(jdbcSink);
@@ -113,8 +113,8 @@ public class PipelineTest {
         Source source = new CSVFileSource("./src/test/files/pyramid.csv", ";", "UTF-8", true);
         Sink logSink = new LogSink();
         Sink jdbcSink = new VirtualSinkSource();
-        ColumnTransformation e1 = new ColumnTransformation("name", "convert");
-        ColumnTransformation e2 = new ColumnTransformation(42, "compress");
+        ColumnTransformation e1 = new ColumnTransformation("name", "convert", true);
+        ColumnTransformation e2 = new ColumnTransformation(42, "compress", true);
         Pipeline origin = new Pipeline("csv", "src/test/scripts", "select * from Coffee where name like ? and strength = ?", source);
         origin.addSink(logSink);
         origin.addSink(jdbcSink);
@@ -124,6 +124,7 @@ public class PipelineTest {
         origin.addEntryTransformation(e2);
         origin.addPreRowTransformation(targetMapper);
         origin.addPreRowTransformation(datatypeMapper);
+        origin.addEntryTransformation(new ColumnTransformation("1", "return 42", false));
         origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));
         origin.addPostRowTransformation(new NashornRowTransformer("src/test/scripts", "compress"));
         origin.addFilter("true");

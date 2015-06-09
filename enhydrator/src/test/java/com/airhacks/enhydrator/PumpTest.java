@@ -131,6 +131,29 @@ public class PumpTest {
         verify(transformer).init(bindings);
     }
 
+    @Test
+    public void columnExpressionTransformer() {
+        Map<String, Object> bindings = new HashMap<>();
+        bindings.put("prefix", "java");
+        Row row = new Row();
+        row.addColumn(0, "developer", "duke");
+        VirtualSinkSource input = new VirtualSinkSource();
+        input.addRow(row);
+        VirtualSinkSource output = new VirtualSinkSource();
+        Pump pump = new Pump.Engine().
+                from(input).
+                homeScriptFolder(EXISTING_HOME_FOLDER, bindings).
+                withColumnExpression("developer", "function execute(column){return prefix + ' ' + column}").
+                to(output).
+                build();
+        Memory memory = pump.start();
+        assertThat(memory.areErrorsOccured(), is(false));
+        Row first = output.getRow(0);
+        Object expected = "java duke";
+        Object actual = first.getColumnValue("developer");
+        assertThat(expected, is(actual.toString()));
+    }
+
     Row getStringRow() {
         Row row = new Row();
         row.useMemory(new Memory());

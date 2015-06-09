@@ -64,13 +64,31 @@ public abstract class FunctionScriptLoader {
 
     public ColumnTransformer getColumnTransformer(String scriptName) {
         Reader content = load(COLUMN_SCRIPT_FOLDER, scriptName);
+        return createFromScript(content);
+    }
+
+    public ColumnTransformer createFromScript(String script) {
         Invocable invocable = (Invocable) engine;
         try {
-            engine.eval(content);
+            manager.getBindings().putAll(scriptEngineBindings);
+            engine.eval(script);
         } catch (ScriptException ex) {
             throw new IllegalStateException("Cannot evaluate script", ex);
         }
         return invocable.getInterface(ColumnTransformer.class);
+
+    }
+
+    public ColumnTransformer createFromScript(Reader script) {
+        Invocable invocable = (Invocable) engine;
+        try {
+            manager.getBindings().putAll(scriptEngineBindings);
+            engine.eval(script);
+        } catch (ScriptException ex) {
+            throw new IllegalStateException("Cannot evaluate script", ex);
+        }
+        return invocable.getInterface(ColumnTransformer.class);
+
     }
 
     public RowTransformer getRowTransformer(String scriptName) {

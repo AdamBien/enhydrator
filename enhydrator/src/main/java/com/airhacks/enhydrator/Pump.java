@@ -322,9 +322,15 @@ public class Pump {
             return this;
         }
 
-        public Engine with(String columnName, String scriptName) {
+        public Engine withColumnScript(String columnName, String scriptName) {
             Function<Object, Object> function = load(scriptName);
             return with(columnName, function);
+        }
+
+        public Engine withColumnExpression(String columnName, String scriptContent) {
+            ColumnTransformer columnTransformer = this.loader.createFromScript(scriptContent);
+            columnTransformer.init(this.bindings);
+            return with(columnName, columnTransformer::execute);
         }
 
         Function<Object, Object> load(String scriptName) {
@@ -399,7 +405,11 @@ public class Pump {
             trafos.forEach(t -> {
                 String name = t.getColumnName();
                 if (name != null) {
-                    with(name, t.getFunction());
+                    if (t.isScript()) {
+                        withColumnScript(name, t.getScriptNameOrContent());
+                    } else {
+                        withColumnExpression(name, t.getScriptNameOrContent());
+                    }
                 }
             });
             pipeline.getPostRowTransfomers().forEach(t -> endWith(t::execute));
