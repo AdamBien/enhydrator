@@ -59,7 +59,7 @@ public class Column implements Cloneable {
                 this.value = Optional.of(Integer.parseInt(asString));
             } catch (NumberFormatException ex) {
                 throw new NumberFormatException("Cannot convert column: "
-                        + this.name + " with index " + this.index + " and value " + this.value + " to integer");
+                        + this.name + " with index " + this.index + " and value " + this.value.get() + " to integer");
             }
         }
     }
