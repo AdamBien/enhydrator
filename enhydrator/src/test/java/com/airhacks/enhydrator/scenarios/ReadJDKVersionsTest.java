@@ -48,7 +48,9 @@ public class ReadJDKVersionsTest {
         Pump pump = new Pump.Engine().
                 from(input).
                 startWith(new SkipFirstRow()).
-                startWith(new DatatypeNameMapper().addMapping("Year", Datatype.INTEGER)).
+                startWith(new DatatypeNameMapper().
+                        addMapping("Year", Datatype.INTEGER)).
+                filter("$ROW.getColumnValue('Year') > 2000").
                 to(new LogSink()).
                 to(output).build();
         Memory memory = pump.start();
