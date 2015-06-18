@@ -12,7 +12,7 @@ Java 8 ETL toolkit without dependencies. Enhydrator reads table-like structures,
             <version>[RECENT-VERSION]</version>
         </dependency>
 ```
-# Hello
+# For Absolute Beginners
 
 [![Hello Enhydrator](https://i.ytimg.com/vi/be9lK1KTLrQ/mqdefault.jpg)](https://www.youtube.com/embed/be9lK1KTLrQ?rel=0)
 
