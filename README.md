@@ -12,6 +12,17 @@ Java 8 ETL toolkit without dependencies. Enhydrator reads table-like structures,
             <version>[RECENT-VERSION]</version>
         </dependency>
 ```
+# For Absolute Beginners
+
+[![Hello Enhydrator](https://i.ytimg.com/vi/be9lK1KTLrQ/mqdefault.jpg)](https://www.youtube.com/embed/be9lK1KTLrQ?rel=0)
+
+# Reading CSV Into Rows and Filtering
+
+[![Reading CSV Into Rows and Filtering](https://i.ytimg.com/vi/O8D9hVRHjTQ/mqdefault.jpg)](https://www.youtube.com/embed/O8D9hVRHjTQ?rel=0)
+
+# Mapping Rows To POJOs
+
+[![Mapping Rows To PoJOs](https://i.ytimg.com/vi/L-jjYTm1xI8/mqdefault.jpg)](https://www.youtube.com/embed/L-jjYTm1xI8?rel=0)
 
 # How it works
 
