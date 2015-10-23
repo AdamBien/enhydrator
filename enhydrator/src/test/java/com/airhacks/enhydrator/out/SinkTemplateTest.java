@@ -28,18 +28,18 @@ import org.junit.Test;
  *
  * @author airhacks.com
  */
-public class SinkTest {
+public class SinkTemplateTest {
 
     @Test
     public void defaultName() {
-        Sink sink = new CustomSink();
+        SinkTemplate sink = new CustomSink();
         String name = sink.getName();
         assertThat(name, is("customSink"));
     }
 
     @Test
     public void shortName() {
-        Sink sink = new Z();
+        SinkTemplate sink = new Z();
         String name = sink.getName();
         assertThat(name, is("z"));
 

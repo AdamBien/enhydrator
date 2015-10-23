@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "csv-file-sink")
-public class CSVFileSink extends Sink {
+public class CSVFileSink extends SinkTemplate {
 
     private String fileName;
     private String delimiter;

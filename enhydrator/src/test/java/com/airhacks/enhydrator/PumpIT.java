@@ -23,7 +23,7 @@ import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.flexpipe.PipelineTest;
 import com.airhacks.enhydrator.in.JDBCSource;
 import com.airhacks.enhydrator.in.Row;
-import com.airhacks.enhydrator.out.Sink;
+import com.airhacks.enhydrator.out.SinkTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -60,7 +60,7 @@ public class PumpIT {
     public void oneToOneTransformationWithName() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
                 with("name", t -> t).
@@ -70,8 +70,8 @@ public class PumpIT {
         verify(consumer, times(2)).processRow(any(Row.class));
     }
 
-    static Sink getMockedSink() {
-        Sink mock = mock(Sink.class);
+    static SinkTemplate getMockedSink() {
+        SinkTemplate mock = mock(SinkTemplate.class);
         when(mock.getName()).thenReturn("*");
         return mock;
     }
@@ -80,7 +80,7 @@ public class PumpIT {
     public void ignoringPreprocessor() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
                 startWith(l -> null).
@@ -95,7 +95,7 @@ public class PumpIT {
     public void postPreprocessor() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
                 endWith(l -> l).
@@ -110,7 +110,7 @@ public class PumpIT {
     public void passThrough() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 from(source).
                 to(consumer).
@@ -123,7 +123,7 @@ public class PumpIT {
     public void ignoringFilter() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 filter("false").
                 from(source).
@@ -139,7 +139,7 @@ public class PumpIT {
     public void acceptingFilter() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 filter("true").
                 filter("$ROW.empty === false").
@@ -156,7 +156,7 @@ public class PumpIT {
     public void scriptEntryTransformer() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 from(source).
@@ -173,7 +173,7 @@ public class PumpIT {
     public void scriptRowTransformer() {
         CoffeeTestFixture.insertCoffee("arabica", 2, "hawai", Roast.LIGHT, "nice", "whole");
         CoffeeTestFixture.insertCoffee("niceone", 3, "russia", Roast.MEDIUM, "awful", "java beans");
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 homeScriptFolder("./src/test/scripts").
                 startWith("validate").
@@ -189,7 +189,7 @@ public class PumpIT {
     @Test
     public void usePipeline() {
         Pipeline pipeline = PipelineTest.getCSVPipeline();
-        Sink consumer = getMockedSink();
+        SinkTemplate consumer = getMockedSink();
         Pump pump = new Pump.Engine().
                 flowListener(l -> System.out.println(l)).
                 use(pipeline).

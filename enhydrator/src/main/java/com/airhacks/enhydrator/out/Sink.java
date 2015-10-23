@@ -1,10 +1,12 @@
 package com.airhacks.enhydrator.out;
 
+import com.airhacks.enhydrator.in.Row;
+
 /*
  * #%L
  * enhydrator
  * %%
- * Copyright (C) 2014 Adam Bien
+ * Copyright (C) 2014 - 2015 Adam Bien
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,48 +21,19 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.in.Row;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  *
  * @author airhacks.com
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement
-//@XmlJavaTypeAdapter(JAXBInterfaceAdapter.class)
-public abstract class Sink implements AutoCloseable {
+@FunctionalInterface
+public interface Sink extends AutoCloseable {
 
-    protected String name;
-
-    public Sink(String name) {
-        this.name = name;
+    default void init() {
     }
 
-    public Sink() {
-
-    }
-
-    static String computeDefaultName(Class clazz) {
-        String simpleName = clazz.getSimpleName();
-        return Character.toString(simpleName.charAt(0)).toLowerCase() + simpleName.substring(1);
-    }
-
-    public void init() {
-    }
-
-    public abstract void processRow(Row entries);
-
-    public String getName() {
-        if (this.name == null) {
-            this.name = computeDefaultName(this.getClass());
-        }
-        return this.name;
-    }
+    void processRow(Row entries);
 
     @Override
-    public void close() {
+    default void close() {
     }
 }

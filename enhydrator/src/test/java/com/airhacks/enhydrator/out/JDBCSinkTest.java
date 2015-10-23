@@ -45,7 +45,7 @@ public class JDBCSinkTest {
         return new JDBCSink(new UnmanagedConnectionProvider("aDriver", "localhost", "duke", "s3cret"), TABLE_NAME);
     }
 
-    public static Sink getSink() {
+    public static SinkTemplate getSink() {
         return new JDBCSink.Configuration().
                 driver("org.apache.derby.jdbc.EmbeddedDriver").
                 url("jdbc:derby:./targetDB;create=true").

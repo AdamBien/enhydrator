@@ -25,7 +25,7 @@ import com.airhacks.enhydrator.in.Row;
  *
  * @author airhacks.com
  */
-public class CustomSink extends Sink {
+public class CustomSink extends SinkTemplate {
 
     @Override
     public void processRow(Row entries) {

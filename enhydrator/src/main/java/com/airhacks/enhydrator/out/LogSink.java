@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "log-sink")
-public class LogSink extends Sink {
+public class LogSink extends SinkTemplate {
 
     private static final Logger LOG = Logger.getLogger(LogSink.class.getName());
 

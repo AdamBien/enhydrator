@@ -24,7 +24,7 @@ import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.LogSink;
-import com.airhacks.enhydrator.out.Sink;
+import com.airhacks.enhydrator.out.SinkTemplate;
 import com.airhacks.enhydrator.transform.ColumnTransformer;
 import com.airhacks.enhydrator.transform.Expression;
 import com.airhacks.enhydrator.transform.FilterExpression;
@@ -52,13 +52,13 @@ public class Pump {
     private final List<Function<Row, Row>> afterTransformations;
     private final List<String> expressions;
     private final List<String> filterExpressions;
-    private final List<Sink> sinks;
+    private final List<SinkTemplate> sinks;
     private final String sql;
     private final Object[] params;
     private final Expression expression;
     private final FilterExpression filterExpression;
 
-    private final Sink deadLetterQueue;
+    private final SinkTemplate deadLetterQueue;
     private final Consumer<String> flowListener;
     private final Memory pumpMemory;
     private final boolean stopOnError;
@@ -70,8 +70,8 @@ public class Pump {
             List<String> filterExpressions,
             List<String> expressions,
             List<Function<Row, Row>> after,
-            List<Sink> sinks,
-            Sink dlq,
+            List<SinkTemplate> sinks,
+            SinkTemplate dlq,
             String sql,
             Consumer<String> flowListener,
             boolean stopOnError,
@@ -166,7 +166,7 @@ public class Pump {
         }
     }
 
-    void sink(Sink sink, Map<String, Row> groupByDestinations) {
+    void sink(SinkTemplate sink, Map<String, Row> groupByDestinations) {
         String destination = sink.getName();
         if (destination == null) {
             this.flowListener.accept(sink + " has a null destination, skipping");
@@ -227,14 +227,14 @@ public class Pump {
         }
     }
 
-    public List<Sink> getSinks() {
+    public List<SinkTemplate> getSinks() {
         return sinks;
     }
 
     public static class Engine {
 
-        private List<Sink> sinks;
-        private Sink deadLetterQueue;
+        private List<SinkTemplate> sinks;
+        private SinkTemplate deadLetterQueue;
         private Source source;
         private Map<String, Function<Object, Object>> entryFunctions;
         private Map<Integer, Function<Row, Row>> indexedFunctions;
@@ -282,7 +282,7 @@ public class Pump {
             return this;
         }
 
-        public Engine to(Sink sink) {
+        public Engine to(SinkTemplate sink) {
             if (this.sinks == null) {
                 this.sinks = new ArrayList<>();
             }
@@ -290,7 +290,7 @@ public class Pump {
             return this;
         }
 
-        public Engine dlq(Sink sink) {
+        public Engine dlq(SinkTemplate sink) {
             this.deadLetterQueue = sink;
             return this;
         }

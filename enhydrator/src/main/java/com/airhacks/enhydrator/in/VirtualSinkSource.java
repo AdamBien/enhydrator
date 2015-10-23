@@ -19,7 +19,7 @@ package com.airhacks.enhydrator.in;
  * limitations under the License.
  * #L%
  */
-import com.airhacks.enhydrator.out.Sink;
+import com.airhacks.enhydrator.out.SinkTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "virtual-sink-source")
-public class VirtualSinkSource extends Sink implements Source {
+public class VirtualSinkSource extends SinkTemplate implements Source {
 
     @XmlTransient
     private List<Row> rows;
@@ -80,7 +80,7 @@ public class VirtualSinkSource extends Sink implements Source {
     }
 
     /**
-     * @see Sink
+     * @see SinkTemplate
      * @param entries process row
      */
     @Override

@@ -19,37 +19,39 @@ package com.airhacks.enhydrator.out;
  * limitations under the License.
  * #L%
  */
-
-import com.airhacks.enhydrator.in.Row;
-import java.util.function.Consumer;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author airhacks.com
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "row-sink")
-public class RowSink extends SinkTemplate {
+@XmlRootElement
+//@XmlJavaTypeAdapter(JAXBInterfaceAdapter.class)
+public abstract class SinkTemplate implements Sink {
 
-    @XmlTransient
-    private Consumer<Row> consumer;
+    protected String name;
 
-    public RowSink() {
-        super("*");
+    public SinkTemplate(String name) {
+        this.name = name;
     }
 
-    public RowSink(String name, Consumer<Row> consumer) {
-        super(name);
-        this.consumer = consumer;
+    public SinkTemplate() {
+
     }
 
-    @Override
-    public void processRow(Row entries) {
-        consumer.accept(entries);
+    static String computeDefaultName(Class clazz) {
+        String simpleName = clazz.getSimpleName();
+        return Character.toString(simpleName.charAt(0)).toLowerCase() + simpleName.substring(1);
+    }
+
+    public String getName() {
+        if (this.name == null) {
+            this.name = computeDefaultName(this.getClass());
+        }
+        return this.name;
     }
 
 }
