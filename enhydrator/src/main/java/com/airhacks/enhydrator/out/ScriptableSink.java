@@ -9,9 +9,9 @@ package com.airhacks.enhydrator.out;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ import com.airhacks.enhydrator.in.Row;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -44,7 +45,9 @@ public class ScriptableSink extends SinkTemplate {
 
     private static final String DEFAULT_NAME = "script";
 
+    @XmlTransient
     private ScriptEngine engine;
+    @XmlTransient
     private Invocable invocable;
 
     @XmlElement(name = "script-file")
@@ -100,6 +103,35 @@ public class ScriptableSink extends SinkTemplate {
     @Override
     public void close() {
         this.sink.close();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 47 * hash + Objects.hashCode(this.scriptFile);
+        hash = 47 * hash + Objects.hashCode(this.scriptContent);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ScriptableSink other = (ScriptableSink) obj;
+        if (!Objects.equals(this.scriptFile, other.scriptFile)) {
+            return false;
+        }
+        if (!Objects.equals(this.scriptContent, other.scriptContent)) {
+            return false;
+        }
+        return true;
     }
 
 }

@@ -28,6 +28,7 @@ import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.CSVFileSink;
 import com.airhacks.enhydrator.out.JDBCSink;
 import com.airhacks.enhydrator.out.LogSink;
+import com.airhacks.enhydrator.out.ScriptableSink;
 import com.airhacks.enhydrator.transform.ColumnCopier;
 import com.airhacks.enhydrator.transform.Datatype;
 import com.airhacks.enhydrator.transform.DatatypeIndexMapper;
@@ -102,7 +103,8 @@ public class Plumber {
                     NashornRowTransformer.class, DestinationMapper.class,
                     TargetMapping.class, DatatypeIndexMapper.class, DatatypeNameMapper.class,
                     Datatype.class, SkipFirstRow.class, ScriptableSource.class,
-                    CSVFileSink.class, NameMapper.class, ColumnCopier.class);
+                    CSVFileSink.class, NameMapper.class, ColumnCopier.class,
+                    ScriptableSink.class);
             this.marshaller = context.createMarshaller();
             this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             this.unmarshaller = context.createUnmarshaller();

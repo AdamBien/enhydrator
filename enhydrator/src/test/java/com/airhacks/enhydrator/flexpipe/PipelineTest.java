@@ -27,6 +27,7 @@ import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.LogSink;
+import com.airhacks.enhydrator.out.ScriptableSink;
 import com.airhacks.enhydrator.out.SinkTemplate;
 import com.airhacks.enhydrator.transform.ColumnCopier;
 import com.airhacks.enhydrator.transform.Datatype;
@@ -71,6 +72,16 @@ public class PipelineTest {
     @Test
     public void jsonPipelineSerialization() {
         Pipeline origin = getJSONPipeline();
+        Plumber plumber = Plumber.createWith(".", "config");
+        plumber.intoConfiguration(origin);
+        Pipeline deserialized = plumber.fromConfiguration(origin.getName());
+        assertNotSame(deserialized, origin);
+        assertEquals(deserialized, origin);
+    }
+
+    @Test
+    public void jsonToNashornPipelineSerialization() {
+        Pipeline origin = getJSONToNashornPipeline();
         Plumber plumber = Plumber.createWith(".", "config");
         plumber.intoConfiguration(origin);
         Pipeline deserialized = plumber.fromConfiguration(origin.getName());
@@ -140,6 +151,26 @@ public class PipelineTest {
         Source source = new ScriptableSource("./src/test/files/languages.json", "./src/test/files/converter.js", "UTF-8");
         SinkTemplate logSink = new LogSink();
         SinkTemplate virtualSink = new VirtualSinkSource();
+        Pipeline origin = new Pipeline("json", "src/test/scripts", null, source);
+        origin.addSink(logSink);
+        origin.addSink(virtualSink);
+        origin.addPreRowTransformation(targetMapper);
+        origin.addPreRowTransformation(datatypeMapper);
+        origin.addPreRowTransformation(new NashornRowTransformer("src/test/scripts", "encrypt"));
+        origin.addPostRowTransformation(new NashornRowTransformer("src/test/scripts", "compress"));
+        origin.addFilter("true");
+        origin.addExpression("print($ROW); $ROW");
+        return origin;
+    }
+
+    public static Pipeline getJSONToNashornPipeline() {
+        DestinationMapper targetMapper = new DestinationMapper();
+        targetMapper.addMapping(0, new TargetMapping("*", "*"));
+        DatatypeIndexMapper datatypeMapper = new DatatypeIndexMapper();
+        datatypeMapper.addMapping(1, Datatype.INTEGER);
+        Source source = new ScriptableSource("./src/test/files/languages.json", "./src/test/files/converter.js", "UTF-8");
+        SinkTemplate logSink = new LogSink();
+        SinkTemplate virtualSink = new ScriptableSink("./src/test/scripts/sink.js");
         Pipeline origin = new Pipeline("json", "src/test/scripts", null, source);
         origin.addSink(logSink);
         origin.addSink(virtualSink);
