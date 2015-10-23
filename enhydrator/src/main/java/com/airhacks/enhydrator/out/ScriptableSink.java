@@ -64,6 +64,11 @@ public class ScriptableSink extends SinkTemplate {
         this.scriptFile = scriptFile;
     }
 
+    public ScriptableSink(String name, String scriptFile) {
+        super(name);
+        this.scriptFile = scriptFile;
+    }
+
     public ScriptableSink() {
     }
 
