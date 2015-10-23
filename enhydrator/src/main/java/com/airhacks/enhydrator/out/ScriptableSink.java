@@ -20,6 +20,9 @@ package com.airhacks.enhydrator.out;
  * #L%
  */
 import com.airhacks.enhydrator.in.Row;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import static java.util.Objects.requireNonNull;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -39,30 +42,44 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "scriptable-sink")
 public class ScriptableSink extends SinkTemplate {
 
+    private static final String DEFAULT_NAME = "script";
+
     private ScriptEngine engine;
     private Invocable invocable;
 
-    @XmlElement(name = "script")
-    private String script;
+    @XmlElement(name = "script-file")
+    private String scriptFile;
+
+    @XmlTransient
+    private String scriptContent;
 
     @XmlTransient
     private Sink sink;
 
-    public ScriptableSink(String name, String script) {
-        super(name);
-        this.script = script;
+    public ScriptableSink(String scriptFile) {
+        super(DEFAULT_NAME);
+        this.scriptFile = scriptFile;
     }
 
     public ScriptableSink() {
     }
 
+    public String load(String file) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(file)), "UTF-8");
+    }
+
     @Override
     public void init() {
-        requireNonNull(this.script, "Cannot initialize ScriptableSink without script.");
+        requireNonNull(this.scriptFile, "Cannot initialize ScriptableSink without script.");
+        try {
+            this.scriptContent = load(this.scriptFile);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Cannot load script from: " + this.scriptFile, ex);
+        }
         ScriptEngineManager sem = new ScriptEngineManager();
         this.engine = sem.getEngineByName("javascript");
         try {
-            this.engine.eval(this.script);
+            this.engine.eval(this.scriptContent);
         } catch (ScriptException ex) {
             throw new IllegalStateException("Parsing script failed. Problem in line: "
                     + ex.getLineNumber() + " and column: " + ex.getColumnNumber(), ex);
@@ -71,7 +88,7 @@ public class ScriptableSink extends SinkTemplate {
         this.invocable = (Invocable) engine;
 
         this.sink = this.invocable.getInterface(Sink.class);
-        requireNonNull(this.sink, "Sink instantiation failed - script: " + this.script + " is incompatible");
+        requireNonNull(this.sink, "Sink instantiation failed - script: " + this.scriptContent + " is incompatible");
         this.sink.init();
     }
 
