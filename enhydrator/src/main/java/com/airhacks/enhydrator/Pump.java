@@ -24,7 +24,8 @@ import com.airhacks.enhydrator.flexpipe.Pipeline;
 import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.Source;
 import com.airhacks.enhydrator.out.LogSink;
-import com.airhacks.enhydrator.out.SinkTemplate;
+import com.airhacks.enhydrator.out.Sink;
+import com.airhacks.enhydrator.out.NamedSink;
 import com.airhacks.enhydrator.transform.ColumnTransformer;
 import com.airhacks.enhydrator.transform.Expression;
 import com.airhacks.enhydrator.transform.FilterExpression;
@@ -52,13 +53,13 @@ public class Pump {
     private final List<Function<Row, Row>> afterTransformations;
     private final List<String> expressions;
     private final List<String> filterExpressions;
-    private final List<SinkTemplate> sinks;
+    private final List<Sink> sinks;
     private final String sql;
     private final Object[] params;
     private final Expression expression;
     private final FilterExpression filterExpression;
 
-    private final SinkTemplate deadLetterQueue;
+    private final Sink deadLetterQueue;
     private final Consumer<String> flowListener;
     private final Memory pumpMemory;
     private final boolean stopOnError;
@@ -70,8 +71,8 @@ public class Pump {
             List<String> filterExpressions,
             List<String> expressions,
             List<Function<Row, Row>> after,
-            List<SinkTemplate> sinks,
-            SinkTemplate dlq,
+            List<Sink> sinks,
+            Sink dlq,
             String sql,
             Consumer<String> flowListener,
             boolean stopOnError,
@@ -166,7 +167,7 @@ public class Pump {
         }
     }
 
-    void sink(SinkTemplate sink, Map<String, Row> groupByDestinations) {
+    void sink(Sink sink, Map<String, Row> groupByDestinations) {
         String destination = sink.getName();
         if (destination == null) {
             this.flowListener.accept(sink + " has a null destination, skipping");
@@ -227,14 +228,14 @@ public class Pump {
         }
     }
 
-    public List<SinkTemplate> getSinks() {
+    public List<Sink> getSinks() {
         return sinks;
     }
 
     public static class Engine {
 
-        private List<SinkTemplate> sinks;
-        private SinkTemplate deadLetterQueue;
+        private List<Sink> sinks;
+        private Sink deadLetterQueue;
         private Source source;
         private Map<String, Function<Object, Object>> entryFunctions;
         private Map<Integer, Function<Row, Row>> indexedFunctions;
@@ -282,7 +283,7 @@ public class Pump {
             return this;
         }
 
-        public Engine to(SinkTemplate sink) {
+        public Engine to(NamedSink sink) {
             if (this.sinks == null) {
                 this.sinks = new ArrayList<>();
             }
@@ -290,7 +291,7 @@ public class Pump {
             return this;
         }
 
-        public Engine dlq(SinkTemplate sink) {
+        public Engine dlq(NamedSink sink) {
             this.deadLetterQueue = sink;
             return this;
         }

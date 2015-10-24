@@ -24,7 +24,7 @@ import com.airhacks.enhydrator.in.Row;
 import com.airhacks.enhydrator.in.VirtualSinkSource;
 import com.airhacks.enhydrator.out.JDBCSinkTest;
 import com.airhacks.enhydrator.out.LogSink;
-import com.airhacks.enhydrator.out.SinkTemplate;
+import com.airhacks.enhydrator.out.NamedSink;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.persistence.Persistence;
@@ -43,7 +43,7 @@ import org.junit.Test;
 public class CopyTableIT {
 
     JDBCSource source;
-    SinkTemplate sink;
+    NamedSink sink;
 
     @Before
     public void initialize() {

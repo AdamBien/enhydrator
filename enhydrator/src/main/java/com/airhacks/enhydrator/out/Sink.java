@@ -36,4 +36,8 @@ public interface Sink extends AutoCloseable {
     @Override
     default void close() {
     }
+
+    default String getName() {
+        return "*";
+    }
 }

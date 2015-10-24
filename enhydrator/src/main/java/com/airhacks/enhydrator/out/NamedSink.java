@@ -30,15 +30,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
 //@XmlJavaTypeAdapter(JAXBInterfaceAdapter.class)
-public abstract class SinkTemplate implements Sink {
+public abstract class NamedSink implements Sink {
 
     protected String name;
 
-    public SinkTemplate(String name) {
+    public NamedSink(String name) {
         this.name = name;
     }
 
-    public SinkTemplate() {
+    public NamedSink() {
 
     }
 

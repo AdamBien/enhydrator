@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "pojo-sink")
-public class PojoSink extends SinkTemplate {
+public class PojoSink extends NamedSink {
 
     private static final String DEFAULT_NAME = "pojo";
     @XmlTransient

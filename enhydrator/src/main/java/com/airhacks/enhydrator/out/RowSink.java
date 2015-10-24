@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "row-sink")
-public class RowSink extends SinkTemplate {
+public class RowSink extends NamedSink {
 
     @XmlTransient
     private Consumer<Row> consumer;

@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "jdbc-sink")
-public class JDBCSink extends SinkTemplate {
+public class JDBCSink extends NamedSink {
 
     private static final char ESC_CHAR = '\'';
 
@@ -231,7 +231,7 @@ public class JDBCSink extends SinkTemplate {
             return this;
         }
 
-        public SinkTemplate newSink() {
+        public NamedSink newSink() {
             JDBCSink source = new JDBCSink(new UnmanagedConnectionProvider(driver, url, user, password), this.targetTable);
             if (this.name != null) {
                 source.name = this.name;
