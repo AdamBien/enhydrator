@@ -4,3 +4,4 @@ target/
 /enhydrator/targetDB/
 /enhydrator/config/
 /enhydrator/*.sh
+/enhydrator/nbproject/
