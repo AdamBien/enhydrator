@@ -9,7 +9,7 @@
     <groupId>com.airhacks</groupId>
     <artifactId>enhydrator</artifactId>
     <name>enhydrator</name>
-    <version>0.6.2</version>
+    <version>0.6.3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>enhydrator is an ETL based on Java 8</description>
     <url>https://github.com/AdamBien/enhydrator</url>
@@ -149,7 +149,7 @@
         <connection>scm:git:git@github.com:AdamBien/enhydrator.git</connection>
         <url>scm:git:git@github.com:AdamBien/enhydrator.git</url>
         <developerConnection>scm:git:git@github.com:AdamBien/enhydrator.git</developerConnection>
-        <tag>v0.6.2</tag>
+        <tag>v0.0.6</tag>
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
